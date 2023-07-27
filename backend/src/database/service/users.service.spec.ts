@@ -3,6 +3,9 @@ import PrismaService from './prisma.service';
 import UsersService from './users.service';
 import IUsers from './interface/users';
 
+/*
+ * use npm run test:db for testing
+ */
 describe('UsersService', () => {
   let service: UsersService;
 
@@ -51,9 +54,10 @@ describe('UsersService', () => {
     });
   });
 
-  describe('deleteUser', () => {
-    it('should return a promise of a deleted user', async () => {
-      const result = await service.deleteUser(1);
+  describe('getUserById', () => {
+    it('should return a promise of a find user', async () => {
+      const result = await service.getUserById(1);
+
       expect(result).toEqual({
         id: 1,
         email: 'albert@albert.com',
@@ -63,10 +67,46 @@ describe('UsersService', () => {
     });
   });
 
-  describe('getUserById', () => {
-    it('should return a promise of a find user', async () => {
-      const result = await service.getUserById(1);
+  describe('getUser', () => {
+    it.concurrent(
+      'should return a promise of a find user obj only have email',
+      async () => {
+        const result = await service.getUser(undefined, 'albert@albert.com');
 
+        expect(result).toEqual({
+          id: 1,
+          email: 'albert@albert.com',
+          name: 'toto',
+          password: 'toto123'
+        });
+      }
+    );
+    it.concurrent(
+      'should return a promise of find user obj only have name',
+      async () => {
+        const result = await service.getUser('toto');
+
+        expect(result).toEqual({
+          id: 1,
+          email: 'albert@albert.com',
+          name: 'toto',
+          password: 'toto123'
+        });
+      }
+    );
+    it.concurrent(
+      'should return null find user obj have no property',
+      async () => {
+        const result = await service.getUser();
+
+        expect(result).toBe(null);
+      }
+    );
+  });
+
+  describe('deleteUser', () => {
+    it('should return a promise of a deleted user', async () => {
+      const result = await service.deleteUser(1);
       expect(result).toEqual({
         id: 1,
         email: 'albert@albert.com',
