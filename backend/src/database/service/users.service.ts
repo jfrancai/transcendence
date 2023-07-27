@@ -58,9 +58,13 @@ export default class UsersService {
     });
   }
 
-  async createUser(user: Prisma.UsersCreateInput): Promise<Users> {
-    return this.prisma.users.create({
-      data: user
-    });
+  async createUser(user: Prisma.UsersCreateInput) {
+    try {
+      return await this.prisma.users.create({
+        data: user
+      });
+    } catch (e: any) {
+      return null;
+    }
   }
 }

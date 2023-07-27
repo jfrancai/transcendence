@@ -36,6 +36,15 @@ describe('UsersService', () => {
         password: 'toto123'
       });
     });
+    it('should return null when trying to create a user with same name', async () => {
+      const obj: IUsers = {
+        email: 'roberto@roberto.com',
+        name: 'toto',
+        password: 'toto123'
+      };
+      const result = await service.createUser(obj);
+      expect(result).toBe(null);
+    });
   });
 
   describe('updateUser', () => {
