@@ -1,6 +1,6 @@
 import { Test, TestingModule } from '@nestjs/testing';
-import PrismaService from './prisma.service';
-import UsersService from './users.service';
+import { PrismaService } from './prisma.service';
+import { UsersService } from './users.service';
 import IUsers from './interface/users';
 
 /*
@@ -58,12 +58,33 @@ describe('UsersService', () => {
     });
   });
 
-  describe('updateUser', () => {
+  describe('updateUserById', () => {
     it('should return a promise of a updated user', async () => {
       const objUpdated = {
         email: 'albert@albert.com'
       };
-      const result = await service.updateUser(1, objUpdated);
+      const result = await service.updateUserById(1, objUpdated);
+
+      expect(result).toEqual({
+        id: 1,
+        email: 'albert@albert.com',
+        name: 'toto',
+        password: 'toto123'
+      });
+    });
+    it("should return a null because id doesn't exist", async () => {
+      const objUpdated = {
+        email: 'albert@albert.com'
+      };
+      const result = await service.updateUserById(2, objUpdated);
+
+      expect(result).toBe(null);
+    });
+    it('dont know what will happend here', async () => {
+      const objUpdated = {
+        email: 'albert@albert.com'
+      };
+      const result = await service.updateUserById(1, objUpdated);
 
       expect(result).toEqual({
         id: 1,
@@ -74,13 +95,79 @@ describe('UsersService', () => {
     });
   });
 
+  describe('updateUser', () => {
+    it('should return a promise of a updated user', async () => {
+      const updatedObj = {
+        email: 'toto@toto.com'
+      };
+      const result = await service.updateUser(
+        { email: 'albert@albert.com', name: 'toto' },
+        updatedObj
+      );
+      expect(result).toEqual({
+        id: 1,
+        email: 'toto@toto.com',
+        name: 'toto',
+        password: 'toto123'
+      });
+    });
+    it('should return a promise of updated user', async () => {
+      const updatedObj = {
+        email: 'albert@albert.com'
+      };
+
+      const result = await service.updateUser({ name: 'toto' }, updatedObj);
+      expect(result).toEqual({
+        id: 1,
+        email: 'albert@albert.com',
+        name: 'toto',
+        password: 'toto123'
+      });
+    });
+    it('should return a promise of updated user', async () => {
+      const updatedObj = {
+        email: 'toto@toto.com'
+      };
+
+      const result = await service.updateUser(
+        { email: 'albert@albert.com' },
+        updatedObj
+      );
+      expect(result).toEqual({
+        id: 1,
+        email: 'toto@toto.com',
+        name: 'toto',
+        password: 'toto123'
+      });
+    });
+    it('should return null no information', async () => {
+      const updatedObj = {
+        email: 'toto@toto.com'
+      };
+
+      const result = await service.updateUser({}, updatedObj);
+      expect(result).toBe(null);
+    });
+    it("should handle throw and return null because email or name doesn't exist", async () => {
+      const updatedObj = {
+        email: 'toto@toto.com'
+      };
+
+      const result = await service.updateUser(
+        { email: 'robert@gmail.com' },
+        updatedObj
+      );
+      expect(result).toBe(null);
+    });
+  });
+
   describe('getUserById', () => {
     it('should return a promise of a find user', async () => {
       const result = await service.getUserById(1);
 
       expect(result).toEqual({
         id: 1,
-        email: 'albert@albert.com',
+        email: 'toto@toto.com',
         name: 'toto',
         password: 'toto123'
       });
@@ -91,11 +178,11 @@ describe('UsersService', () => {
     it.concurrent(
       'should return a promise of a find user obj only have email',
       async () => {
-        const result = await service.getUser(undefined, 'albert@albert.com');
+        const result = await service.getUser({ email: 'toto@toto.com' });
 
         expect(result).toEqual({
           id: 1,
-          email: 'albert@albert.com',
+          email: 'toto@toto.com',
           name: 'toto',
           password: 'toto123'
         });
@@ -104,11 +191,11 @@ describe('UsersService', () => {
     it.concurrent(
       'should return a promise of find user obj only have name',
       async () => {
-        const result = await service.getUser('toto');
+        const result = await service.getUser({ name: 'toto' });
 
         expect(result).toEqual({
           id: 1,
-          email: 'albert@albert.com',
+          email: 'toto@toto.com',
           name: 'toto',
           password: 'toto123'
         });
@@ -117,21 +204,96 @@ describe('UsersService', () => {
     it.concurrent(
       'should return null find user obj have no property',
       async () => {
-        const result = await service.getUser();
+        const result = await service.getUser({});
 
         expect(result).toBe(null);
       }
     );
+    it.concurrent('should handle throw and return null', async () => {
+      const result = await service.getUser({ name: 'robert' });
+
+      expect(result).toBe(null);
+    });
+  });
+
+  describe('deleteUserById', () => {
+    it('should return a promise of a deleted user', async () => {
+      const result = await service.deleteUserById(1);
+      expect(result).toEqual({
+        id: 1,
+        email: 'toto@toto.com',
+        name: 'toto',
+        password: 'toto123'
+      });
+    });
+    it('should handle throw and return null', async () => {
+      const result = await service.deleteUserById(2);
+      expect(result).toBe(null);
+    });
   });
 
   describe('deleteUser', () => {
     it('should return a promise of a deleted user', async () => {
-      const result = await service.deleteUser(1);
-      expect(result).toEqual({
-        id: 1,
-        email: 'albert@albert.com',
+      await service.createUser({
         name: 'toto',
-        password: 'toto123'
+        email: 'robert@robert.com',
+        password: '12398'
+      });
+
+      const result = await service.deleteUser({ name: 'toto' });
+      expect(result).toEqual({
+        id: 4,
+        name: 'toto',
+        email: 'robert@robert.com',
+        password: '12398'
+      });
+    });
+
+    it('should return a promise of a delted user', async () => {
+      await service.createUser({
+        name: 'toto',
+        email: 'robert@robert.com',
+        password: '12398'
+      });
+
+      const result = await service.deleteUser({ email: 'robert@robert.com' });
+      expect(result).toEqual({
+        id: 5,
+        name: 'toto',
+        email: 'robert@robert.com',
+        password: '12398'
+      });
+    });
+    it('should return null', async () => {
+      const result = await service.deleteUser({});
+      expect(result).toBe(null);
+    });
+    it('should handle throw and return null', async () => {
+      const result = await service.deleteUser({
+        name: 'roberto',
+        email: 'riri@riri.com'
+      });
+      expect(result).toBe(null);
+    });
+    it('should handle throw and return null', async () => {
+      const result = await service.deleteUser({ name: 'roberto' });
+      expect(result).toBe(null);
+    });
+    it('should handle throw and return null', async () => {
+      await service.createUser({
+        name: 'toto',
+        email: 'robert@robert.com',
+        password: '12398'
+      });
+      const result = await service.deleteUser({ email: 'riri@riri.com' });
+      expect(result).toBe(null);
+
+      const res = await service.deleteUser({ email: 'robert@robert.com' });
+      expect(res).toEqual({
+        id: 6,
+        name: 'toto',
+        email: 'robert@robert.com',
+        password: '12398'
       });
     });
   });
