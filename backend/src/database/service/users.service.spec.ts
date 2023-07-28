@@ -54,6 +54,7 @@ describe('UsersService', () => {
         password: 'toto123'
       };
       const result = await service.createUser(obj);
+      expect(result).toBe(null);
     });
   });
 

@@ -1,6 +1,9 @@
 {
   "$schema": "https://json.schemastore.org/swcrc",
   "sourceMaps": true,
+  "module": {
+      "type": "es6",
+  }
   "jsc": {
     "parser": {
       "syntax": "typescript",
@@ -11,6 +14,7 @@
       "legacyDecorator": true,
       "decoratorMetadata": true
     },
+    "target": "es2021",
     "baseUrl": "./"
   },
   "minify": false
