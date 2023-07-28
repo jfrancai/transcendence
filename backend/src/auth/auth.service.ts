@@ -1,18 +1,17 @@
 import {
   Injectable,
-  UnauthorizedException,
-  BadRequestException
+  BadRequestException,
+  UnauthorizedException
 } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import * as bcrypt from 'bcrypt';
 import { UsersService } from '../database/service/users.service';
 import IUsers from '../database/service/interface/users';
+import IPUsers from '../database/service/interface/partial.users';
 import CONST_SALT from './constants';
 
 /*
  * TODO:
- *   - In UsersService add function so we can querry,
- *       by name or email for CRUD that doesn't already do it.
  *   - Finish Auth Service and create Auth Guard
  *   - Check to use the API 42 when login try to implements the backend capabilities.
  */
@@ -39,8 +38,8 @@ export class AuthService {
     return ret;
   }
 
-  async signIn(password: string, username?: string, email?: string) {
-    const user = await this.usersService.getUser(username, email);
+  async signIn(pUsers: IPUsers, password: string) {
+    const user = await this.usersService.getUser(pUsers);
 
     if (user === null) {
       throw new BadRequestException();
