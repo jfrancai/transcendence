@@ -13,7 +13,9 @@ import CONST_SALT from './constants';
 /*
  * TODO:
  *   - Finish Auth Service and create Auth Guard
+ *   - Check @nestjs/passport for auth guard and JWT continual login
  *   - Check to use the API 42 when login try to implements the backend capabilities.
+ *   - Passport use for goole auth.
  */
 export function checkHash(password: string, toCompare: string) {
   return bcrypt.compare(password, toCompare);
