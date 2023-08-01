@@ -8,13 +8,13 @@ import {
 import Joi, { ObjectSchema } from 'joi';
 
 export const signInSchema = Joi.object({
-  id: Joi.string().optional(),
+  name: Joi.string().optional(),
   email: Joi.string().optional(),
   password: Joi.string().required()
 });
 
 export const signUpSchema = Joi.object({
-  id: Joi.string().required(),
+  name: Joi.string().required(),
   email: Joi.string().required(),
   password: Joi.string().required()
 });

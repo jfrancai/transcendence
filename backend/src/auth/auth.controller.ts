@@ -1,41 +1,63 @@
 import {
   Controller,
   Post,
-  HttpCode,
+  Res,
+  HttpException,
   HttpStatus,
   UsePipes,
-  Body
+  Body,
+  Get,
+  Request,
+  UseGuards
 } from '@nestjs/common';
+import { Response } from 'express';
 import {
   ContentValidationPipe,
   signInSchema,
   signUpSchema
-} from 'src/pipes/validation.pipe';
+} from '../pipes/validation.pipe';
 import { AuthService } from './auth.service';
+import { AuthGuard } from './auth.guard';
 import SignInDto from './dto/sigin-dto';
 import SignUpDto from './dto/signup-dto';
 
 @Controller('auth')
-class AuthController {
+export class AuthController {
   constructor(private authService: AuthService) {}
 
-  @HttpCode(HttpStatus.OK)
   @Post('signup')
   @UsePipes(new ContentValidationPipe(signUpSchema))
-  signUp(@Body() signUpDto: SignUpDto) {
-    return this.authService.signUp(signUpDto);
+  async signUp(@Body() signUpDto: SignUpDto, @Res() response: Response) {
+    const ret = await this.authService.signUp(signUpDto);
+
+    if (!ret) {
+      throw new HttpException(
+        'Username or email already exist',
+        HttpStatus.CONFLICT
+      );
+    }
+    response.status(HttpStatus.CREATED).json({
+      success: true,
+      message: 'Account created'
+    });
   }
 
-  @HttpCode(HttpStatus.OK)
   @Post('login')
   @UsePipes(new ContentValidationPipe(signInSchema))
-  signIn(@Body() signInDto: SignInDto) {
-    return this.authService.signIn(
-      signInDto.password,
-      signInDto.name,
-      signInDto.email
+  async signIn(@Body() signInDto: SignInDto) {
+    const ret = await this.authService.signIn(
+      {
+        email: signInDto.email,
+        name: signInDto.name
+      },
+      signInDto.password
     );
+    return ret;
+  }
+
+  @UseGuards(AuthGuard)
+  @Get('test')
+  testUsers(@Request() req: any) {
+    return req.user;
   }
 }
-
-export default AuthController;

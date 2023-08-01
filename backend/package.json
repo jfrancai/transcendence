@@ -6,6 +6,10 @@
   "private": true,
   "license": "UNLICENSED",
   "scripts": {
+    "prebuild:db": "docker-compose up --build -d db",
+    "build:db": "sleep 1 && npx prisma migrate dev --name build",
+    "prebuild:db-test": "docker-compose up --build -d db-test",
+    "build:db-test": "sleep 1 && npx prisma migrate dev --name build",
     "build": "nest build -b swc",
     "norm": "prettier --write \"src/**/*.ts\" \"test/**/*.ts\"",
     "start": "nest start -b swc",
@@ -19,7 +23,9 @@
     "test:watch": "vitest",
     "test:cov": "vitest run --coverage",
     "test:debug": "vitest --inspect-brk --inspect --logHeapUsage --threads=false",
-    "test:e2e": "vitest run --config ./vitest.config.e2e.ts"
+    "test:e2e": "vitest run --config ./vitest.config.e2e.ts",
+    "clean": "rm -rf dist && rm -rf node_modules",
+    "down": "docker-compose down -v"
   },
   "dependencies": {
     "@nestjs/common": "^10.0.0",
@@ -29,6 +35,7 @@
     "@nestjs/platform-express": "^10.0.0",
     "@prisma/client": "^5.0.0",
     "bcrypt": "^5.1.0",
+    "express": "^4.18.2",
     "joi": "^17.9.2",
     "reflect-metadata": "^0.1.13",
     "rxjs": "^7.8.1"
