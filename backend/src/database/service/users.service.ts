@@ -22,10 +22,10 @@ export class UsersService {
   async getUser(user: IPUsers) {
     try {
       let ret = null;
-      if (user.name !== undefined && user.email !== undefined) {
+      if (user.username !== undefined && user.email !== undefined) {
         ret = this.prisma.users.findUnique({
           where: {
-            name: user.name,
+            username: user.username,
             email: user.email
           }
         });
@@ -35,10 +35,10 @@ export class UsersService {
             email: user.email
           }
         });
-      } else if (user.name !== undefined) {
+      } else if (user.username !== undefined) {
         ret = this.prisma.users.findUnique({
           where: {
-            name: user.name
+            username: user.username
           }
         });
       }
@@ -63,17 +63,17 @@ export class UsersService {
   async deleteUser(user: IPUsers) {
     try {
       let ret = null;
-      if (user.name !== undefined && user.email !== undefined) {
+      if (user.username !== undefined && user.email !== undefined) {
         ret = this.prisma.users.delete({
           where: {
-            name: user.name,
+            username: user.username,
             email: user.email
           }
         });
-      } else if (user.name !== undefined) {
+      } else if (user.username !== undefined) {
         ret = this.prisma.users.delete({
           where: {
-            name: user.name
+            username: user.username
           }
         });
       } else if (user.email !== undefined) {
@@ -107,20 +107,20 @@ export class UsersService {
   async updateUser(user: IPUsers, updateUser: Prisma.UsersUpdateInput) {
     try {
       let ret = null;
-      if (user.name !== undefined && user.email !== undefined) {
+      if (user.username !== undefined && user.email !== undefined) {
         ret = this.prisma.users.update({
           where: {
-            name: user.name,
+            username: user.username,
             email: user.email
           },
           data: {
             ...updateUser
           }
         });
-      } else if (user.name !== undefined) {
+      } else if (user.username !== undefined) {
         ret = this.prisma.users.update({
           where: {
-            name: user.name
+            username: user.username
           },
           data: {
             ...updateUser

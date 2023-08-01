@@ -43,15 +43,18 @@ describe('AuthService', () => {
     it('should create user in database', async () => {
       const obj: SignUpDto = {
         email: 'test123@test123.com',
-        name: 'gorgio',
+        username: 'gorgio',
         password: 'gorgio123'
       };
       const ret = await service.signUp(obj);
+      expect(ret !== null).toBe(true);
 
       // Need to check individualy because of the hash for the password.
-      expect(obj.email === ret.email).toBe(true);
-      expect(obj.name === ret.name).toBe(true);
-      await expect(checkHash(obj.password, ret.password)).resolves.toBe(true);
+      if (ret !== null) {
+        expect(obj.email === ret.email).toBe(true);
+        expect(obj.username === ret.username).toBe(true);
+        await expect(checkHash(obj.password, ret.password)).resolves.toBe(true);
+      }
     });
   });
 });
