@@ -30,7 +30,7 @@ export class AuthService {
     const salt = await bcrypt.genSalt(CONST_SALT);
     const updatedUser: IUsers = {
       email: user.email,
-      name: user.name,
+      username: user.username,
       password: await bcrypt.hash(user.password, salt)
     };
     const ret = await this.usersService.createUser(updatedUser);
@@ -47,7 +47,7 @@ export class AuthService {
     if (!checkHash(password, user.password)) {
       throw new UnauthorizedException();
     }
-    const payload = { sub: user.id, username: user.name };
+    const payload = { sub: user.id, username: user.username };
     return {
       access_token: await this.jwtService.signAsync(payload)
     };
