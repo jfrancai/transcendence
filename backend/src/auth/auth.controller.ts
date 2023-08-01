@@ -5,7 +5,10 @@ import {
   HttpException,
   HttpStatus,
   UsePipes,
-  Body
+  Body,
+  Get,
+  Request,
+  UseGuards
 } from '@nestjs/common';
 import { Response } from 'express';
 import {
@@ -14,11 +17,12 @@ import {
   signUpSchema
 } from '../pipes/validation.pipe';
 import { AuthService } from './auth.service';
+import { AuthGuard } from './auth.guard';
 import SignInDto from './dto/sigin-dto';
 import SignUpDto from './dto/signup-dto';
 
 @Controller('auth')
-class AuthController {
+export class AuthController {
   constructor(private authService: AuthService) {}
 
   @Post('signup')
@@ -50,6 +54,10 @@ class AuthController {
     );
     return ret;
   }
-}
 
-export default AuthController;
+  @UseGuards(AuthGuard)
+  @Get('test')
+  testUsers(@Request() req: any) {
+    return req.user;
+  }
+}

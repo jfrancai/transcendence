@@ -28,6 +28,7 @@ module.exports = {
   plugins: ['@typescript-eslint', 'prettier'],
   rules: {
     'prettier/prettier': 'error',
+    'class-methods-use-this': 'off',
     'comma-dangle': 'off',
     '@typescript-eslint/comma-dangle': 'off',
     'import/no-extraneous-dependencies': ['error', { devDependencies: true }],
