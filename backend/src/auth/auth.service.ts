@@ -1,8 +1,4 @@
-import {
-  Injectable,
-  BadRequestException,
-  UnauthorizedException
-} from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import * as bcrypt from 'bcrypt';
 import { UsersService } from '../database/service/users.service';
@@ -17,6 +13,8 @@ import CONST_SALT from './constants';
  *   - Check to use the API 42 when login try to implements the backend capabilities.
  *   - Passport use for goole auth.
  */
+type ReturnUser = { id: number; username: string; email: string };
+
 export function checkHash(password: string, toCompare: string) {
   return bcrypt.compare(password, toCompare);
 }
@@ -40,18 +38,23 @@ export class AuthService {
     return ret;
   }
 
-  async signIn(pUsers: IPUsers, password: string) {
+  async validateUser(
+    pUsers: IPUsers,
+    pass: string
+  ): Promise<ReturnUser | null> {
     const user = await this.usersService.getUser(pUsers);
 
-    if (user === null) {
-      throw new BadRequestException();
+    if (user && (await checkHash(pass, user.password))) {
+      const { password, ...result } = user;
+      return result;
     }
-    if (!checkHash(password, user.password)) {
-      throw new UnauthorizedException();
-    }
-    const payload = { sub: user.id, username: user.username };
+    return null;
+  }
+
+  async login(user: any) {
+    const payload = { username: user.username, sub: user.id };
     return {
-      access_token: await this.jwtService.signAsync(payload)
+      access_token: this.jwtService.sign(payload)
     };
   }
 }

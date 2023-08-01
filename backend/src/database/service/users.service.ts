@@ -148,6 +148,8 @@ export class UsersService {
         data: user
       });
     } catch (e: any) {
+      console.error('error info: ', e);
+      console.error('error message: ', e.message);
       return null;
     }
   }

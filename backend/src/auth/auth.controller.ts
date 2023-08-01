@@ -11,14 +11,9 @@ import {
   UseGuards
 } from '@nestjs/common';
 import { Response } from 'express';
-import {
-  ContentValidationPipe,
-  signInSchema,
-  signUpSchema
-} from '../pipes/validation.pipe';
+import { ContentValidationPipe, signUpSchema } from '../pipes/validation.pipe';
 import { AuthService } from './auth.service';
-import { AuthGuard } from './auth.guard';
-import SignInDto from './dto/sigin-dto';
+import { LocalAuthGuard } from './local-auth.guard';
 import SignUpDto from './dto/signup-dto';
 
 @Controller('auth')
@@ -43,21 +38,8 @@ export class AuthController {
   }
 
   @Post('login')
-  @UsePipes(new ContentValidationPipe(signInSchema))
-  async signIn(@Body() signInDto: SignInDto) {
-    const ret = await this.authService.signIn(
-      {
-        email: signInDto.email,
-        name: signInDto.name
-      },
-      signInDto.password
-    );
-    return ret;
-  }
-
-  @UseGuards(AuthGuard)
-  @Get('test')
-  testUsers(@Request() req: any) {
-    return req.user;
+  @UseGuards(LocalAuthGuard)
+  async signIn(@Request() req: any) {
+    return this.authService.login(req.user);
   }
 }
