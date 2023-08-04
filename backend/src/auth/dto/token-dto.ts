@@ -1,4 +1,5 @@
-export default interface AuthTokenDto {
+export default class AuthTokenDto {
   accessToken: string;
+
   refreshToken: string;
 }
