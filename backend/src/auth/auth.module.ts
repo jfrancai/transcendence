@@ -4,7 +4,9 @@ import { ConfigService } from '@nestjs/config';
 import { AuthService } from './auth.service';
 import { DatabaseModule } from '../database/database.module';
 import { AuthController } from './auth.controller';
-import { LocalStrategy } from './local.strategy';
+import { LocalStrategy } from './passport/local.strategy';
+import { JwtStrategy } from './passport/jwt.strategy';
+import { RefreshTokenStrategy } from './passport/refresh.strategy';
 
 @Module({
   imports: [
@@ -21,7 +23,7 @@ import { LocalStrategy } from './local.strategy';
     })
   ],
   controllers: [AuthController],
-  providers: [AuthService, LocalStrategy],
+  providers: [AuthService, LocalStrategy, JwtStrategy, RefreshTokenStrategy],
   exports: [AuthService]
 })
 export class AuthModule {}

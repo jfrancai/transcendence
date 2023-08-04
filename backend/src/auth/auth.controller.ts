@@ -13,7 +13,8 @@ import {
 import { Response } from 'express';
 import { ContentValidationPipe, signUpSchema } from '../pipes/validation.pipe';
 import { AuthService } from './auth.service';
-import { LocalAuthGuard } from './local-auth.guard';
+import { LocalAuthGuard } from './passport/local-auth.guard';
+import { JwtAuthGuard } from './passport/jwt-auth.guard';
 import SignUpDto from './dto/signup-dto';
 
 @Controller('auth')
@@ -41,5 +42,11 @@ export class AuthController {
   @UseGuards(LocalAuthGuard)
   async signIn(@Request() req: any) {
     return this.authService.login(req.user);
+  }
+
+  @UseGuards(JwtAuthGuard)
+  @Get('profile')
+  getProfile(@Request() req: any) {
+    return req.user;
   }
 }
