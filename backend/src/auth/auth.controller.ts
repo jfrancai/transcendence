@@ -22,7 +22,6 @@ import { JwtAuthGuard } from './passport/jwt-auth.guard';
 import { RefreshAuthGuard } from './passport/refresh-auth.guard';
 import SignUpDto from './dto/signup-dto';
 import AuthDto from './dto/auth-dto';
-import AuthTokenDto from './dto/token-dto';
 
 @Controller('auth')
 export class AuthController {
@@ -53,14 +52,13 @@ export class AuthController {
     if (accessToken === null && refreshToken === null) {
       throw new HttpException('Invalid user', HttpStatus.FORBIDDEN);
     } else if (accessToken !== null && refreshToken !== null) {
-      this.authService.storeTokenInCookie(res, authToken);
+      await this.authService.storeTokenInCookie(res, authToken, u.username);
       res.status(200).send({ message: 'ok' });
     }
   }
 
   @Get('refresh')
   @UseGuards(RefreshAuthGuard)
-  @Csrf()
   @ApiQuery({ name: 'username' })
   async refreshTokens(
     @Query() query: any,
@@ -72,7 +70,7 @@ export class AuthController {
       query.username,
       refreshToken
     );
-    this.authService.storeTokenInCookie(res, newAuthToken);
+    this.authService.storeTokenInCookie(res, newAuthToken, query.username);
     res.status(200).send({ message: 'ok' });
   }
 

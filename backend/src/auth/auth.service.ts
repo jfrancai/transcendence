@@ -75,18 +75,24 @@ export class AuthService {
     username: string,
     refreshToken: string
   ): Promise<AuthTokenDto> {
+    console.log(`${username}`);
     const user = await this.usersService.getUser({ username });
     if (!user || !user.refreshToken) {
-      throw new ForbiddenException('Acces Denied');
+      throw new ForbiddenException(
+        'Acces Denied. user not found or token not found'
+      );
     }
 
     const refreshTokenMatches = await bcrypt.compare(
-      user.refreshToken,
-      refreshToken
+      refreshToken,
+      user.refreshToken
     );
 
-    if (!refreshTokenMatches) throw new ForbiddenException('Access Denied');
+    if (!refreshTokenMatches) {
+      throw new ForbiddenException('Access Denied, Wrong token saved');
+    }
     const tokens = await this.getTokens(user.username);
+    await this.updateRefreshToken(user.id, tokens.refreshToken);
     return tokens;
   }
 
@@ -98,12 +104,15 @@ export class AuthService {
     });
   }
 
-  storeTokenInCookie(res: any, authToken: AuthTokenDto) {
+  async storeTokenInCookie(
+    res: any,
+    authToken: AuthTokenDto,
+    username: string
+  ) {
     const accessExpires = this.configService.get<string>('JWT_EXPIRESIN');
     const refreshExpires = this.configService.get<string>(
       'JWT_REFRESH_EXPIRESIN'
     );
-    console.log(`EXPIRESIN: ${accessExpires}, ${refreshExpires}`);
     if (accessExpires !== undefined && refreshExpires !== undefined) {
       res.cookie('access_token', authToken.accessToken, {
         maxAge: expiresInMs(accessExpires),
@@ -113,6 +122,20 @@ export class AuthService {
         maxAge: expiresInMs(refreshExpires),
         httpOnly: true
       });
+      const user = await this.usersService.getUser({ username });
+      if (user && user.id) {
+        await this.updateRefreshToken(user.id, authToken.refreshToken);
+        const updated = await this.usersService.getUser({ username });
+        if (updated && updated.refreshToken) {
+          console.log(`${user.refreshToken}:${updated.refreshToken}`);
+          console.log(
+            `${await bcrypt.compare(
+              authToken.refreshToken,
+              updated.refreshToken
+            )}`
+          );
+        }
+      }
     }
   }
 
@@ -150,10 +173,12 @@ export class AuthService {
         refreshToken: null
       };
     }
-    console.log(`foundUser: ${JSON.stringify(foundUser, null, 4)}`);
     const tokens = await this.getTokens(foundUser.username);
     await this.updateRefreshToken(foundUser.id, tokens.refreshToken);
-    console.log(`tokens: ${JSON.stringify(tokens, null, 4)}`);
     return tokens;
+  }
+
+  async logout(username: string) {
+    await this.usersService.updateUser({ username }, { refreshToken: null });
   }
 }
