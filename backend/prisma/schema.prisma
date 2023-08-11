@@ -15,5 +15,4 @@ model Users {
     email           String @unique
     username        String @unique
     password        String
-    refreshToken    String?
 }
