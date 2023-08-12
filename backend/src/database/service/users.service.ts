@@ -7,7 +7,7 @@ import IPUsers from './interface/partial.users';
 export class UsersService {
   constructor(private prisma: PrismaService) {}
 
-  async getUserById(id: number) {
+  async getUserById(id: string) {
     try {
       return await this.prisma.users.findUnique({
         where: {
@@ -48,7 +48,7 @@ export class UsersService {
     }
   }
 
-  async deleteUserById(id: number) {
+  async deleteUserById(id: string) {
     try {
       return await this.prisma.users.delete({
         where: {
@@ -89,7 +89,7 @@ export class UsersService {
     }
   }
 
-  async updateUserById(id: number, user: Prisma.UsersUpdateInput) {
+  async updateUserById(id: string, user: Prisma.UsersUpdateInput) {
     try {
       return await this.prisma.users.update({
         where: {
@@ -148,8 +148,6 @@ export class UsersService {
         data: user
       });
     } catch (e: any) {
-      console.error('error info: ', e);
-      console.error('error message: ', e.message);
       return null;
     }
   }
