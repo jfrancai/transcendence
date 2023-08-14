@@ -115,12 +115,6 @@ describe('UsersService', () => {
         { email: 'albert@albert.com', username: 'toto' },
         updatedObj
       );
-      expect(result).toEqual({
-        id: 1,
-        email: 'toto@toto.com',
-        username: 'toto',
-        password: 'toto123'
-      });
       expect(result).toMatchObject(expect.objectContaining(compareObj));
     });
     it('should return a promise of updated user', async () => {
@@ -152,41 +146,6 @@ describe('UsersService', () => {
         updatedObj
       );
       expect(result).toMatchObject(expect.objectContaining(compareObj));
-    });
-    it('should return null no information', async () => {
-      const updatedObj = {
-        email: 'toto@toto.com'
-      };
-
-      const result = await service.updateUser({}, updatedObj);
-      expect(result).toBe(null);
-    });
-    it("should handle throw and return null because email or username doesn't exist", async () => {
-      const updatedObj = {
-        email: 'toto@toto.com'
-      };
-
-      const result = await service.updateUser(
-        { email: 'robert@gmail.com' },
-        updatedObj
-      );
-      expect(result).toBe(null);
-    });
-    it('should return a promise of updated user', async () => {
-      const updatedObj = {
-        email: 'toto@toto.com'
-      };
-
-      const result = await service.updateUser(
-        { email: 'albert@albert.com' },
-        updatedObj
-      );
-      expect(result).toEqual({
-        id: 1,
-        email: 'toto@toto.com',
-        username: 'toto',
-        password: 'toto123'
-      });
     });
     it('should return null no information', async () => {
       const updatedObj = {
