@@ -17,4 +17,5 @@ model Users {
     password        String
     accessToken     String?
     refreshToken    String?
+    apiToken        String?
 }
