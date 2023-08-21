@@ -7,15 +7,13 @@ import {
 } from '@nestjs/common';
 import Joi, { ObjectSchema } from 'joi';
 
-export const signInSchema = Joi.object({
-  name: Joi.string().optional(),
-  email: Joi.string().optional(),
+export const loginSchema = Joi.object({
+  username: Joi.string().required(),
   password: Joi.string().required()
 });
 
-export const signUpSchema = Joi.object({
-  name: Joi.string().required(),
-  email: Joi.string().required(),
+export const createSchema = Joi.object({
+  email: Joi.string().optional(),
   username: Joi.string().required(),
   password: Joi.string().required()
 });
