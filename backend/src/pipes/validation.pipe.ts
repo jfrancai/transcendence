@@ -7,15 +7,8 @@ import {
 } from '@nestjs/common';
 import Joi, { ObjectSchema } from 'joi';
 
-export const loginSchema = Joi.object({
-  username: Joi.string().required(),
-  password: Joi.string().required()
-});
-
 export const createSchema = Joi.object({
-  email: Joi.string().optional(),
-  username: Joi.string().required(),
-  password: Joi.string().required()
+  username: Joi.string().required()
 });
 
 @Injectable()

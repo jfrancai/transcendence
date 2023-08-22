@@ -12,7 +12,7 @@ import {
   UseGuards
 } from '@nestjs/common';
 import { Response } from 'express';
-import axios from 'axios';
+import axios, { AxiosResponse } from 'axios';
 import { AuthService } from './auth.service';
 import { ContentValidationPipe, createSchema } from '../pipes/validation.pipe';
 import { ApiGuard } from './guards/auth.guard';
@@ -64,13 +64,13 @@ export class AuthController {
   @Post('create_oauth')
   @UseGuards(ApiGuard)
   @UsePipes(new ContentValidationPipe(createSchema))
-  async createUser(@Req() req: any, @Body() user: CreateDto) {
+  async createUser(@Res() res: any, @Req() req: any, @Body() user: CreateDto) {
     const config = {
       headers: { Authorization: `Bearer ${req.cookies.api_token}` }
     };
     const info = await axios
       .get('https://api.intra.42.fr/v2/me', config)
-      .then((res) => res.data);
+      .then((resp: AxiosResponse) => resp.data);
 
     const { email } = info;
     const updatedUser = {
@@ -78,7 +78,12 @@ export class AuthController {
       email,
       apiToken: req.cookies.api_token
     };
-    await this.authService.createUser(updatedUser);
+    const promise = await this.authService.createUser(updatedUser);
+    if (!promise) {
+      res
+        .status(HttpStatus.FORBIDDEN)
+        .json({ message: 'Failed to create user, user might already exist.' });
+    }
   }
 
   @Get('profile')

@@ -3,7 +3,8 @@ import { ConfigService } from '@nestjs/config';
 import axios, { AxiosResponse } from 'axios';
 import { CONST_URL } from './constants';
 import { UsersService } from '../database/service/users.service';
-import { CreateDto } from './dto/create-dto';
+
+type CreateUserDto = { email: string; username: string };
 
 @Injectable()
 export class AuthService {
@@ -13,8 +14,9 @@ export class AuthService {
   ) {}
 
   // create user
-  async createUser(user: CreateDto) {
-    await this.usersService.createUser(user);
+  async createUser(user: CreateUserDto) {
+    const promise = await this.usersService.createUser(user);
+    return promise;
   }
 
   // get user assiocieted with the current token

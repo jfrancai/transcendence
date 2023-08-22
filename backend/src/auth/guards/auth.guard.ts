@@ -12,7 +12,7 @@ import { AuthService } from '../auth.service';
 
 @Injectable()
 export class ApiGuard implements CanActivate {
-  constructor(private readonly authService: AuthService) {}
+  constructor(private readonly authService: AuthService) { }
 
   async canActivate(ctx: ExecutionContext) {
     const http = ctx.switchToHttp();
@@ -41,7 +41,7 @@ export class ApiGuard implements CanActivate {
       const user = await this.authService.findUserByToken(
         req.cookies.api_token
       );
-      if (!user) {
+      if (!user && req.path !== '/auth/create_oauth') {
         throw new HttpException(
           {
             status: HttpStatus.SEE_OTHER,
