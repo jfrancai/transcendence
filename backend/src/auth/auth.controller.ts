@@ -12,35 +12,19 @@ import {
   UseGuards
 } from '@nestjs/common';
 import { Response } from 'express';
-import { AuthService } from './auth.service';
-import {
-  ContentValidationPipe,
-  loginSchema,
-  createSchema
-} from '../pipes/validation.pipe';
-import { ApiGuard } from './guards/auth.guard';
-import { LoginDto } from './dto/login-dto';
-import { CreateDto } from './dto/create-dto';
 import axios from 'axios';
+import { AuthService } from './auth.service';
+import { ContentValidationPipe, createSchema } from '../pipes/validation.pipe';
+import { ApiGuard } from './guards/auth.guard';
+import { CreateDto } from './dto/create-dto';
 
 @Controller('auth')
 export class AuthController {
   constructor(private readonly authService: AuthService) {}
 
   @Get('login')
-  @UseGuards(ApiGuard)
-  returnLogin() {
-    return 'login';
-  }
-
-  @Post('login')
-  @UseGuards(ApiGuard)
-  @UsePipes(new ContentValidationPipe(loginSchema))
-  async login(@Body() user: LoginDto) {
-    const match = await this.authService.validateUser(
-      user.username,
-      user.password
-    );
+  returnLogin(@Res() res: Response) {
+    res.status(200).json({ message: 'ok' });
   }
 
   @Get('callback')
@@ -58,8 +42,6 @@ export class AuthController {
       );
     }
 
-    console.log(JSON.stringify(token, null, 4));
-
     res.cookie('api_token', token.access_token, {
       maxAge: token.expires_in * 1000,
       httpOnly: true
@@ -75,10 +57,7 @@ export class AuthController {
 
   @Get('create_oauth')
   @UseGuards(ApiGuard)
-  returnCreate(@Req() req: any) {
-    console.log(
-      `create_oauth route cookies: ${JSON.stringify(req.cookies, null, 4)}`
-    );
+  returnCreate() {
     return 'OAuth';
   }
 
@@ -94,13 +73,17 @@ export class AuthController {
       .then((res) => res.data);
 
     const { email } = info;
-    user.email = email;
-    await this.authService.createUser(user);
+    const updatedUser = {
+      ...user,
+      email,
+      apiToken: req.cookies.api_token
+    };
+    await this.authService.createUser(updatedUser);
   }
 
   @Get('profile')
   @UseGuards(ApiGuard)
-  profile(@Req() req: any) {
-    return req.user;
+  profile() {
+    return 'profile';
   }
 }

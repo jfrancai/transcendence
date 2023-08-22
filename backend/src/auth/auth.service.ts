@@ -1,11 +1,9 @@
 import { Injectable, HttpException, HttpStatus } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
-import * as bcrypt from 'bcrypt';
-import { CONST_URL, CONST_SALT } from './constants';
+import axios, { AxiosResponse } from 'axios';
+import { CONST_URL } from './constants';
 import { UsersService } from '../database/service/users.service';
-import { LoginDto } from './dto/login-dto';
 import { CreateDto } from './dto/create-dto';
-import axios from 'axios';
 
 @Injectable()
 export class AuthService {
@@ -16,28 +14,7 @@ export class AuthService {
 
   // create user
   async createUser(user: CreateDto) {
-    const salt = await bcrypt.genSalt(CONST_SALT);
-    const updatedUser = {
-      ...user,
-      password: await bcrypt.hash(user.password, salt)
-    };
-    await this.usersService.createUser(updatedUser);
-  }
-
-  // validate user (check if password is valid for login)
-  async validateUser(username: string, pass: string) {
-    const user = await this.usersService.getUser({ username });
-    if (!user) {
-      throw new HttpException('Invalid credentials', HttpStatus.BAD_REQUEST);
-    }
-
-    const valid = await bcrypt.compare(pass, user.password);
-    if (valid) {
-      // remove all sensitive information before return
-      const { password, accessToken, refreshToken, apiToken, ...result } = user;
-      return result;
-    }
-    throw new HttpException('Invalid credentials', HttpStatus.UNAUTHORIZED);
+    await this.usersService.createUser(user);
   }
 
   // get user assiocieted with the current token
@@ -48,10 +25,8 @@ export class AuthService {
 
     const info = await axios
       .get('https://api.intra.42.fr/v2/me', config)
-      .then((res) => res.data);
-
+      .then((res: AxiosResponse) => res.data);
     const { email } = info;
-    console.log('email: ', email);
     return this.usersService.getUser({ email });
   }
 
@@ -74,7 +49,6 @@ export class AuthService {
           .then((res) => res.data);
         return promise;
       } catch (e: any) {
-        console.error(e, e.message);
         throw new HttpException(
           'Token exchange failed',
           HttpStatus.BAD_REQUEST

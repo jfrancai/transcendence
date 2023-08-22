@@ -3,5 +3,5 @@ export class CreateDto {
 
   username: string;
 
-  password: string;
+  apiToken: string;
 }
