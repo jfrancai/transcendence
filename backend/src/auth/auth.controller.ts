@@ -8,23 +8,44 @@ import {
   Body,
   HttpException,
   HttpStatus,
+  HttpCode,
   UsePipes,
-  UseGuards
+  UseGuards,
+  Logger
 } from '@nestjs/common';
-import { Response } from 'express';
+import { Response, Request } from 'express';
 import axios, { AxiosResponse } from 'axios';
-import { AuthService } from './auth.service';
-import { ContentValidationPipe, createSchema } from '../pipes/validation.pipe';
-import { ApiGuard } from './guards/auth.guard';
+import * as bcrypt from 'bcrypt';
+import IUsers from 'src/database/service/interface/users';
+import { ApiGuard } from '@api';
+import { JwtAuthGuard } from '@jwt';
+import { LocalAuthGuard } from './guards/local-auth.guard';
+import { ContentValidationPipe, createSchema } from './pipes/validation.pipe';
 import { CreateDto } from './dto/create-dto';
+import { CONST_SALT } from './constants';
+import { AuthService } from './auth.service';
 
 @Controller('auth')
 export class AuthController {
-  constructor(private readonly authService: AuthService) {}
+  private logger = new Logger('AuthController');
 
-  @Get('login')
-  returnLogin(@Res() res: Response) {
-    res.status(200).json({ message: 'ok' });
+  constructor(private readonly authService: AuthService) {
+    this.logger.log('AuthController Init...');
+  }
+
+  @Get('login_only')
+  @UseGuards(ApiGuard, JwtAuthGuard)
+  @HttpCode(200)
+  getLogedUser(@Req() req: any) {
+    return req.user;
+  }
+
+  @Post('login')
+  @UseGuards(ApiGuard, LocalAuthGuard)
+  @HttpCode(200)
+  async login(@Req() req: any) {
+    const userWithoutPsw: Partial<IUsers> = req.user;
+    return this.authService.login(userWithoutPsw);
   }
 
   @Get('callback')
@@ -42,50 +63,88 @@ export class AuthController {
       );
     }
 
-    res.cookie('api_token', token.access_token, {
-      maxAge: token.expires_in * 1000,
-      httpOnly: true
-    });
-
-    const user = await this.authService.findUserByToken(token.access_token);
+    const salt = await bcrypt.genSalt(CONST_SALT);
+    const hash = await bcrypt.hash(token.access_token, salt);
+    const tokenAndHash = `${token.access_token}|${hash}`;
+    const user = await this.authService.findUserWithToken(token.access_token);
     if (!user) {
-      res.status(301).redirect('/auth/create_oauth');
+      res.cookie('api_token', tokenAndHash, {
+        maxAge: 360 * 1000,
+        sameSite: 'lax',
+        httpOnly: true
+      });
+      res.status(301).redirect('/auth/create_profile');
     } else {
+      const usernameAndHash = `${user.username}|${hash}`;
+      res.cookie('api_token', usernameAndHash, {
+        maxAge: token.expires_in * 1000,
+        sameSite: 'lax',
+        httpOnly: true
+      });
+      await this.authService.updateUser(user, { apiToken: token.access_token });
       res.status(301).redirect('/auth/profile');
     }
   }
 
-  @Get('create_oauth')
+  // this might change in the future.
+  @Get('create_profile')
   @UseGuards(ApiGuard)
-  returnCreate() {
-    return 'OAuth';
+  returnCreate(@Res() res: Response) {
+    res.status(200).json({ message: 'ok' });
   }
 
-  @Post('create_oauth')
+  @Post('create_profile')
   @UseGuards(ApiGuard)
   @UsePipes(new ContentValidationPipe(createSchema))
-  async createUser(@Res() res: any, @Req() req: any, @Body() user: CreateDto) {
+  async createUser(
+    @Res({ passthrough: true }) res: Response,
+    @Req() req: Request,
+    @Body() user: CreateDto
+  ) {
+    const token = this.authService.getTokenFromCookieCreateProfile(req);
     const config = {
-      headers: { Authorization: `Bearer ${req.cookies.api_token}` }
+      headers: { Authorization: `Bearer ${token}` }
     };
+
     const info = await axios
       .get('https://api.intra.42.fr/v2/me', config)
       .then((resp: AxiosResponse) => resp.data);
 
     const { email } = info;
+    const salt = await bcrypt.genSalt(CONST_SALT);
+    const passwordHash = await bcrypt.hash(user.password, salt);
     const updatedUser = {
-      ...user,
       email,
-      apiToken: req.cookies.api_token
+      username: user.username,
+      password: passwordHash,
+      apiToken: token
     };
+
     const promise = await this.authService.createUser(updatedUser);
     if (!promise) {
       res
         .status(HttpStatus.FORBIDDEN)
         .json({ message: 'Failed to create user, user might already exist.' });
     }
+
+    const tokenInfo = await axios
+      .get('https://api.intra.42.fr/oauth/token/info', config)
+      .then((resp: AxiosResponse) => resp.data);
+
+    const hash = await bcrypt.hash(token, salt);
+    const usernameAndHash = `${user.username}|${hash}`;
+    if (typeof tokenInfo.expires_in_seconds === 'string') {
+      this.logger.warn('its a fucking string KEKW');
+    }
+    res.cookie('api_token', usernameAndHash, {
+      maxAge: tokenInfo.expires_in_seconds * 1000,
+      sameSite: 'lax',
+      httpOnly: true
+    });
+    res.status(HttpStatus.CREATED).json({ message: 'ok' });
   }
 
+  // will be replaced with the actual profile information
   @Get('profile')
   @UseGuards(ApiGuard)
   profile() {

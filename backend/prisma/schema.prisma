@@ -14,5 +14,6 @@ model Users {
     id              String @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
     email           String @unique
     username        String @unique
+    password        String
     apiToken        String?
 }

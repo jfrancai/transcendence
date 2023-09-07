@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { Prisma } from '@prisma/client';
 import { PrismaService } from './prisma.service';
-import IPUsers from './interface/partial.users';
+import IUsers from './interface/users';
 
 @Injectable()
 export class UsersService {
@@ -19,7 +19,7 @@ export class UsersService {
     }
   }
 
-  async getUser(user: IPUsers) {
+  async getUser(user: Partial<IUsers>) {
     try {
       let ret = null;
       if (user.username !== undefined && user.email !== undefined) {
@@ -60,7 +60,7 @@ export class UsersService {
     }
   }
 
-  async deleteUser(user: IPUsers) {
+  async deleteUser(user: Partial<IUsers>) {
     try {
       let ret = null;
       if (user.username !== undefined && user.email !== undefined) {
@@ -104,7 +104,7 @@ export class UsersService {
     }
   }
 
-  async updateUser(user: IPUsers, updateUser: Prisma.UsersUpdateInput) {
+  async updateUser(user: Partial<IUsers>, updateUser: Prisma.UsersUpdateInput) {
     try {
       let ret = null;
       if (user.username !== undefined && user.email !== undefined) {

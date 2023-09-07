@@ -8,7 +8,8 @@ import {
 import Joi, { ObjectSchema } from 'joi';
 
 export const createSchema = Joi.object({
-  username: Joi.string().required()
+  username: Joi.string().required(),
+  password: Joi.string().required()
 });
 
 @Injectable()
