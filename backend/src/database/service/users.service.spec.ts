@@ -98,6 +98,26 @@ describe('UsersService', () => {
 
       expect(result).toMatchObject(expect.objectContaining(objCompare));
     });
+
+    it('should return null when trying to create a user with same name', async () => {
+      const obj: IUsers = {
+        email: 'roberto@roberto.com',
+        username: 'toto',
+        password: 'toto123'
+      };
+      const result = await service.createUser(obj);
+      expect(result).toBe(null);
+    });
+
+    it('should return null when trying to create a user with same email', async () => {
+      const obj: IUsers = {
+        email: 'toto@toto.com',
+        username: 'albert',
+        password: 'toto123'
+      };
+      const result = await service.createUser(obj);
+      expect(result).toBe(null);
+    });
   });
 
   describe('updateUser', () => {

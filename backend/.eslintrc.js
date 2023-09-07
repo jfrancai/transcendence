@@ -4,9 +4,9 @@ module.exports = {
     es2021: true
   },
   extends: [
-    'plugin:prettier/recommended',
     'airbnb-base',
-    'airbnb-typescript/base'
+    'airbnb-typescript/base',
+    'plugin:prettier/recommended'
   ],
   overrides: [
     {
@@ -30,6 +30,7 @@ module.exports = {
     'prettier/prettier': 'error',
     'class-methods-use-this': 'off',
     'comma-dangle': 'off',
+    'no-param-reassign': 0,
     '@typescript-eslint/comma-dangle': 'off',
     '@typescript-eslint/indent': 'off',
     'import/no-extraneous-dependencies': ['error', { devDependencies: true }],

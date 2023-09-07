@@ -32,6 +32,7 @@ module.exports = {
     'react/react-in-jsx-scope': 'off',
     'react/jsx-uses-react': 'off',
     'comma-dangle': 'off',
-    '@typescript-eslint/comma-dangle': 'off'
+    '@typescript-eslint/comma-dangle': 'off',
+    'import/no-extraneous-dependencies': ['error', { devDependencies: true }]
   }
 };

@@ -1,8 +1,11 @@
 import { Module } from '@nestjs/common';
+import { ServeStaticModule } from '@nestjs/serve-static';
+import { join } from 'path';
 import { ConfigModule } from '@nestjs/config';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { AuthModule } from './auth/auth.module';
+import ChatModule from './chat/chat.module';
 import envSchema from './env.validation';
 
 @Module({
@@ -10,9 +13,14 @@ import envSchema from './env.validation';
     ConfigModule.forRoot({
       isGlobal: true,
       cache: true,
-      envFilePath: '.env',
+      envFilePath: ['.env'],
       validationSchema: envSchema
     }),
+    ServeStaticModule.forRoot({
+      rootPath: join(__dirname, '..', 'client'),
+      exclude: ['/api(.*)']
+    }),
+    ChatModule,
     AuthModule
   ],
   controllers: [AppController],
