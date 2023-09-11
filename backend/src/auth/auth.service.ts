@@ -10,10 +10,9 @@ import { JwtService } from '@nestjs/jwt';
 import axios, { AxiosResponse } from 'axios';
 import * as bcrypt from 'bcrypt';
 import { authenticator } from 'otplib';
-import { toDataURL } from 'qrcode';
-import { Request } from 'express';
+import { toFileStream } from 'qrcode';
+import { Request, Response } from 'express';
 import IUsers from 'src/database/service/interface/users';
-import { RedirectionException } from 'src/exception/redirect-execption';
 import { CONST_URL } from './constants';
 import { UsersService } from '../database/service/users.service';
 
@@ -45,29 +44,18 @@ export class AuthService {
   }
 
   // generate QrCode
-  async generateQrCodeDataUrl(optAuthUrl: string) {
-    return toDataURL(optAuthUrl);
-  }
-
-  // verify the two-auth code with secret
-  async twoAuthCodeValid(twoAuthCode: string, user: IUsers) {
-    const usr = await this.findUser({ username: user.username });
-    if (!usr) {
-      throw new UnauthorizedException();
-    } else if (usr && !usr.twoAuthSecret) {
-      this.updateUser(usr, { twoAuthOn: false });
-      throw new RedirectionException();
-    }
-    return authenticator.verify({
-      token: twoAuthCode,
-      secret: usr.twoAuthSecret!
-    });
+  async pipeQrCodeStream(stream: Response, optAuthUrl: string) {
+    return toFileStream(stream, optAuthUrl);
   }
 
   // generate 2FA Secret for the user
-  async generate2FASecret(email: string, user: IUsers) {
+  async generate2FASecret(user: IUsers) {
     const secret = authenticator.generateSecret();
-    const optAuthUrl = authenticator.keyuri(email, 'ft_transcendence', secret);
+    const optAuthUrl = authenticator.keyuri(
+      user.email,
+      'ft_transcendence',
+      secret
+    );
 
     await this.updateUser(user, { twoAuthSecret: secret });
     return {
@@ -115,9 +103,24 @@ export class AuthService {
       if (!user) return null;
       const isMatch = await bcrypt.compare(pass, user.password);
 
-      // eslint-disable-line @typescript-eslint/no-unused-vars
-      const { password, ...userWithoutPassword } = user;
-      return isMatch ? userWithoutPassword : null;
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
+      const { password, twoAuthOn, twoAuthSecret, ...userInfo } = user;
+
+      let defaultAuthOn: boolean = false;
+      let defaultAuthSecret: string | undefined;
+
+      // i have to do this because typescript fuck me
+      if (twoAuthOn) defaultAuthOn = true;
+      if (twoAuthSecret) defaultAuthSecret = twoAuthSecret;
+
+      const properFormatUser: Partial<IUsers> = {
+        ...userInfo,
+        twoAuth: {
+          twoAuthOn: defaultAuthOn,
+          twoAuthSecret: defaultAuthSecret
+        }
+      };
+      return isMatch ? properFormatUser : null;
     } catch (e) {
       return null;
     }
@@ -223,6 +226,9 @@ export class AuthService {
   getTokenFromCookieCreateProfile(request: Request) {
     const tokenAndHash: string = request.cookies.api_token;
     const [token, hash] = tokenAndHash.split('|');
+    if (!token || !hash) {
+      throw new HttpException('Missing Token', HttpStatus.FORBIDDEN);
+    }
 
     const valid = bcrypt.compareSync(token, hash);
     if (!valid) {
@@ -232,5 +238,17 @@ export class AuthService {
       );
     }
     return token;
+  }
+
+  // verify the two-auth code with secret
+  twoAuthCodeValid(twoAuthCode: string, user: IUsers) {
+    if (!user) {
+      throw new UnauthorizedException();
+    }
+
+    return authenticator.verify({
+      token: twoAuthCode,
+      secret: user.twoAuth.twoAuthSecret!
+    });
   }
 }

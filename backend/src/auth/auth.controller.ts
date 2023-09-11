@@ -17,7 +17,6 @@ import {
 import { Request, Response } from 'express';
 import axios, { AxiosResponse } from 'axios';
 import * as bcrypt from 'bcrypt';
-import IUsers from 'src/database/service/interface/users';
 import { ApiGuard } from '@api';
 import { JwtAuthGuard } from '@jwt';
 import { LocalAuthGuard } from './guards/local-auth.guard';
@@ -42,20 +41,19 @@ export class AuthController {
   }
 
   @Post('2fa-generate')
-  @UseGuards(ApiGuard)
+  @UseGuards(ApiGuard, JwtAuthGuard)
   @HttpCode(200)
-  async generate2Fa(@Req() req: any, @Body('email') email: string) {
-    const { optAuthUrl } = await this.authService.generate2FASecret(
-      email,
-      req.user
-    );
-    return this.authService.generateQrCodeDataUrl(optAuthUrl);
+  async generate2Fa(@Req() req: any, @Res() res: any) {
+    const { optAuthUrl } = await this.authService.generate2FASecret(req.user);
+    return this.authService.pipeQrCodeStream(res, optAuthUrl);
   }
 
   @Post('2fa-turn-on')
-  @UseGuards(ApiGuard)
+  @UseGuards(ApiGuard, JwtAuthGuard)
+  @HttpCode(200)
   async turnOnTwoAuthFactor(
     @Req() req: any,
+    @Res() res: any,
     @Body('twoFactorAuthCode') twoFactorAuthCode: string
   ) {
     const isCodeValid = this.authService.twoAuthCodeValid(
@@ -65,36 +63,54 @@ export class AuthController {
     if (!isCodeValid) {
       throw new UnauthorizedException('Wrong authentication code');
     }
-    await this.authService.updateUser(req.user, { twoAuthOn: true });
+    await this.authService.updateUser(req.user, {
+      twoAuthOn: true
+    });
+    res.json({ message: 'ok' });
+  }
+
+  @Get('2fa-login')
+  @UseGuards(ApiGuard)
+  @HttpCode(200)
+  async authenticatePage(@Res() res: Response) {
+    res.status(200).json({ message: 'ok' });
   }
 
   @Post('2fa-login')
   @UseGuards(ApiGuard, LocalAuthGuard)
   @HttpCode(200)
-  async authenticate(@Req() req: any, @Body() body: any) {
+  async authenticate(
+    @Req() req: any,
+    @Res({ passthrough: true }) res: any,
+    @Body('twoFactorAuthCode') twoFactorAuthCode: string
+  ) {
     const isCodeValid = this.authService.twoAuthCodeValid(
-      body.twoFactorAuthCode,
+      twoFactorAuthCode,
       req.user
     );
     if (!isCodeValid) {
       throw new UnauthorizedException('Wrong authentication code');
     }
-    const { twoAuthOn, twoAuthSecret, ...user } = req.user;
-    const updatedUser: IUsers = {
-      ...user,
-      twoAuth: {
-        twoAuthOn,
-        twoAuthSecret
-      }
-    };
-    return this.authService.loginWith2Fa(updatedUser);
+    const jsonWebToken = await this.authService.loginWith2Fa(req.user);
+    res.setHeader('Authorization', `Bearer ${jsonWebToken.access_token}`);
+    return jsonWebToken;
+  }
+
+  @Get('login')
+  @UseGuards(ApiGuard)
+  @HttpCode(200)
+  getLogin(@Res() res: Response) {
+    res.json({ message: 'ok' });
   }
 
   @Post('login')
   @UseGuards(ApiGuard, LocalAuthGuard)
   @HttpCode(200)
-  async login(@Req() req: any) {
-    return this.authService.login(req.user);
+  async login(@Req() req: any, @Res({ passthrough: true }) res: any) {
+    const jsonWebToken = await this.authService.login(req.user);
+
+    res.setHeader('Authorization', `Bearer ${jsonWebToken.access_token}`);
+    return jsonWebToken;
   }
 
   @Get('callback')
@@ -131,7 +147,8 @@ export class AuthController {
         httpOnly: true
       });
       await this.authService.updateUser(user, { apiToken: token.access_token });
-      res.status(301).redirect('/auth/profile');
+      if (user && user.twoAuthOn) res.status(301).redirect('/auth/2fa-login');
+      res.status(301).redirect('/auth/login');
     }
   }
 
@@ -142,6 +159,7 @@ export class AuthController {
     res.status(200).json({ message: 'ok' });
   }
 
+  // create user profile
   @Post('create_profile')
   @UseGuards(ApiGuard)
   @UsePipes(new ContentValidationPipe(createSchema))
@@ -150,47 +168,48 @@ export class AuthController {
     @Req() req: Request,
     @Body() user: CreateDto
   ) {
-    const token = this.authService.getTokenFromCookieCreateProfile(req);
-    const config = {
-      headers: { Authorization: `Bearer ${token}` }
-    };
+    try {
+      const token = this.authService.getTokenFromCookieCreateProfile(req);
+      const config = {
+        headers: { Authorization: `Bearer ${token}` }
+      };
 
-    const info = await axios
-      .get('https://api.intra.42.fr/v2/me', config)
-      .then((resp: AxiosResponse) => resp.data);
+      const info = await axios
+        .get('https://api.intra.42.fr/v2/me', config)
+        .then((resp: AxiosResponse) => resp.data);
 
-    const { email } = info;
-    const salt = await bcrypt.genSalt(CONST_SALT);
-    const passwordHash = await bcrypt.hash(user.password, salt);
-    const updatedUser = {
-      email,
-      username: user.username,
-      password: passwordHash,
-      apiToken: token
-    };
+      const { email } = info;
+      const salt = await bcrypt.genSalt(CONST_SALT);
+      const passwordHash = await bcrypt.hash(user.password, salt);
+      const updatedUser = {
+        email,
+        username: user.username,
+        password: passwordHash,
+        apiToken: token
+      };
 
-    const promise = await this.authService.createUser(updatedUser);
-    if (!promise) {
-      res
-        .status(HttpStatus.FORBIDDEN)
-        .json({ message: 'Failed to create user, user might already exist.' });
+      const promise = await this.authService.createUser(updatedUser);
+      if (!promise) {
+        res.status(HttpStatus.FORBIDDEN).json({
+          message: 'Failed to create user, user might already exist.'
+        });
+      }
+
+      const tokenInfo = await axios
+        .get('https://api.intra.42.fr/oauth/token/info', config)
+        .then((resp: AxiosResponse) => resp.data);
+
+      const hash = await bcrypt.hash(token, salt);
+      const usernameAndHash = `${user.username}|${hash}`;
+      res.cookie('api_token', usernameAndHash, {
+        maxAge: tokenInfo.expires_in_seconds * 1000,
+        sameSite: 'lax',
+        httpOnly: true
+      });
+      res.status(HttpStatus.CREATED).json({ message: 'ok' });
+    } catch (e) {
+      throw new HttpException(`${e.message}`, e.code);
     }
-
-    const tokenInfo = await axios
-      .get('https://api.intra.42.fr/oauth/token/info', config)
-      .then((resp: AxiosResponse) => resp.data);
-
-    const hash = await bcrypt.hash(token, salt);
-    const usernameAndHash = `${user.username}|${hash}`;
-    if (typeof tokenInfo.expires_in_seconds === 'string') {
-      this.logger.warn('its a fucking string KEKW');
-    }
-    res.cookie('api_token', usernameAndHash, {
-      maxAge: tokenInfo.expires_in_seconds * 1000,
-      sameSite: 'lax',
-      httpOnly: true
-    });
-    res.status(HttpStatus.CREATED).json({ message: 'ok' });
   }
 
   // will be replaced with the actual profile information

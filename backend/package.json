@@ -6,9 +6,9 @@
   "private": true,
   "license": "UNLICENSED",
   "scripts": {
-    "prebuild:db": "docker-compose up --build -d db",
+    "prebuild:db": "docker compose up --build -d db",
     "build:db": "sleep 1 && npx prisma migrate dev --name build",
-    "prebuild:db-test": "docker-compose up --build -d db-test",
+    "prebuild:db-test": "docker compose up --build -d db-test",
     "build:db-test": "sleep 1 && npx prisma migrate dev --name build",
     "build": "npm run build:client && npm run build:server",
     "norm": "prettier --write \"src/**/*.ts\" \"test/**/*.ts\"",
@@ -18,15 +18,15 @@
     "start:prod": "node dist/main",
     "lint": "eslint \"{src,apps,libs,test}/**/*.ts\" --fix",
     "test": "jest",
-    "pretest:db": "docker-compose up --build -d db-test",
+    "pretest:db": "docker compose up --build -d db-test",
     "test:watch": "jest --watch",
     "test:cov": "jest --coverage",
     "test:debug": "node --inspect-brk -r tsconfig-paths/register -r ts-node/register node_modules/.bin/jest --runInBand",
     "test:e2e": "jest --config ./e2e/jest-e2e.json",
-    "test:db": "sleep 1 && npx prisma migrate dev --name test && jest; docker-compose down -v",
+    "test:db": "sleep 1 && npx prisma migrate dev --name test && jest; docker compose down -v",
     "clean": "rm -rf dist",
     "fclean": "rm -rf dist && rm -rf node_modules",
-    "down": "docker-compose down -v"
+    "down": "docker compose down -v"
   },
   "dependencies": {
     "@nestjs/common": "^10.0.0",

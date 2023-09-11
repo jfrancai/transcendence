@@ -39,6 +39,6 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
         twoAuthSecret
       }
     };
-    return twoAuthOn ? properFormedUser : userWithoutPassword;
+    return properFormedUser;
   }
 }
