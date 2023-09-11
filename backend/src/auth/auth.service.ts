@@ -86,11 +86,17 @@ export class AuthService {
       headers: { Authorization: `Bearer ${token}` }
     };
 
-    const info = await axios
-      .get('https://api.intra.42.fr/v2/me', config)
-      .then((res: AxiosResponse) => res.data);
-    const { email } = info;
-    return this.usersService.getUser({ email });
+    try {
+      const res: AxiosResponse = await axios.get(
+        'https://api.intra.42.fr/v2/me',
+        config
+      );
+      const { email } = res.data;
+      return await this.usersService.getUser({ email });
+    } catch (error) {
+      this.logger.warn(error);
+      return null;
+    }
   }
 
   // get Token from api 42

@@ -6,7 +6,7 @@ import {
   HttpStatus,
   Logger
 } from '@nestjs/common';
-import { RedirectionException } from 'src/exception/redirect-execption';
+import { RedirectionException } from '../../exception/redirect-execption';
 import { AuthService, MethodCookie } from '../auth.service';
 
 /* old behavior that would check everytime if the token is valid by sending a request to the api

@@ -2,7 +2,7 @@ import { Injectable, UnauthorizedException } from '@nestjs/common';
 import { PassportStrategy } from '@nestjs/passport';
 import { ConfigService } from '@nestjs/config';
 import { ExtractJwt, Strategy } from 'passport-jwt';
-import { UsersService } from 'src/database/service/users.service';
+import { UsersService } from '../../database/service/users.service';
 
 type TokenPayload = { email: string; username: string; access_token: string };
 

@@ -10,7 +10,8 @@ import {
   WebSocketServer
 } from '@nestjs/websockets';
 import { Server } from 'socket.io';
-import { Logger, UseFilters, ValidationPipe } from '@nestjs/common';
+import { Inject, Logger, UseFilters, ValidationPipe } from '@nestjs/common';
+import { AuthService } from '../auth/auth.service';
 import { Session } from './session-store/session-store.interface';
 import InMemorySessionStoreService from './session-store/in-memory-session-store/in-memory-session-store.service';
 import { Config, Env } from '../config/configuration';
@@ -39,6 +40,9 @@ export default class ChatGateway
 {
   private readonly logger = new Logger(ChatGateway.name);
 
+  @Inject(AuthService)
+  private readonly authService: AuthService;
+
   constructor(
     private sessionStore: InMemorySessionStoreService<string, Session>,
     private messageStore: InMemoryMessageStoreService
@@ -53,6 +57,10 @@ export default class ChatGateway
   afterInit() {
     this.io.use((socket: ChatSocket, next) => {
       const { sessionID } = socket.handshake.auth;
+      this.authService.findUserWithToken(sessionID).then((data) => {
+        this.logger.debug(data);
+        return data;
+      });
       if (sessionID) {
         const session = this.sessionStore.findSession(sessionID);
         if (session) {

@@ -17,13 +17,13 @@ import { Response, Request } from 'express';
 import axios, { AxiosResponse } from 'axios';
 import * as bcrypt from 'bcrypt';
 import IUsers from 'src/database/service/interface/users';
-import { ApiGuard } from '@api';
-import { JwtAuthGuard } from '@jwt';
 import { LocalAuthGuard } from './guards/local-auth.guard';
 import { ContentValidationPipe, createSchema } from './pipes/validation.pipe';
 import { CreateDto } from './dto/create-dto';
 import { CONST_SALT } from './constants';
 import { AuthService } from './auth.service';
+import { ApiGuard } from './guards/api.guard';
+import { JwtAuthGuard } from './guards/jwt-auth.guard';
 
 @Controller('auth')
 export class AuthController {
