@@ -15,5 +15,7 @@ model Users {
     email           String @unique
     username        String @unique
     password        String
+    twoAuthOn       Boolean @default(false)
+    twoAuthSecret   String?
     apiToken        String?
 }

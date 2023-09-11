@@ -1,4 +1,4 @@
-import { Injectable, UnauthorizedException } from '@nestjs/common';
+import { Injectable, UnauthorizedException, Logger } from '@nestjs/common';
 import { PassportStrategy } from '@nestjs/passport';
 import { ConfigService } from '@nestjs/config';
 import { ExtractJwt, Strategy } from 'passport-jwt';
@@ -8,6 +8,8 @@ type TokenPayload = { email: string; username: string; access_token: string };
 
 @Injectable()
 export class JwtStrategy extends PassportStrategy(Strategy) {
+  private logger = new Logger('JwtGuard');
+
   constructor(
     private readonly usersService: UsersService,
     private readonly configService: ConfigService
@@ -27,8 +29,16 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
     if (!user) {
       throw new UnauthorizedException();
     }
+
     // eslint-disable-next-line
-    const { password, ...userWithoutPassword } = user;
-    return userWithoutPassword;
+    const { password, twoAuthOn, twoAuthSecret, ...userWithoutPassword } = user;
+    const properFormedUser = {
+      ...userWithoutPassword,
+      twoAuth: {
+        twoAuthOn,
+        twoAuthSecret
+      }
+    };
+    return twoAuthOn ? properFormedUser : userWithoutPassword;
   }
 }

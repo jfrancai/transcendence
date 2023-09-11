@@ -1,15 +1,30 @@
-import { Injectable, HttpException, HttpStatus, Logger } from '@nestjs/common';
+import {
+  Injectable,
+  HttpException,
+  HttpStatus,
+  Logger,
+  UnauthorizedException
+} from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { JwtService } from '@nestjs/jwt';
 import axios, { AxiosResponse } from 'axios';
 import * as bcrypt from 'bcrypt';
+import { authenticator } from 'otplib';
+import { toDataURL } from 'qrcode';
 import { Request } from 'express';
 import IUsers from 'src/database/service/interface/users';
+import { RedirectionException } from 'src/exception/redirect-execption';
 import { CONST_URL } from './constants';
 import { UsersService } from '../database/service/users.service';
 
 type CreateUserDto = { email: string; username: string; password: string };
-type UpdateUserDto = { email?: string; username?: string; apiToken?: string };
+type UpdateUserDto = {
+  email?: string;
+  username?: string;
+  apiToken?: string;
+  twoAuthSecret?: string;
+  twoAuthOn?: boolean;
+};
 
 export enum MethodCookie {
   DEFAULT = 1, // getTokenFromCookie
@@ -27,6 +42,53 @@ export class AuthService {
     private readonly configService: ConfigService
   ) {
     this.logger.log('AuthService Init...');
+  }
+
+  // generate QrCode
+  async generateQrCodeDataUrl(optAuthUrl: string) {
+    return toDataURL(optAuthUrl);
+  }
+
+  // verify the two-auth code with secret
+  async twoAuthCodeValid(twoAuthCode: string, user: IUsers) {
+    const usr = await this.findUser({ username: user.username });
+    if (!usr) {
+      throw new UnauthorizedException();
+    } else if (usr && !usr.twoAuthSecret) {
+      this.updateUser(usr, { twoAuthOn: false });
+      throw new RedirectionException();
+    }
+    return authenticator.verify({
+      token: twoAuthCode,
+      secret: usr.twoAuthSecret!
+    });
+  }
+
+  // generate 2FA Secret for the user
+  async generate2FASecret(email: string, user: IUsers) {
+    const secret = authenticator.generateSecret();
+    const optAuthUrl = authenticator.keyuri(email, 'ft_transcendence', secret);
+
+    await this.updateUser(user, { twoAuthSecret: secret });
+    return {
+      secret,
+      optAuthUrl
+    };
+  }
+
+  // login 2Fa
+  async loginWith2Fa(userWithoutPsw: Partial<IUsers>) {
+    const payload = {
+      email: userWithoutPsw.email,
+      username: userWithoutPsw.username,
+      twoAuthOn: userWithoutPsw.twoAuth!.twoAuthOn!
+    };
+
+    return {
+      email: payload.email,
+      username: payload.username,
+      access_token: this.jwtService.sign(payload)
+    };
   }
 
   // login method

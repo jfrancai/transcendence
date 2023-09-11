@@ -11,9 +11,10 @@ import {
   HttpCode,
   UsePipes,
   UseGuards,
-  Logger
+  Logger,
+  UnauthorizedException
 } from '@nestjs/common';
-import { Response, Request } from 'express';
+import { Request, Response } from 'express';
 import axios, { AxiosResponse } from 'axios';
 import * as bcrypt from 'bcrypt';
 import IUsers from 'src/database/service/interface/users';
@@ -40,12 +41,60 @@ export class AuthController {
     return req.user;
   }
 
+  @Post('2fa-generate')
+  @UseGuards(ApiGuard)
+  @HttpCode(200)
+  async generate2Fa(@Req() req: any, @Body('email') email: string) {
+    const { optAuthUrl } = await this.authService.generate2FASecret(
+      email,
+      req.user
+    );
+    return this.authService.generateQrCodeDataUrl(optAuthUrl);
+  }
+
+  @Post('2fa-turn-on')
+  @UseGuards(ApiGuard)
+  async turnOnTwoAuthFactor(
+    @Req() req: any,
+    @Body('twoFactorAuthCode') twoFactorAuthCode: string
+  ) {
+    const isCodeValid = this.authService.twoAuthCodeValid(
+      twoFactorAuthCode,
+      req.user
+    );
+    if (!isCodeValid) {
+      throw new UnauthorizedException('Wrong authentication code');
+    }
+    await this.authService.updateUser(req.user, { twoAuthOn: true });
+  }
+
+  @Post('2fa-login')
+  @UseGuards(ApiGuard, LocalAuthGuard)
+  @HttpCode(200)
+  async authenticate(@Req() req: any, @Body() body: any) {
+    const isCodeValid = this.authService.twoAuthCodeValid(
+      body.twoFactorAuthCode,
+      req.user
+    );
+    if (!isCodeValid) {
+      throw new UnauthorizedException('Wrong authentication code');
+    }
+    const { twoAuthOn, twoAuthSecret, ...user } = req.user;
+    const updatedUser: IUsers = {
+      ...user,
+      twoAuth: {
+        twoAuthOn,
+        twoAuthSecret
+      }
+    };
+    return this.authService.loginWith2Fa(updatedUser);
+  }
+
   @Post('login')
   @UseGuards(ApiGuard, LocalAuthGuard)
   @HttpCode(200)
   async login(@Req() req: any) {
-    const userWithoutPsw: Partial<IUsers> = req.user;
-    return this.authService.login(userWithoutPsw);
+    return this.authService.login(req.user);
   }
 
   @Get('callback')

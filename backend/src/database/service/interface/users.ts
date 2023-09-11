@@ -1,11 +1,8 @@
-/**
- * @typedef IUsers
- * @property {string} email of of user store in db
- * @property {string} username of user store in db
- * @property {string} password of user store in db
- */
+import ITwoAuth from './two-auth';
+
 export default interface IUsers {
   email: string;
   username: string;
   password: string;
+  twoAuth: ITwoAuth;
 }
