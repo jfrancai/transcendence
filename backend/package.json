@@ -8,9 +8,9 @@
   "scripts": {
     "build:client": "rm -rf client/ && cd ../frontend && npm run build && cp -r ./dist ../backend/client",
     "build:server": "nest build",
-    "prebuild:db": "docker-compose up --build -d db",
+    "prebuild:db": "docker compose up --build -d db",
     "build:db": "sleep 1 && npx prisma migrate dev --name build",
-    "prebuild:db-test": "docker-compose up --build -d db-test",
+    "prebuild:db-test": "docker compose up --build -d db-test",
     "build:db-test": "sleep 1 && npx prisma migrate dev --name build",
     "build": "npm run build:client && npm run build:server",
     "norm": "prettier --write \"src/**/*.ts\" \"test/**/*.ts\"",
