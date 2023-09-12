@@ -1,12 +1,12 @@
+// eslint-disable-next-line
 import { INestApplication, ValidationPipe } from '@nestjs/common';
-import { AuthModule } from '../auth/auth.module';
 import SessionStoreModule from './session-store/session-store.module';
 import ChatGateway from './chat.gateway';
 import { createNestApp, expectEvent, getClientSocket } from './chat.helper';
 import MessageStoreModule from './message-store/message-store.module';
 
 const testedModule = {
-  imports: [SessionStoreModule, MessageStoreModule, AuthModule],
+  imports: [SessionStoreModule, MessageStoreModule],
   providers: [ChatGateway]
 };
 

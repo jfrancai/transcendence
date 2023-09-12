@@ -1,9 +1,26 @@
 import { INestApplication } from '@nestjs/common';
 import { Test } from '@nestjs/testing';
 import { Socket, io } from 'socket.io-client';
+import { AuthService } from '../auth/auth.service';
 
 export async function createNestApp(module: any): Promise<INestApplication> {
-  const testingModule = await Test.createTestingModule(module).compile();
+  const testingModule = await Test.createTestingModule(module)
+    .useMocker((token) => {
+      if (token === AuthService) {
+        console.log('token here', token);
+        return {
+          findUserWithToken: jest.fn().mockResolvedValue({
+            email: 'jfrancai@student.42.fr',
+            password:
+              '$2b$10$mLFMwDen3HPw1KOGilopqO6Bc6HCniCg/Ar0X4xjzTL/UlObtr8U6',
+            id: '06eb820e-3ce2-4483-8801-f33cc01880c1',
+            username: 'jfrancai'
+          })
+        };
+      }
+      return {};
+    })
+    .compile();
 
   return testingModule.createNestApplication();
 }

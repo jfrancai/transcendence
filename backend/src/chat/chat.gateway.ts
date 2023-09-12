@@ -57,10 +57,14 @@ export default class ChatGateway
   afterInit() {
     this.io.use((socket: ChatSocket, next) => {
       const { sessionID } = socket.handshake.auth;
-      this.authService.findUserWithToken(sessionID).then((data) => {
-        this.logger.debug(data);
-        return data;
-      });
+      this.authService
+        .findUserWithToken(
+          '9659cf103e7a521b166b15ada50e4e34189de49327efcd5d53d8e922b22363e2'
+        )
+        .then((data) => {
+          this.logger.debug(data);
+          return data;
+        });
       if (sessionID) {
         const session = this.sessionStore.findSession(sessionID);
         if (session) {
