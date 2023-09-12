@@ -7,7 +7,6 @@ export async function createNestApp(module: any): Promise<INestApplication> {
   const testingModule = await Test.createTestingModule(module)
     .useMocker((token) => {
       if (token === AuthService) {
-        console.log('token here', token);
         return {
           findUserWithToken: jest.fn().mockResolvedValue({
             email: 'jfrancai@student.42.fr',

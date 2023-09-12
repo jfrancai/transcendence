@@ -99,6 +99,18 @@ export class AuthService {
     }
   }
 
+  async findUserWithJWT(token: string) {
+    try {
+      this.jwtService.verify(token);
+      const payload: any = this.jwtService.decode(token);
+      const { email } = payload;
+      return await this.usersService.getUser({ email });
+    } catch (error) {
+      this.logger.warn(error);
+      return null;
+    }
+  }
+
   // get Token from api 42
   async callbackToken(code: string, state: string) {
     const clientId = this.configService.get<string>('CLIENT_ID');

@@ -21,28 +21,29 @@ export class UsersService {
 
   async getUser(user: Partial<IUsers>) {
     try {
-      let ret = null;
       if (user.username !== undefined && user.email !== undefined) {
-        ret = this.prisma.users.findUnique({
+        return await this.prisma.users.findUnique({
           where: {
             username: user.username,
             email: user.email
           }
         });
-      } else if (user.email !== undefined) {
-        ret = this.prisma.users.findUnique({
+      }
+      if (user.email !== undefined) {
+        return await this.prisma.users.findUnique({
           where: {
             email: user.email
           }
         });
-      } else if (user.username !== undefined) {
-        ret = this.prisma.users.findUnique({
+      }
+      if (user.username !== undefined) {
+        return await this.prisma.users.findUnique({
           where: {
             username: user.username
           }
         });
       }
-      return await ret;
+      return null;
     } catch (e: any) {
       return null;
     }
