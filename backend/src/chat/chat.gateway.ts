@@ -10,7 +10,13 @@ import {
   WebSocketServer
 } from '@nestjs/websockets';
 import { Server } from 'socket.io';
-import { Inject, Logger, UseFilters, ValidationPipe } from '@nestjs/common';
+import {
+  Inject,
+  Logger,
+  UseFilters,
+  UseGuards,
+  ValidationPipe
+} from '@nestjs/common';
 import { AuthService } from '../auth/auth.service';
 import { Session } from './session-store/session-store.interface';
 import InMemorySessionStoreService from './session-store/in-memory-session-store/in-memory-session-store.service';
@@ -19,6 +25,7 @@ import { ChatSocket } from './chat.interface';
 import InMemoryMessageStoreService from './message-store/in-memory-message-store/in-memory-message-store.service';
 import { MessageDto } from './dto/MessageDto.dto';
 import { ChatFilter } from './filters/chat.filter';
+import { WSJwtAuthGuard } from './guards/jwt-auth.guard';
 
 function webSocketOptions() {
   const options = {};
@@ -93,6 +100,7 @@ export default class ChatGateway
     this.logger.log('Initialized');
   }
 
+  @UseGuards(new WSJwtAuthGuard())
   handleConnection(socket: ChatSocket) {
     this.logger.log(`ClientId: ${socket.userID} connected`);
     this.logger.log(`Nb clients: ${this.io.sockets.sockets.size}`);
@@ -147,6 +155,7 @@ export default class ChatGateway
 
   @SubscribeMessage('private message')
   @UseFilters(ChatFilter)
+  @UseGuards(new WSJwtAuthGuard())
   handlePrivateMessage(
     @MessageBody(new ValidationPipe()) messageDto: MessageDto,
     @ConnectedSocket() socket: ChatSocket
