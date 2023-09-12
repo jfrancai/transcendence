@@ -22,7 +22,7 @@ import { JwtAuthGuard } from '@jwt';
 import { LocalAuthGuard } from './guards/local-auth.guard';
 import { ContentValidationPipe, createSchema } from './pipes/validation.pipe';
 import { CreateDto } from './dto/create-dto';
-import { CONST_SALT } from './constants';
+import { CONST_INFO_URL, CONST_LOCAL_LOGIN, CONST_SALT } from './constants';
 import { AuthService } from './auth.service';
 
 @Controller('auth')
@@ -190,13 +190,13 @@ export class AuthController {
 
       const promise = await this.authService.createUser(updatedUser);
       if (!promise) {
-        res.status(HttpStatus.FORBIDDEN).json({
+        return res.status(HttpStatus.FORBIDDEN).json({
           message: 'Failed to create user, user might already exist.'
         });
       }
 
       const tokenInfo = await axios
-        .get('https://api.intra.42.fr/oauth/token/info', config)
+        .get(CONST_INFO_URL, config)
         .then((resp: AxiosResponse) => resp.data);
 
       const hash = await bcrypt.hash(token, salt);
@@ -206,7 +206,22 @@ export class AuthController {
         sameSite: 'lax',
         httpOnly: true
       });
-      res.status(HttpStatus.CREATED).json({ message: 'ok' });
+
+      const loginInfo = {
+        username: user.username,
+        password: user.password
+      };
+
+      const jsonWebToken = await axios
+        .post(CONST_LOCAL_LOGIN, JSON.stringify(loginInfo), {
+          headers: {
+            Cookie: `api_token=${usernameAndHash}`,
+            'Content-Type': 'application/json'
+          }
+        })
+        .then((response: AxiosResponse) => response.data);
+      res.setHeader('Authorization', `Bearer ${jsonWebToken.access_token}`);
+      return res.status(HttpStatus.CREATED).json({ message: 'ok' });
     } catch (e) {
       throw new HttpException(`${e.message}`, e.code);
     }
