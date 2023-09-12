@@ -13,6 +13,18 @@ services:
     volumes:
       - ./data:/var/lib/postgresql/data
 
+  db-42:
+    image: postgres:latest
+    restart: always
+    env_file:
+      - .db.env
+    networks:
+      - my-network
+    ports:
+      - 5432:5432
+    volumes:
+      - /mnt/nfs/homes/jfrancai/sgoinfre/data:/var/lib/postgresql/data
+
   # REMOVE THIS BEFORE SUBMITING THE PROJECT
   # run only for unit testing
   db-test:
