@@ -58,8 +58,8 @@ export default class ChatGateway
     this.io.use((socket: ChatSocket, next) => {
       const { sessionID } = socket.handshake.auth;
       this.authService
-        .findUserWithToken(
-          '9659cf103e7a521b166b15ada50e4e34189de49327efcd5d53d8e922b22363e2'
+        .findUserWithJWT(
+          'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6ImpmcmFuY2FpIiwiZW1haWwiOiJqZnJhbmNhaUBzdHVkZW50LjQyLmZyIiwiaWF0IjoxNjk0NTIyNjk2LCJleHAiOjE2OTQ2MDkwOTZ9.y_sM1VfPUdFWwpsxLsFr19SzrrLlqA4GtjApXlK-0q0'
         )
         .then((data) => {
           this.logger.debug(data);
