@@ -1,4 +1,5 @@
 import { useEffect } from 'react';
+import jwt_decode from 'jwt-decode';
 import socket from '../../services/socket';
 import ArrowToggler from '../ArrowToggler/ArrowToggler';
 import Category from '../Category/Category';
@@ -13,11 +14,25 @@ interface ChatHeaderProps {
   };
 }
 
+interface DecodedToken {
+  username: string;
+  email: string;
+  iat: string;
+  exp: string;
+}
+
 function ChatHeader({ className, isConnected, handleClick }: ChatHeaderProps) {
   const connect = () => {
-    const sessionID = localStorage.getItem('sessionID');
-    socket.auth = { username: 'toto', sessionID };
-    socket.connect();
+    const jwt = localStorage.getItem('jwt');
+    if (jwt) {
+      const decodedToken: DecodedToken = jwt_decode(jwt!);
+      socket.auth = {
+        username: decodedToken.username,
+        email: decodedToken.email,
+        token: jwt
+      };
+      socket.connect();
+    }
   };
   const disconnect = () => socket.disconnect();
 
