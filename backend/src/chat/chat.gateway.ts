@@ -10,14 +10,7 @@ import {
   WebSocketServer
 } from '@nestjs/websockets';
 import { Server } from 'socket.io';
-import {
-  Inject,
-  Logger,
-  UseFilters,
-  UseGuards,
-  ValidationPipe
-} from '@nestjs/common';
-import { AuthService } from '../auth/auth.service';
+import { Logger, UseFilters, UseGuards, ValidationPipe } from '@nestjs/common';
 import { Session } from './session-store/session-store.interface';
 import InMemorySessionStoreService from './session-store/in-memory-session-store/in-memory-session-store.service';
 import { ChatSocket } from './chat.interface';
@@ -32,9 +25,6 @@ export default class ChatGateway
 {
   private readonly logger = new Logger(ChatGateway.name);
 
-  @Inject(AuthService)
-  private readonly authService: AuthService;
-
   constructor(
     private sessionStore: InMemorySessionStoreService<string, Session>,
     private messageStore: InMemoryMessageStoreService
@@ -48,22 +38,10 @@ export default class ChatGateway
 
   afterInit() {
     this.io.use((socket: ChatSocket, next) => {
-      const { sessionID } = socket.handshake.auth;
-      this.authService
-        .findUserWithJWT(
-          'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6ImpmcmFuY2FpIiwiZW1haWwiOiJqZnJhbmNhaUBzdHVkZW50LjQyLmZyIiwiaWF0IjoxNjk0NjA0NTA2LCJleHAiOjE2OTQ2OTA5MDZ9.L_lOXKNQ0DTIcIfSVaa_Qoo_Dc_RYMSOpsbJfsWpa78'
-        )
-        .then((data) => {
-          this.logger.debug(data);
-          return data;
-        });
-      if (sessionID) {
-        const session = this.sessionStore.findSession(sessionID);
+      const { userID } = socket.handshake.auth;
+      if (userID) {
+        const session = this.sessionStore.findSession(userID);
         if (session) {
-          session.connected = true;
-          socket.sessionID = sessionID;
-          socket.userID = session.userID;
-          socket.username = session.username;
           return next();
         }
       }
@@ -71,11 +49,7 @@ export default class ChatGateway
       if (!username) {
         return next(new Error('invalid username'));
       }
-      socket.sessionID = ChatGateway.randomId();
-      socket.userID = ChatGateway.randomId();
-      socket.username = username;
-      this.sessionStore.saveSession(socket.sessionID, {
-        userID: socket.userID,
+      this.sessionStore.saveSession(socket.userID, {
         username,
         connected: true,
         messages: []
@@ -105,21 +79,19 @@ export default class ChatGateway
     socket.join(socket.userID);
     this.sessionStore.findAllSession().forEach((session: Session) => {
       users.push({
-        userID: session.userID,
         username: session.username,
         connected: session.connected,
-        messages: messagesPerUser.get(session.userID) || []
+        messages: messagesPerUser.get(socket.userID) || []
       });
     });
     socket.emit('session', {
-      sessionID: socket.sessionID,
       userID: socket.userID
     });
     socket.emit('users', users);
     socket.broadcast.emit('user connected', {
       userID: socket.userID,
       username: socket.username,
-      connected: this.sessionStore.findSession(socket.sessionID)
+      connected: this.sessionStore.findSession(socket.userID)
     });
   }
 
@@ -131,7 +103,7 @@ export default class ChatGateway
 
     if (matchingSockets.length === 0) {
       socket.broadcast.emit('user disconnected', socket.userID);
-      const session = this.sessionStore.findSession(socket.sessionID);
+      const session = this.sessionStore.findSession(socket.userID);
       if (session) {
         session.connected = false;
       }
