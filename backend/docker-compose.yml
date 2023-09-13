@@ -22,8 +22,6 @@ services:
       - my-network
     ports:
       - 5432:5432
-    volumes:
-      - /mnt/nfs/homes/jfrancai/sgoinfre/data:/var/lib/postgresql/data
 
   # REMOVE THIS BEFORE SUBMITING THE PROJECT
   # run only for unit testing
