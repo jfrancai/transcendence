@@ -31,6 +31,7 @@ function ChatHeader({ className, isConnected, handleClick }: ChatHeaderProps) {
         email: decodedToken.email,
         token: jwt
       };
+      socket.username = decodedToken.username;
       socket.connect();
     }
   };

@@ -21,10 +21,11 @@ function isPrivateMessage(data: any): data is PrivateMessage {
 
 export interface Session {
   userID: string;
+  username: string;
 }
 
 function isSession(data: any): data is Session {
-  return data.userID !== undefined;
+  return data.userID !== undefined && data.username !== undefined;
 }
 
 export interface Contact {
@@ -87,6 +88,7 @@ export function useStatus(): [Status, Dispatch<SetStateAction<Status>>] {
     const onSession = (data: any) => {
       if (isSession(data)) {
         socket.userID = data.userID;
+        socket.username = data.username;
       }
     };
     const onUsers = (data: any) => {

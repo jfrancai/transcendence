@@ -99,7 +99,7 @@ function Chat() {
               })}
             </div>
           ) : (
-            <ChatFeed contact={contact} />
+            <ChatFeed contact={contact} isConnected={status.isConnected} />
           )}
         </Hide>
       </div>
