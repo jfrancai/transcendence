@@ -20,28 +20,13 @@ import {
 import { AuthService } from '../auth/auth.service';
 import { Session } from './session-store/session-store.interface';
 import InMemorySessionStoreService from './session-store/in-memory-session-store/in-memory-session-store.service';
-import { Config, Env } from '../config/configuration';
 import { ChatSocket } from './chat.interface';
 import InMemoryMessageStoreService from './message-store/in-memory-message-store/in-memory-message-store.service';
 import { MessageDto } from './dto/MessageDto.dto';
 import { ChatFilter } from './filters/chat.filter';
 import { WSJwtAuthGuard } from './guards/jwt-auth.guard';
 
-function webSocketOptions() {
-  const options = {};
-  if (Config.env === Env.Dev) {
-    return {
-      cors: {
-        origin: 'http://localhost:5173',
-        transports: ['websocket', 'polling']
-      },
-      ...options
-    };
-  }
-  return options;
-}
-
-@WebSocketGateway(webSocketOptions())
+@WebSocketGateway()
 export default class ChatGateway
   implements OnGatewayInit, OnGatewayConnection, OnGatewayDisconnect
 {
