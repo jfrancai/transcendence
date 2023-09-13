@@ -85,7 +85,8 @@ export default class ChatGateway
       });
     });
     socket.emit('session', {
-      userID: socket.userID
+      userID: socket.userID,
+      username: socket.username
     });
     socket.emit('users', users);
     socket.broadcast.emit('user connected', {
