@@ -4,6 +4,7 @@ export interface SessionStore<IdType = any, SessionType = any> {
   findAllSession(): any;
 }
 export interface Session {
+  userID: string;
   username: string;
   connected: boolean;
   messages: string[];

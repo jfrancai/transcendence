@@ -8,7 +8,6 @@ export type Username = string;
 
 export interface ChatSocket extends Socket {
   username: Username;
-  sessionID: SessionID;
   userID: UserID;
   connected: boolean;
 }

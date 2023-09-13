@@ -17,7 +17,6 @@ import { ChatSocket } from './chat.interface';
 import InMemoryMessageStoreService from './message-store/in-memory-message-store/in-memory-message-store.service';
 import { MessageDto } from './dto/MessageDto.dto';
 import { ChatFilter } from './filters/chat.filter';
-import { WSJwtAuthGuard } from './guards/jwt-auth.guard';
 
 @WebSocketGateway()
 export default class ChatGateway
@@ -50,6 +49,7 @@ export default class ChatGateway
         return next(new Error('invalid username'));
       }
       this.sessionStore.saveSession(socket.userID, {
+        userID: socket.userID,
         username,
         connected: true,
         messages: []
@@ -59,14 +59,13 @@ export default class ChatGateway
     this.logger.log('Initialized');
   }
 
-  @UseGuards(new WSJwtAuthGuard())
   handleConnection(socket: ChatSocket) {
     this.logger.log(`ClientId: ${socket.userID} connected`);
     this.logger.log(`Nb clients: ${this.io.sockets.sockets.size}`);
 
-    const users: Session[] = [];
     const messagesPerUser = new Map();
-    this.messageStore.findMessageForUser(socket.userID).forEach((message) => {
+    const allMessages = this.messageStore.findMessageForUser(socket.userID);
+    allMessages.forEach((message) => {
       const { from, to } = message;
       const otherUser = socket.userID === from ? to : from;
       if (messagesPerUser.has(otherUser)) {
@@ -75,13 +74,14 @@ export default class ChatGateway
         messagesPerUser.set(otherUser, [message]);
       }
     });
-
     socket.join(socket.userID);
+    const users: Session[] = [];
     this.sessionStore.findAllSession().forEach((session: Session) => {
       users.push({
+        userID: session.userID,
         username: session.username,
         connected: session.connected,
-        messages: messagesPerUser.get(socket.userID) || []
+        messages: messagesPerUser.get(session.userID) || []
       });
     });
     socket.emit('session', {
@@ -112,7 +112,6 @@ export default class ChatGateway
 
   @SubscribeMessage('private message')
   @UseFilters(ChatFilter)
-  @UseGuards(new WSJwtAuthGuard())
   handlePrivateMessage(
     @MessageBody(new ValidationPipe()) messageDto: MessageDto,
     @ConnectedSocket() socket: ChatSocket

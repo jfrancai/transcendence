@@ -22,7 +22,6 @@ export class WSJwtAuthGuard implements CanActivate {
   ): boolean | Promise<boolean> | Observable<boolean> {
     const data = context.switchToWs().getData();
     const client = context.switchToWs().getClient();
-    this.logger.debug('COUUUUUUUUUUUcou');
     return validateData(data);
   }
 }
