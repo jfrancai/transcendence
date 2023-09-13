@@ -7,6 +7,16 @@ import { AuthModule } from 'src/auth/auth.module';
 import { AuthService } from 'src/auth/auth.service';
 import { ChatSocket } from 'src/chat/chat.interface';
 
+// Each WebSocketGateway is instantiated from this custom
+// IoAdapter, which do two things for now : config cors
+// policy and preventing websocket connection from forbidden
+// client (checking jwt with AuthModule)
+
+// This protection is only for client to connect to a ws gateway
+// custom event (~= http routes) are not protected by default you
+// stil have to add some guard if you want to restrict access to certain
+// event to certain clients (or use namespace)
+
 const createTokenMiddleware =
   (authService: AuthService, logger: Logger) =>
   async (socket: ChatSocket, next: (err?: ExtendedError) => void) => {
@@ -52,7 +62,10 @@ export class SocketIoAdapter extends IoAdapter {
 
     const authService = this.app.select(AuthModule).get(AuthService);
 
+    // Here we create the Socket.io server
     const io: Server = super.createIOServer(port, optionWithCORS);
+    // And we attach some middleware to it, this middleware
+    // check for valid jwt inside client first payload
     io.use(createTokenMiddleware(authService, this.logger));
 
     return io;

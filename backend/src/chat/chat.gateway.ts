@@ -18,6 +18,11 @@ import InMemoryMessageStoreService from './message-store/in-memory-message-store
 import { MessageDto } from './dto/MessageDto.dto';
 import { ChatFilter } from './filters/chat.filter';
 
+// WebSocketGateways are instantiated from the SocketIoAdapter
+// inside this IoAdapter there is authentification process with JWT
+// validation using the AuthModule. Be aware of this incase you are
+// stuck not understanding what is happenning.
+
 @WebSocketGateway()
 export default class ChatGateway
   implements OnGatewayInit, OnGatewayConnection, OnGatewayDisconnect
