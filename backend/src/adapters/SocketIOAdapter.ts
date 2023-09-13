@@ -3,9 +3,9 @@ import { ConfigService } from '@nestjs/config';
 import { IoAdapter } from '@nestjs/platform-socket.io';
 import { Server, ServerOptions } from 'socket.io';
 import { ExtendedError } from 'socket.io/dist/namespace';
-import { AuthModule } from 'src/auth/auth.module';
-import { AuthService } from 'src/auth/auth.service';
-import { ChatSocket } from 'src/chat/chat.interface';
+import { AuthModule } from '../auth/auth.module';
+import { AuthService } from '../auth/auth.service';
+import { ChatSocket } from '../chat/chat.interface';
 
 // Each WebSocketGateway is instantiated from this custom
 // IoAdapter, which do two things for now : config cors
