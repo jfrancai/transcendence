@@ -7,6 +7,7 @@ import { AppService } from './app.service';
 import { AuthModule } from './auth/auth.module';
 import ChatModule from './chat/chat.module';
 import envSchema from './env.validation';
+import configuration from './config/configuration';
 
 @Module({
   imports: [
@@ -14,7 +15,8 @@ import envSchema from './env.validation';
       isGlobal: true,
       cache: true,
       envFilePath: ['.env'],
-      validationSchema: envSchema
+      validationSchema: envSchema,
+      load: [configuration]
     }),
     ServeStaticModule.forRoot({
       rootPath: join(__dirname, '..', 'client'),
@@ -26,4 +28,4 @@ import envSchema from './env.validation';
   controllers: [AppController],
   providers: [AppService]
 })
-export class AppModule { }
+export class AppModule {}

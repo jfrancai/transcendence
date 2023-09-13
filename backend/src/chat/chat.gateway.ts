@@ -66,7 +66,7 @@ export default class ChatGateway
       const { sessionID } = socket.handshake.auth;
       this.authService
         .findUserWithJWT(
-          'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6ImpmcmFuY2FpIiwiZW1haWwiOiJqZnJhbmNhaUBzdHVkZW50LjQyLmZyIiwiaWF0IjoxNjk0NTIyNjk2LCJleHAiOjE2OTQ2MDkwOTZ9.y_sM1VfPUdFWwpsxLsFr19SzrrLlqA4GtjApXlK-0q0'
+          'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6ImpmcmFuY2FpIiwiZW1haWwiOiJqZnJhbmNhaUBzdHVkZW50LjQyLmZyIiwiaWF0IjoxNjk0NjA0NTA2LCJleHAiOjE2OTQ2OTA5MDZ9.L_lOXKNQ0DTIcIfSVaa_Qoo_Dc_RYMSOpsbJfsWpa78'
         )
         .then((data) => {
           this.logger.debug(data);
