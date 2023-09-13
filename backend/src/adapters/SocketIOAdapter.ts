@@ -3,6 +3,7 @@ import { ConfigService } from '@nestjs/config';
 import { IoAdapter } from '@nestjs/platform-socket.io';
 import { Server, ServerOptions } from 'socket.io';
 import { ExtendedError } from 'socket.io/dist/namespace';
+import { AuthModule } from 'src/auth/auth.module';
 import { AuthService } from 'src/auth/auth.service';
 import { ChatSocket } from 'src/chat/chat.interface';
 
@@ -10,7 +11,7 @@ const createTokenMiddleware =
   (authService: AuthService, logger: Logger) =>
   async (socket: ChatSocket, next: (err?: ExtendedError) => void) => {
     const { token } = socket.handshake.auth;
-    logger.debug(`Validating auth token before connection: ${token}`);
+    logger.log(`Validating auth token before connection: ${token}`);
 
     const user = await authService.findUserWithJWT(token);
     if (user) {
@@ -49,7 +50,7 @@ export class SocketIoAdapter extends IoAdapter {
       cors
     };
 
-    const authService = this.app.get(AuthService);
+    const authService = this.app.select(AuthModule).get(AuthService);
 
     const io: Server = super.createIOServer(port, optionWithCORS);
     io.use(createTokenMiddleware(authService, this.logger));
