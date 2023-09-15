@@ -11,7 +11,6 @@ import {
 } from '@nestjs/websockets';
 import { Server } from 'socket.io';
 import { Logger, UseFilters, ValidationPipe } from '@nestjs/common';
-import { ChatMessage, ChatUser } from './session-store/session-store.interface';
 import { ChatSocket } from './chat.interface';
 import { PrivateMessageDto } from './dto/MessageDto.dto';
 import { ChatFilter } from './filters/chat.filter';
