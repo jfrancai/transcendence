@@ -2,6 +2,7 @@ import { io, Socket } from 'socket.io-client';
 
 interface PongSocket extends Socket {
   userID: string;
+  username: string;
 }
 
 const devURL = 'http://localhost:3000';
