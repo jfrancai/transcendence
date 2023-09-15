@@ -1,11 +1,13 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, Logger } from '@nestjs/common';
 import { Prisma } from '@prisma/client';
 import { PrismaService } from './prisma.service';
 import IUsers from './interface/users';
 
 @Injectable()
 export class UsersService {
-  constructor(private prisma: PrismaService) {}
+  private logger = new Logger(UsersService.name);
+
+  constructor(private prisma: PrismaService) { }
 
   async getUserById(id: string) {
     try {
@@ -15,6 +17,7 @@ export class UsersService {
         }
       });
     } catch (e: any) {
+      this.logger.warn(e);
       return null;
     }
   }
@@ -45,6 +48,7 @@ export class UsersService {
       }
       return null;
     } catch (e: any) {
+      this.logger.warn(e);
       return null;
     }
   }
@@ -57,6 +61,7 @@ export class UsersService {
         }
       });
     } catch (e: any) {
+      this.logger.warn(e);
       return null;
     }
   }
@@ -86,6 +91,7 @@ export class UsersService {
       }
       return await ret;
     } catch (e: any) {
+      this.logger.warn(e);
       return null;
     }
   }
@@ -101,6 +107,7 @@ export class UsersService {
         }
       });
     } catch (e: any) {
+      this.logger.warn(e);
       return null;
     }
   }
@@ -139,6 +146,7 @@ export class UsersService {
       }
       return await ret;
     } catch (e: any) {
+      this.logger.warn(e);
       return null;
     }
   }
@@ -149,7 +157,6 @@ export class UsersService {
         data: user
       });
     } catch (e: any) {
+      this.logger.warn(e);
       return null;
     }
-  }
-}

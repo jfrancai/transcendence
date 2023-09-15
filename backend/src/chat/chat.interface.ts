@@ -1,13 +1,9 @@
 import { Socket } from 'socket.io';
+import IUsers from 'src/database/service/interface/users';
 
 export interface Chat {}
 
-export type SessionID = string;
-export type UserID = string;
-export type Username = string;
-
 export interface ChatSocket extends Socket {
-  username: Username;
-  userID: UserID;
+  user: Partial<IUsers>;
   connected: boolean;
 }

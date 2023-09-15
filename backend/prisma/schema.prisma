@@ -11,9 +11,20 @@ datasource db {
 }
 
 model Users {
-    id              String @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-    email           String @unique
-    username        String @unique
-    password        String
-    apiToken        String?
+    id                String @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+    email             String @unique
+    username          String @unique
+    password          String
+    apiToken          String?
+    sentMessages      Message[] @relation("sentMessages")
+    receivedMessages  Message[] @relation("receivedMessages")
+}
+
+model Message {
+  id                  String @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  content             String
+  sender              Users @relation(name: "sentMessages", fields: [senderId], references: [id])
+  senderId            String @db.Uuid
+  receiver            Users @relation(name: "receivedMessages", fields: [receiverId], references: [id])
+  receiverId          String @db.Uuid
 }

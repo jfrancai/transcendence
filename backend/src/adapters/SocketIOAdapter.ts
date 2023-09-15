@@ -25,8 +25,7 @@ const createTokenMiddleware =
 
     const user = await authService.findUserWithJWT(token);
     if (user) {
-      socket.userID = user.id;
-      socket.username = user.username;
+      socket.user = user;
       socket.connected = true;
       next();
     } else {

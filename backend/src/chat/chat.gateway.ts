@@ -18,9 +18,9 @@ import InMemoryMessageStoreService from './message-store/in-memory-message-store
 import { MessageDto } from './dto/MessageDto.dto';
 import { ChatFilter } from './filters/chat.filter';
 
-// WebSocketGateways are instantiated from the SocketIoAdapter
+// WebSocketGateways are instantiated from the SocketIoAdapter (inside src/adapters)
 // inside this IoAdapter there is authentification process with JWT
-// validation using the AuthModule. Be aware of this incase you are
+// validation using the AuthModule. Be aware of this in case you are
 // stuck not understanding what is happenning.
 
 @WebSocketGateway()
@@ -41,45 +41,29 @@ export default class ChatGateway
   @WebSocketServer() io: Server;
 
   afterInit() {
-    this.io.use((socket: ChatSocket, next) => {
-      const { userID } = socket.handshake.auth;
-      if (userID) {
-        const session = this.sessionStore.findSession(userID);
-        if (session) {
-          return next();
-        }
-      }
-      const { username } = socket.handshake.auth;
-      if (!username) {
-        return next(new Error('invalid username'));
-      }
-      this.sessionStore.saveSession(socket.userID, {
-        userID: socket.userID,
-        username,
-        connected: true,
-        messages: []
-      });
+    this.io.use(async (socket: ChatSocket, next) => {
+      this.logger.log(socket.user);
       return next();
     });
     this.logger.log('Initialized');
   }
 
   handleConnection(socket: ChatSocket) {
-    this.logger.log(`ClientId: ${socket.userID} connected`);
+    this.logger.log(`ClientId: ${socket.user.id} connected`);
     this.logger.log(`Nb clients: ${this.io.sockets.sockets.size}`);
 
     const messagesPerUser = new Map();
-    const allMessages = this.messageStore.findMessageForUser(socket.userID);
+    const allMessages = this.messageStore.findMessageForUser(socket.user.id);
     allMessages.forEach((message) => {
       const { from, to } = message;
-      const otherUser = socket.userID === from ? to : from;
+      const otherUser = socket.user.id === from ? to : from;
       if (messagesPerUser.has(otherUser)) {
         messagesPerUser.get(otherUser).push(message);
       } else {
         messagesPerUser.set(otherUser, [message]);
       }
     });
-    socket.join(socket.userID);
+    socket.join(socket.user.id!);
     const users: Session[] = [];
     this.sessionStore.findAllSession().forEach((session: Session) => {
       users.push({
@@ -90,26 +74,26 @@ export default class ChatGateway
       });
     });
     socket.emit('session', {
-      userID: socket.userID,
-      username: socket.username
+      userID: socket.user.id,
+      username: socket.user.id
     });
     socket.emit('users', users);
     socket.broadcast.emit('user connected', {
-      userID: socket.userID,
-      username: socket.username,
-      connected: this.sessionStore.findSession(socket.userID)
+      userID: socket.user.id,
+      username: socket.user.username,
+      connected: this.sessionStore.findSession(socket.user.id!)
     });
   }
 
   async handleDisconnect(socket: ChatSocket) {
-    this.logger.log(`ClientId: ${socket.userID} disconnected`);
+    this.logger.log(`ClientId: ${socket.user.id} disconnected`);
     this.logger.log(`Nb clients: ${this.io.sockets.sockets.size}`);
 
-    const matchingSockets = await this.io.in(socket.userID).fetchSockets();
+    const matchingSockets = await this.io.in(socket.user.id!).fetchSockets();
 
     if (matchingSockets.length === 0) {
-      socket.broadcast.emit('user disconnected', socket.userID);
-      const session = this.sessionStore.findSession(socket.userID);
+      socket.broadcast.emit('user disconnected', socket.user.id);
+      const session = this.sessionStore.findSession(socket.user.id!);
       if (session) {
         session.connected = false;
       }
@@ -124,16 +108,16 @@ export default class ChatGateway
   ) {
     const { to, content } = messageDto;
     this.logger.log(
-      `Incoming private message from ${socket.userID} to ${to} with content: ${content}`
+      `Incoming private message from ${socket.user.id} to ${to} with content: ${content}`
     );
     const message = {
       content,
-      from: socket.userID,
+      from: socket.user.id,
       messageID: ChatGateway.randomId(),
       date: new Date(),
       to
     };
-    this.io.to(to).to(socket.userID).emit('private message', message);
+    this.io.to(to).to(socket.user.id!).emit('private message', message);
     this.messageStore.saveMessage(message);
   }
 
