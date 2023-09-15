@@ -4,7 +4,7 @@ import { JwtService } from '@nestjs/jwt';
 import axios, { AxiosResponse } from 'axios';
 import * as bcrypt from 'bcrypt';
 import { Request } from 'express';
-import IUsers from 'src/database/service/interface/users';
+import { IUsers } from 'src/database/service/interface/users';
 import { CONST_URL } from './constants';
 import { UsersService } from '../database/service/users.service';
 

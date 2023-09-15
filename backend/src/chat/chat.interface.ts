@@ -1,5 +1,5 @@
 import { Socket } from 'socket.io';
-import IUsers from '../database/service/interface/users';
+import { IUsers } from '../database/service/interface/users';
 import { UUID } from '../utils/types';
 
 export interface ChatSocket extends Socket {

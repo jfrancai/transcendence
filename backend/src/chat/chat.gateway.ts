@@ -53,7 +53,7 @@ export default class ChatGateway
 
     socket.join(socket.user.id!);
 
-    const users = await this.usersService.getAllUsers();
+    const users = await this.usersService.getAllUsersWithMessages();
     this.logger.debug(users);
     socket.emit('users', users);
 

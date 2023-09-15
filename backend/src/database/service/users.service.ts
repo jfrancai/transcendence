@@ -1,7 +1,7 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { Prisma } from '@prisma/client';
 import { PrismaService } from './prisma.service';
-import IUsers from './interface/users';
+import { IUsers } from './interface/users';
 
 @Injectable()
 export class UsersService {
@@ -25,6 +25,20 @@ export class UsersService {
   async getAllUsers() {
     try {
       return await this.prisma.users.findMany();
+    } catch (e: any) {
+      this.logger.warn(e);
+      return null;
+    }
+  }
+
+  async getAllUsersWithMessages() {
+    try {
+      return await this.prisma.users.findMany({
+        include: {
+          sentMessages: true,
+          receivedMessages: true
+        }
+      });
     } catch (e: any) {
       this.logger.warn(e);
       return null;

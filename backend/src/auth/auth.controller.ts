@@ -16,7 +16,7 @@ import {
 import { Response, Request } from 'express';
 import axios, { AxiosResponse } from 'axios';
 import * as bcrypt from 'bcrypt';
-import IUsers from 'src/database/service/interface/users';
+import { IUsers } from 'src/database/service/interface/users';
 import { LocalAuthGuard } from './guards/local-auth.guard';
 import { ContentValidationPipe, createSchema } from './pipes/validation.pipe';
 import { CreateDto } from './dto/create-dto';

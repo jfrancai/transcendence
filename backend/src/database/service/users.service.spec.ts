@@ -1,7 +1,7 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { PrismaService } from './prisma.service';
 import { UsersService } from './users.service';
-import IUsers from './interface/users';
+import { IUsers } from './interface/users';
 
 /*
  * use npm run test:db for testing
