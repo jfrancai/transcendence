@@ -1,11 +1,14 @@
-export interface SessionStore<IdType = any, SessionType = any> {
-  findSession(id: IdType): any;
-  saveSession(id: IdType, session: SessionType): any;
-  findAllSession(): any;
-}
-export interface Session {
-  userID: string;
+import { UUID } from '../../utils/types';
+
+export interface ChatUser {
+  userID: UUID;
   username: string;
-  connected: boolean;
-  messages: string[];
+  sentMessages: ChatMessage[];
+  receivedMessages: ChatMessage[];
+}
+
+export interface ChatMessage {
+  content: string;
+  sender: string;
+  receiver: string;
 }

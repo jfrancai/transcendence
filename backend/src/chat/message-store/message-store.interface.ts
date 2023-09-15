@@ -1,12 +1,10 @@
-import { UserID } from '../chat.interface';
-
 export interface Message {
   content: string;
-  from: UserID;
-  to: UserID;
+  from: string;
+  to: string;
 }
 
 export interface MessageStore {
   saveMessage(message: Message): any;
-  findMessageForUser(userID: UserID): any;
+  findMessageForUser(userID: string): any;
 }

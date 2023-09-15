@@ -11,12 +11,12 @@ import {
 } from '@nestjs/websockets';
 import { Server } from 'socket.io';
 import { Logger, UseFilters, ValidationPipe } from '@nestjs/common';
-import { Session } from './session-store/session-store.interface';
-import InMemorySessionStoreService from './session-store/in-memory-session-store/in-memory-session-store.service';
+import { ChatMessage, ChatUser } from './session-store/session-store.interface';
 import { ChatSocket } from './chat.interface';
-import InMemoryMessageStoreService from './message-store/in-memory-message-store/in-memory-message-store.service';
-import { MessageDto } from './dto/MessageDto.dto';
+import { PrivateMessageDto } from './dto/MessageDto.dto';
 import { ChatFilter } from './filters/chat.filter';
+import InMemoryMessageStoreService from './message-store/services/in-memory-message-store.service';
+import { UsersService } from '../database/service/users.service';
 
 // WebSocketGateways are instantiated from the SocketIoAdapter (inside src/adapters)
 // inside this IoAdapter there is authentification process with JWT
@@ -30,8 +30,8 @@ export default class ChatGateway
   private readonly logger = new Logger(ChatGateway.name);
 
   constructor(
-    private sessionStore: InMemorySessionStoreService<string, Session>,
-    private messageStore: InMemoryMessageStoreService
+    private messageStore: InMemoryMessageStoreService,
+    private usersService: UsersService
   ) {}
 
   getLogger(): Logger {
@@ -52,36 +52,16 @@ export default class ChatGateway
     this.logger.log(`ClientId: ${socket.user.id} connected`);
     this.logger.log(`Nb clients: ${this.io.sockets.sockets.size}`);
 
-    const messagesPerUser = new Map();
-    const allMessages = this.messageStore.findMessageForUser(socket.user.id);
-    allMessages.forEach((message) => {
-      const { from, to } = message;
-      const otherUser = socket.user.id === from ? to : from;
-      if (messagesPerUser.has(otherUser)) {
-        messagesPerUser.get(otherUser).push(message);
-      } else {
-        messagesPerUser.set(otherUser, [message]);
-      }
-    });
     socket.join(socket.user.id!);
-    const users: Session[] = [];
-    this.sessionStore.findAllSession().forEach((session: Session) => {
-      users.push({
-        userID: session.userID,
-        username: session.username,
-        connected: session.connected,
-        messages: messagesPerUser.get(session.userID) || []
-      });
-    });
-    socket.emit('session', {
-      userID: socket.user.id,
-      username: socket.user.id
-    });
-    socket.emit('users', users);
+
+    const usersEvent = async () => {
+      const users = await this.usersService.getAllUsers();
+      socket.emit('users', users);
+    };
+    usersEvent();
     socket.broadcast.emit('user connected', {
       userID: socket.user.id,
-      username: socket.user.username,
-      connected: this.sessionStore.findSession(socket.user.id!)
+      username: socket.user.username
     });
   }
 
@@ -93,17 +73,13 @@ export default class ChatGateway
 
     if (matchingSockets.length === 0) {
       socket.broadcast.emit('user disconnected', socket.user.id);
-      const session = this.sessionStore.findSession(socket.user.id!);
-      if (session) {
-        session.connected = false;
-      }
     }
   }
 
   @SubscribeMessage('private message')
   @UseFilters(ChatFilter)
   handlePrivateMessage(
-    @MessageBody(new ValidationPipe()) messageDto: MessageDto,
+    @MessageBody(new ValidationPipe()) messageDto: PrivateMessageDto,
     @ConnectedSocket() socket: ChatSocket
   ) {
     const { to, content } = messageDto;
@@ -112,7 +88,7 @@ export default class ChatGateway
     );
     const message = {
       content,
-      from: socket.user.id,
+      from: socket.user.id!,
       messageID: ChatGateway.randomId(),
       date: new Date(),
       to

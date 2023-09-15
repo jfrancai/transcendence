@@ -7,7 +7,7 @@ import IUsers from './interface/users';
 export class UsersService {
   private logger = new Logger(UsersService.name);
 
-  constructor(private prisma: PrismaService) { }
+  constructor(private prisma: PrismaService) {}
 
   async getUserById(id: string) {
     try {
@@ -16,6 +16,19 @@ export class UsersService {
           id
         }
       });
+    } catch (e: any) {
+      this.logger.warn(e);
+      return null;
+    }
+  }
+
+  async getAllUsers() {
+    try {
+      const users = await this.prisma.users.findMany();
+      if (users) {
+        return users as unknown as IUsers[];
+      }
+      return null;
     } catch (e: any) {
       this.logger.warn(e);
       return null;
@@ -160,3 +173,5 @@ export class UsersService {
       this.logger.warn(e);
       return null;
     }
+  }
+}
