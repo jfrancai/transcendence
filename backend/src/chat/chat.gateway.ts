@@ -11,7 +11,11 @@ import {
 } from '@nestjs/websockets';
 import { Server } from 'socket.io';
 import { Logger, UseFilters, ValidationPipe } from '@nestjs/common';
-import { ChatSocket } from './chat.interface';
+import {
+  ChatSocket,
+  PublicChatMessage,
+  PublicChatUser
+} from './chat.interface';
 import { PrivateMessageDto } from './dto/MessageDto.dto';
 import { ChatFilter } from './filters/chat.filter';
 import InMemoryMessageStoreService from './message-store/services/in-memory-message-store.service';
@@ -41,7 +45,7 @@ export default class ChatGateway
 
   afterInit() {
     this.io.use(async (socket: ChatSocket, next) => {
-      this.logger.log(socket.user);
+      this.logger.debug(socket.user);
       return next();
     });
     this.logger.log('Initialized');
@@ -53,9 +57,44 @@ export default class ChatGateway
 
     socket.join(socket.user.id!);
 
-    const users = await this.usersService.getAllUsersWithMessages();
-    this.logger.debug(users);
-    socket.emit('users', users);
+    const usersInDb = await this.usersService.getAllUsersWithMessages();
+    if (usersInDb) {
+      const users: PublicChatUser[] = [];
+      usersInDb.forEach((user) => {
+        const { sentMessages, receivedMessages } = user;
+
+        const publicSentMessages: PublicChatMessage[] = [];
+        sentMessages.forEach(async (message) => {
+          const sender = user;
+          const receiver = await this.usersService.getUserById(
+            message.receiverId
+          );
+          publicSentMessages.push({
+            content: message.content,
+            sender: sender.username,
+            receiver: receiver!.username
+          });
+        });
+
+        const publicReceivedMessages: PublicChatMessage[] = [];
+        receivedMessages.forEach(async (message) => {
+          const sender = await this.usersService.getUserById(message.senderId);
+          const receiver = user;
+          publicReceivedMessages.push({
+            content: message.content,
+            sender: sender!.username,
+            receiver: receiver.username
+          });
+        });
+
+        users.push({
+          username: user.username,
+          sentMessages: publicSentMessages,
+          receivedMessages: publicReceivedMessages
+        });
+      });
+      socket.emit('users', users);
+    }
 
     socket.broadcast.emit('user connected', {
       userID: socket.user.id,
