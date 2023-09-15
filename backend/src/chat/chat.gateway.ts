@@ -48,17 +48,16 @@ export default class ChatGateway
     this.logger.log('Initialized');
   }
 
-  handleConnection(socket: ChatSocket) {
+  async handleConnection(socket: ChatSocket) {
     this.logger.log(`ClientId: ${socket.user.id} connected`);
     this.logger.log(`Nb clients: ${this.io.sockets.sockets.size}`);
 
     socket.join(socket.user.id!);
 
-    const usersEvent = async () => {
-      const users = await this.usersService.getAllUsers();
-      socket.emit('users', users);
-    };
-    usersEvent();
+    const users = await this.usersService.getAllUsers();
+    this.logger.debug(users);
+    socket.emit('users', users);
+
     socket.broadcast.emit('user connected', {
       userID: socket.user.id,
       username: socket.user.username

@@ -81,7 +81,9 @@ export class AuthController {
         sameSite: 'lax',
         httpOnly: true
       });
-      await this.authService.updateUser(user, { apiToken: token.access_token });
+      await this.authService.updateUser(user as Partial<IUsers>, {
+        apiToken: token.access_token
+      });
       res.status(301).redirect('/auth/profile');
     }
   }

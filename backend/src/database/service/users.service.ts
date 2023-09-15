@@ -24,11 +24,7 @@ export class UsersService {
 
   async getAllUsers() {
     try {
-      const users = await this.prisma.users.findMany();
-      if (users) {
-        return users as unknown as IUsers[];
-      }
-      return null;
+      return await this.prisma.users.findMany();
     } catch (e: any) {
       this.logger.warn(e);
       return null;

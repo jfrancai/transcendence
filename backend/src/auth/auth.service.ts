@@ -55,7 +55,7 @@ export class AuthService {
 
       // eslint-disable-line @typescript-eslint/no-unused-vars
       const { password, ...userWithoutPassword } = user;
-      return isMatch ? userWithoutPassword : null;
+      return isMatch ? (userWithoutPassword as unknown as IUsers) : null;
     } catch (e) {
       return null;
     }

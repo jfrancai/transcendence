@@ -6,6 +6,7 @@ export default interface IUsers {
   email: string;
   username: string;
   password: string;
+  apiToken: string;
   sentMessages: IMessage[];
   receivedMessages: IMessage[];
 }
