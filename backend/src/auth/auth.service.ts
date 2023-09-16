@@ -1,5 +1,6 @@
 import { Injectable, HttpException, HttpStatus, Logger } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
+import { Prisma } from '@prisma/client';
 import { JwtService } from '@nestjs/jwt';
 import axios, { AxiosResponse } from 'axios';
 import * as bcrypt from 'bcrypt';
@@ -99,12 +100,12 @@ export class AuthService {
     }
   }
 
-  async findUserWithJWT(token: string) {
+  async findUserByJWT(token: string, include?: Prisma.UsersInclude | null) {
     try {
       this.jwtService.verify(token);
       const payload: any = this.jwtService.decode(token);
       const { email } = payload;
-      return await this.usersService.getUser({ email });
+      return await this.usersService.getUser({ email }, include);
     } catch (error) {
       this.logger.warn(error);
       return null;

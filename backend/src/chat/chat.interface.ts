@@ -1,8 +1,8 @@
 import { Socket } from 'socket.io';
-import { IUsers } from '../database/service/interface/users';
+import { IUsersMessages } from '../database/service/interface/users';
 
 export interface ChatSocket extends Socket {
-  user: Partial<IUsers>;
+  user: Partial<IUsersMessages>;
   connected: boolean;
 }
 

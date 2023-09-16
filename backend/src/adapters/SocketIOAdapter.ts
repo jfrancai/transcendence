@@ -24,7 +24,11 @@ const createTokenMiddleware =
     const { token } = socket.handshake.auth;
     logger.log(`Validating auth token before connection: ${token}`);
 
-    const user = await authService.findUserWithJWT(token);
+    const include = {
+      sentMessages: true,
+      receivedMessages: true
+    };
+    const user = await authService.findUserByJWT(token, include);
     if (user) {
       socket.user = user as Partial<IUsers>;
       socket.connected = true;

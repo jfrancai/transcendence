@@ -2,6 +2,7 @@ import { Injectable, Logger } from '@nestjs/common';
 import { Prisma } from '@prisma/client';
 import { PrismaService } from './prisma.service';
 import { IUsers } from './interface/users';
+import { UUID } from '../../utils/types';
 
 @Injectable()
 export class UsersService {
@@ -9,12 +10,13 @@ export class UsersService {
 
   constructor(private prisma: PrismaService) {}
 
-  async getUserById(id: string) {
+  async getUserById(id: string, include?: Prisma.UsersInclude | null) {
     try {
       return await this.prisma.users.findUnique({
         where: {
           id
-        }
+        },
+        include
       });
     } catch (e: any) {
       this.logger.warn(e);
@@ -22,22 +24,10 @@ export class UsersService {
     }
   }
 
-  async getAllUsers() {
-    try {
-      return await this.prisma.users.findMany();
-    } catch (e: any) {
-      this.logger.warn(e);
-      return null;
-    }
-  }
-
-  async getAllUsersWithMessages() {
+  async getAllUsers(include?: Prisma.UsersInclude | null) {
     try {
       return await this.prisma.users.findMany({
-        include: {
-          sentMessages: true,
-          receivedMessages: true
-        }
+        include
       });
     } catch (e: any) {
       this.logger.warn(e);
@@ -45,28 +35,31 @@ export class UsersService {
     }
   }
 
-  async getUser(user: Partial<IUsers>) {
+  async getUser(user: Partial<IUsers>, include?: Prisma.UsersInclude | null) {
     try {
       if (user.username !== undefined && user.email !== undefined) {
         return await this.prisma.users.findUnique({
           where: {
             username: user.username,
             email: user.email
-          }
+          },
+          include
         });
       }
       if (user.email !== undefined) {
         return await this.prisma.users.findUnique({
           where: {
             email: user.email
-          }
+          },
+          include
         });
       }
       if (user.username !== undefined) {
         return await this.prisma.users.findUnique({
           where: {
             username: user.username
-          }
+          },
+          include
         });
       }
       return null;

@@ -56,45 +56,9 @@ export default class ChatGateway
     this.logger.log(`Nb clients: ${this.io.sockets.sockets.size}`);
 
     socket.join(socket.user.id!);
-
-    const usersInDb = await this.usersService.getAllUsersWithMessages();
-    if (usersInDb) {
-      const users: PublicChatUser[] = [];
-      usersInDb.forEach((user) => {
-        const { sentMessages, receivedMessages } = user;
-
-        const publicSentMessages: PublicChatMessage[] = [];
-        sentMessages.forEach(async (message) => {
-          const sender = user;
-          const receiver = await this.usersService.getUserById(
-            message.receiverId
-          );
-          publicSentMessages.push({
-            content: message.content,
-            sender: sender.username,
-            receiver: receiver!.username
-          });
-        });
-
-        const publicReceivedMessages: PublicChatMessage[] = [];
-        receivedMessages.forEach(async (message) => {
-          const sender = await this.usersService.getUserById(message.senderId);
-          const receiver = user;
-          publicReceivedMessages.push({
-            content: message.content,
-            sender: sender!.username,
-            receiver: receiver.username
-          });
-        });
-
-        users.push({
-          username: user.username,
-          sentMessages: publicSentMessages,
-          receivedMessages: publicReceivedMessages
-        });
-      });
-      socket.emit('users', users);
-    }
+    this.logger.debug(socket.user);
+    const { sentMessages, receivedMessages } = socket.user;
+    socket.emit('users', users);
 
     socket.broadcast.emit('user connected', {
       userID: socket.user.id,
