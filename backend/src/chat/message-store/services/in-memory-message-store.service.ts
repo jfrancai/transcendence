@@ -1,5 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { Message, MessageStore } from '../message-store.interface';
+import { UUID } from '../../../utils/types';
 
 @Injectable()
 export default class InMemoryMessageStoreService implements MessageStore {
@@ -9,7 +10,7 @@ export default class InMemoryMessageStoreService implements MessageStore {
     this.messages.push(message);
   }
 
-  findMessageForUser(userID: string) {
+  findMessageForUser(userID: UUID) {
     return this.messages.filter(
       ({ from, to }) => from === userID || to === userID
     );

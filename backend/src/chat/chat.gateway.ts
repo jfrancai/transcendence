@@ -33,7 +33,7 @@ export default class ChatGateway
   private readonly logger = new Logger(ChatGateway.name);
 
   constructor(
-    private messageStore: InMemoryMessageStoreService,
+    private messageStore: InDbMessageStoreService,
     private usersService: UsersService
   ) {}
 
@@ -57,7 +57,20 @@ export default class ChatGateway
 
     socket.join(socket.user.id!);
     this.logger.debug(socket.user);
-    const { sentMessages, receivedMessages } = socket.user;
+
+    const messagesPerUser = new Map();
+    this.messageStore.findMessageForUser(socket.user.id!).forEach((message) => {
+      const { from, to } = message;
+      const otherUser = socket.user.id === from ? to : from;
+      if (messagesPerUser.has(otherUser)) {
+        messagesPerUser.get(otherUser).push(message);
+      } else {
+        messagesPerUser.set(otherUser, [message]);
+      }
+    });
+
+    const users: PublicChatUser[] = [];
+
     socket.emit('users', users);
 
     socket.broadcast.emit('user connected', {

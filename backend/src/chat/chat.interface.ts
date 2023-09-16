@@ -8,8 +8,7 @@ export interface ChatSocket extends Socket {
 
 export interface PublicChatUser {
   username: string;
-  sentMessages: PublicChatMessage[];
-  receivedMessages: PublicChatMessage[];
+  messages: PublicChatMessage[];
 }
 
 export interface PublicChatMessage {
