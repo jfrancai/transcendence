@@ -11,15 +11,11 @@ import {
 } from '@nestjs/websockets';
 import { Server } from 'socket.io';
 import { Logger, UseFilters, ValidationPipe } from '@nestjs/common';
-import {
-  ChatSocket,
-  PublicChatMessage,
-  PublicChatUser
-} from './chat.interface';
+import { ChatSocket, PublicChatUser } from './chat.interface';
 import { PrivateMessageDto } from './dto/MessageDto.dto';
 import { ChatFilter } from './filters/chat.filter';
-import InMemoryMessageStoreService from './message-store/services/in-memory-message-store.service';
 import { UsersService } from '../database/service/users.service';
+import InDbMessageStoreService from './message-store/services/in-db-message-store.service';
 
 // WebSocketGateways are instantiated from the SocketIoAdapter (inside src/adapters)
 // inside this IoAdapter there is authentification process with JWT
@@ -77,6 +73,7 @@ export default class ChatGateway
       userID: socket.user.id,
       username: socket.user.username
     });
+    y;
   }
 
   async handleDisconnect(socket: ChatSocket) {
