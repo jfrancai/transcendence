@@ -11,9 +11,9 @@ export function useMessageHistory(contact: Contact | undefined) {
         msgs = [
           ...msgs,
           {
-            messageID: message.messageID,
+            id: message.id,
             message: message.content,
-            time: formatTimeMessage(message.date),
+            time: formatTimeMessage(message.createdAt),
             username: contact.username,
             level: 42,
             profilePictureUrl: 'starwatcher.jpg'

@@ -45,7 +45,6 @@ export default class ChatGateway
 
   afterInit() {
     this.io.use(async (socket: ChatSocket, next) => {
-      this.logger.debug(socket.user);
       return next();
     });
     this.logger.log('Initialized');
@@ -58,27 +57,31 @@ export default class ChatGateway
     this.usersService.setChatConnected(socket.user.id!);
 
     socket.join(socket.user.id!);
-    this.logger.debug(socket.user);
 
     const messagesPerUser = new Map<UUID, PublicChatMessage[]>();
     const messages = await this.messageService.getMessageByUserId(
       socket.user.id!
     );
-    messages!.forEach(async (message) => {
+    const privateUsers = await this.usersService.getAllUsers();
+
+    const mapUserIdUsername = new Map<UUID, string>();
+    if (privateUsers) {
+      privateUsers.forEach((user) => {
+        mapUserIdUsername.set(user.id as UUID, user.username);
+      });
+    }
+
+    messages!.forEach((message) => {
       const otherUser =
         socket.user.id === message.senderId
           ? message.receiverId
           : message.senderId;
-      const sender = await this.usersService.getUserById(
-        message.senderId as UUID
-      );
-      const receiver = await this.usersService.getUserById(
-        message.receiverId as UUID
-      );
+      const sender = mapUserIdUsername.get(message.senderId as UUID);
+      const receiver = mapUserIdUsername.get(message.receiverId as UUID);
       const publicMessage: PublicChatMessage = {
         content: message.content,
-        sender: sender!.username,
-        receiver: receiver!.username,
+        sender: sender!,
+        receiver: receiver!,
         messageID: message.id as UUID
       };
       if (messagesPerUser.has(otherUser as UUID)) {
@@ -89,9 +92,9 @@ export default class ChatGateway
     });
 
     const publicUsers: PublicChatUser[] = [];
-    const privateUsers = await this.usersService.getAllUsers();
     if (privateUsers) {
       privateUsers!.forEach((user) => {
+        this.logger.debug(messagesPerUser.get(user.id as UUID));
         publicUsers.push({
           userID: user.id as UUID,
           connected: user.connectedChat,
@@ -100,7 +103,6 @@ export default class ChatGateway
         });
       });
     }
-    this.logger.debug(`users ${publicUsers}`);
     socket.emit('session', {
       userID: socket.user.id
     });

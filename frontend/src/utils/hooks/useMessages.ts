@@ -19,9 +19,9 @@ export function useMessages(
             ? contact.username
             : socket.username;
         formatedMessages.push({
-          messageID: message.messageID,
+          id: message.id,
           message: message.content,
-          time: formatTimeMessage(message.date),
+          time: formatTimeMessage(message.createdAt),
           username,
           level: 42,
           profilePictureUrl: 'starwatcher.jpg'

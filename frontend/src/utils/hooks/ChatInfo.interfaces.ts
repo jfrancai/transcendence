@@ -4,7 +4,7 @@ export interface ChatInfo {
   message: string;
   profilePictureUrl: string;
   level: number;
-  messageID: string;
+  id: string;
 }
 
 export default {};

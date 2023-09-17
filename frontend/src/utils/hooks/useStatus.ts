@@ -5,8 +5,8 @@ export interface PrivateMessage {
   content: string;
   senderId: string;
   receiverId: string;
-  date: Date;
-  messageID: string;
+  createdAt: Date;
+  id: string;
 }
 
 function isPrivateMessage(data: any): data is PrivateMessage {
@@ -14,8 +14,8 @@ function isPrivateMessage(data: any): data is PrivateMessage {
     data.content !== undefined &&
     data.senderId !== undefined &&
     data.receiverId !== undefined &&
-    data.date !== undefined &&
-    data.messageID !== undefined
+    data.createdAt !== undefined &&
+    data.id !== undefined
   );
 }
 
@@ -73,7 +73,9 @@ export function useStatus(): [Status, Dispatch<SetStateAction<Status>>] {
     const onConnect = () => setStatus((s) => ({ ...s, isConnected: true }));
     const onDisconnect = () => setStatus((s) => ({ ...s, isConnected: false }));
     const onPrivateMessage = (data: any) => {
+      console.log('coucou1');
       if (isPrivateMessage(data)) {
+        console.log('coucou2');
         setStatus((s) => ({
           ...s,
           privateMessage: data

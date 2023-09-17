@@ -2,6 +2,7 @@ import ChatMessage from '../ChatMessage/ChatMessage';
 import { Contact } from '../../utils/hooks/useStatus';
 import { useMessages } from '../../utils/hooks/useMessages';
 import { useScroll } from '../../utils/hooks/useScroll';
+import { useEffect } from 'react';
 
 interface ChatFeedProps {
   contact: Contact | undefined;
@@ -12,13 +13,17 @@ function ChatFeed({ contact, isConnected }: ChatFeedProps) {
   const messages = useMessages(contact, isConnected);
   const messageEndRef = useScroll(messages);
 
+  useEffect(() => {
+    console.log(messages);
+  }, [messages]);
+
   return (
     <div>
       {messages.map((chat, index: number) => {
         if (index % 2) {
           return (
             <ChatMessage
-              key={chat.messageID}
+              key={chat.id}
               message={chat.message}
               time={chat.time}
               username={chat.username}
@@ -30,7 +35,7 @@ function ChatFeed({ contact, isConnected }: ChatFeedProps) {
         }
         return (
           <ChatMessage
-            key={chat.messageID}
+            key={chat.id}
             message={chat.message}
             time={chat.time}
             username={chat.username}
