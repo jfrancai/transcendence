@@ -1,4 +1,3 @@
-import { v4 as uuidv4 } from 'uuid';
 import {
   ConnectedSocket,
   MessageBody,
@@ -14,8 +13,7 @@ import { Logger, UseFilters, ValidationPipe } from '@nestjs/common';
 import { ChatSocket, PublicChatUser } from './chat.interface';
 import { PrivateMessageDto } from './dto/MessageDto.dto';
 import { ChatFilter } from './filters/chat.filter';
-import { UsersService } from '../database/service/users.service';
-import InDbMessageStoreService from './message-store/services/in-db-message-store.service';
+import { MessageService } from '../database/service/message.service';
 
 // WebSocketGateways are instantiated from the SocketIoAdapter (inside src/adapters)
 // inside this IoAdapter there is authentification process with JWT
@@ -28,10 +26,7 @@ export default class ChatGateway
 {
   private readonly logger = new Logger(ChatGateway.name);
 
-  constructor(
-    private messageStore: InDbMessageStoreService,
-    private usersService: UsersService
-  ) {}
+  constructor(private messageService: MessageService) {}
 
   getLogger(): Logger {
     return this.logger;
@@ -55,8 +50,12 @@ export default class ChatGateway
     this.logger.debug(socket.user);
 
     const messagesPerUser = new Map();
-    this.messageStore.findMessageForUser(socket.user.id!).forEach((message) => {
-      const { from, to } = message;
+    const messages = await this.messageService.getMessageByUserId(
+      socket.user.id!
+    );
+    messages!.forEach((message) => {
+      const from = message.senderId;
+      const to = message.receiverId;
       const otherUser = socket.user.id === from ? to : from;
       if (messagesPerUser.has(otherUser)) {
         messagesPerUser.get(otherUser).push(message);
@@ -73,7 +72,6 @@ export default class ChatGateway
       userID: socket.user.id,
       username: socket.user.username
     });
-    y;
   }
 
   async handleDisconnect(socket: ChatSocket) {
@@ -99,16 +97,10 @@ export default class ChatGateway
     );
     const message = {
       content,
-      from: socket.user.id!,
-      messageID: ChatGateway.randomId(),
-      date: new Date(),
-      to
+      senderId: socket.user.id!,
+      receiverId: to
     };
     this.io.to(to).to(socket.user.id!).emit('private message', message);
-    this.messageStore.saveMessage(message);
-  }
-
-  static randomId(): string {
-    return uuidv4();
+    this.messageService.createMessage(message);
   }
 }

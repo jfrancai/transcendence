@@ -22,6 +22,30 @@ export class MessageService {
     }
   }
 
+  async getMessageByUserId(id: UUID) {
+    try {
+      return await this.prisma.message.findMany({
+        where: {
+          OR: [
+            {
+              senderId: {
+                equals: id
+              }
+            },
+            {
+              receiverId: {
+                equals: id
+              }
+            }
+          ]
+        }
+      });
+    } catch (e: any) {
+      this.logger.warn(e);
+      return null;
+    }
+  }
+
   async createMessage(message: Prisma.MessageCreateInput) {
     try {
       return await this.prisma.message.create({

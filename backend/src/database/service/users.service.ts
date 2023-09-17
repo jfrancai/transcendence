@@ -10,13 +10,12 @@ export class UsersService {
 
   constructor(private prisma: PrismaService) {}
 
-  async getUserById(id: string, include?: Prisma.UsersInclude | null) {
+  async getUserById(id: string) {
     try {
       return await this.prisma.users.findUnique({
         where: {
           id
-        },
-        include
+        }
       });
     } catch (e: any) {
       this.logger.warn(e);
@@ -24,42 +23,37 @@ export class UsersService {
     }
   }
 
-  async getAllUsers(include?: Prisma.UsersInclude | null) {
+  async getAllUsers() {
     try {
-      return await this.prisma.users.findMany({
-        include
-      });
+      return await this.prisma.users.findMany();
     } catch (e: any) {
       this.logger.warn(e);
       return null;
     }
   }
 
-  async getUser(user: Partial<IUsers>, include?: Prisma.UsersInclude | null) {
+  async getUser(user: Partial<IUsers>) {
     try {
       if (user.username !== undefined && user.email !== undefined) {
         return await this.prisma.users.findUnique({
           where: {
             username: user.username,
             email: user.email
-          },
-          include
+          }
         });
       }
       if (user.email !== undefined) {
         return await this.prisma.users.findUnique({
           where: {
             email: user.email
-          },
-          include
+          }
         });
       }
       if (user.username !== undefined) {
         return await this.prisma.users.findUnique({
           where: {
             username: user.username
-          },
-          include
+          }
         });
       }
       return null;
