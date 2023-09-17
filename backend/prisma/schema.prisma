@@ -15,6 +15,7 @@ model Message {
   content             String
   senderId            String @db.Uuid
   receiverId          String @db.Uuid
+  createdAt           DateTime @default(now())
 }
 
 model Users {
