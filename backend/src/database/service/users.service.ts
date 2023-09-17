@@ -10,7 +10,7 @@ export class UsersService {
 
   constructor(private prisma: PrismaService) {}
 
-  async getUserById(id: string) {
+  async getUserById(id: UUID) {
     try {
       return await this.prisma.users.findUnique({
         where: {
@@ -63,7 +63,7 @@ export class UsersService {
     }
   }
 
-  async deleteUserById(id: string) {
+  async deleteUserById(id: UUID) {
     try {
       return await this.prisma.users.delete({
         where: {
@@ -165,6 +165,42 @@ export class UsersService {
     try {
       return await this.prisma.users.create({
         data: user
+      });
+    } catch (e: any) {
+      this.logger.warn(e);
+      return null;
+    }
+  }
+
+  async setChatConnected(id: UUID) {
+    try {
+      return await this.prisma.users.update({
+        where: {
+          id
+        },
+        data: {
+          connectedChat: {
+            set: true
+          }
+        }
+      });
+    } catch (e: any) {
+      this.logger.warn(e);
+      return null;
+    }
+  }
+
+  async setChatDisonnected(id: UUID) {
+    try {
+      return await this.prisma.users.update({
+        where: {
+          id
+        },
+        data: {
+          connectedChat: {
+            set: false
+          }
+        }
       });
     } catch (e: any) {
       this.logger.warn(e);

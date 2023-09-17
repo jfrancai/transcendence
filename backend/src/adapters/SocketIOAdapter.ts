@@ -27,10 +27,11 @@ const createTokenMiddleware =
     const user = await authService.findUserByJWT(token);
     if (user) {
       socket.user = user as Partial<IUsers>;
-      socket.connected = true;
       next();
     } else {
-      next(new Error('FORBIDDEN'));
+      logger.warn(
+        "A unauthorized user tried to connect. If it's valid user then maybe the user is missing in the DB"
+      );
     }
   };
 

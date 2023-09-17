@@ -23,4 +23,5 @@ model Users {
     username          String @unique
     password          String
     apiToken          String?
+    connectedChat     Boolean @default(false)
 }

@@ -20,7 +20,6 @@ import { ChatFilter } from './filters/chat.filter';
 import { MessageService } from '../database/service/message.service';
 import { UsersService } from '../database/service/users.service';
 import { UUID } from '../utils/types';
-import { IUsers } from 'src/database/service/interface/users';
 
 // WebSocketGateways are instantiated from the SocketIoAdapter (inside src/adapters)
 // inside this IoAdapter there is authentification process with JWT
@@ -56,6 +55,8 @@ export default class ChatGateway
     this.logger.log(`ClientId: ${socket.user.id} connected`);
     this.logger.log(`Nb clients: ${this.io.sockets.sockets.size}`);
 
+    this.usersService.setChatConnected(socket.user.id!);
+
     socket.join(socket.user.id!);
     this.logger.debug(socket.user);
 
@@ -68,12 +69,17 @@ export default class ChatGateway
         socket.user.id === message.senderId
           ? message.receiverId
           : message.senderId;
-      const sender = await this.usersService.getUserById(message.senderId);
-      const receiver = await this.usersService.getUserById(message.receiverId);
+      const sender = await this.usersService.getUserById(
+        message.senderId as UUID
+      );
+      const receiver = await this.usersService.getUserById(
+        message.receiverId as UUID
+      );
       const publicMessage: PublicChatMessage = {
         content: message.content,
         sender: sender!.username,
-        receiver: receiver!.username
+        receiver: receiver!.username,
+        messageID: message.id as UUID
       };
       if (messagesPerUser.has(otherUser as UUID)) {
         messagesPerUser.get(otherUser as UUID)?.push(publicMessage);
@@ -88,12 +94,16 @@ export default class ChatGateway
       privateUsers!.forEach((user) => {
         publicUsers.push({
           userID: user.id as UUID,
+          connected: user.connectedChat,
           username: user.username!,
           messages: messagesPerUser.get(user.id as UUID) || []
         });
       });
     }
     this.logger.debug(`users ${publicUsers}`);
+    socket.emit('session', {
+      userID: socket.user.id
+    });
     socket.emit('users', publicUsers);
 
     socket.broadcast.emit('user connected', {
@@ -105,6 +115,8 @@ export default class ChatGateway
   async handleDisconnect(socket: ChatSocket) {
     this.logger.log(`ClientId: ${socket.user.id} disconnected`);
     this.logger.log(`Nb clients: ${this.io.sockets.sockets.size}`);
+
+    this.usersService.setChatDisonnected(socket.user.id!);
 
     const matchingSockets = await this.io.in(socket.user.id!).fetchSockets();
 
@@ -119,16 +131,21 @@ export default class ChatGateway
     @MessageBody(new ValidationPipe()) messageDto: PrivateMessageDto,
     @ConnectedSocket() socket: ChatSocket
   ) {
-    const { to, content } = messageDto;
+    const { receiverId, content } = messageDto;
+    const senderId = socket.user.id!;
     this.logger.log(
-      `Incoming private message from ${socket.user.id} to ${to} with content: ${content}`
+      `Incoming private message from ${senderId} to ${receiverId} with content: ${content}`
     );
-    const message = {
+    const message = await this.messageService.createMessage({
       content,
-      senderId: socket.user.id!,
-      receiverId: to
-    };
-    this.io.to(to).to(socket.user.id!).emit('private message', message);
-    this.messageService.createMessage(message);
+      senderId,
+      receiverId
+    });
+    if (message) {
+      this.io
+        .to(receiverId)
+        .to(socket.user.id!)
+        .emit('private message', message);
+    }
   }
 }

@@ -9,11 +9,13 @@ export interface ChatSocket extends Socket {
 
 export interface PublicChatUser {
   userID: UUID;
+  connected: boolean;
   username: string;
   messages: PublicChatMessage[];
 }
 
 export interface PublicChatMessage {
+  messageID: UUID;
   content: string;
   sender: string;
   receiver: string;
