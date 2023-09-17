@@ -1,5 +1,4 @@
 import { UUID } from 'src/utils/types';
-import IMessage from './message';
 
 export interface IUsers {
   id: UUID;
@@ -8,8 +7,3 @@ export interface IUsers {
   password: string;
   apiToken: string;
 }
-
-export type IUsersMessages = {
-  sentMessages: IMessage[];
-  receivedMessages: IMessage[];
-} & IUsers;

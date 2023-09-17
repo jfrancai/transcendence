@@ -10,10 +10,16 @@ import {
 } from '@nestjs/websockets';
 import { Server } from 'socket.io';
 import { Logger, UseFilters, ValidationPipe } from '@nestjs/common';
-import { ChatSocket, PublicChatUser } from './chat.interface';
+import {
+  ChatSocket,
+  PublicChatMessage,
+  PublicChatUser
+} from './chat.interface';
 import { PrivateMessageDto } from './dto/MessageDto.dto';
 import { ChatFilter } from './filters/chat.filter';
 import { MessageService } from '../database/service/message.service';
+import { UsersService } from '../database/service/users.service';
+import { UUID } from '../utils/types';
 
 // WebSocketGateways are instantiated from the SocketIoAdapter (inside src/adapters)
 // inside this IoAdapter there is authentification process with JWT
@@ -26,7 +32,10 @@ export default class ChatGateway
 {
   private readonly logger = new Logger(ChatGateway.name);
 
-  constructor(private messageService: MessageService) {}
+  constructor(
+    private usersService: UsersService,
+    private messageService: MessageService
+  ) {}
 
   getLogger(): Logger {
     return this.logger;
@@ -49,24 +58,41 @@ export default class ChatGateway
     socket.join(socket.user.id!);
     this.logger.debug(socket.user);
 
-    const messagesPerUser = new Map();
+    const messagesPerUser = new Map<UUID, PublicChatMessage[]>();
     const messages = await this.messageService.getMessageByUserId(
       socket.user.id!
     );
-    messages!.forEach((message) => {
-      const from = message.senderId;
-      const to = message.receiverId;
-      const otherUser = socket.user.id === from ? to : from;
-      if (messagesPerUser.has(otherUser)) {
-        messagesPerUser.get(otherUser).push(message);
+    messages!.forEach(async (message) => {
+      const otherUser =
+        socket.user.id === message.senderId
+          ? message.receiverId
+          : message.senderId;
+      const sender = await this.usersService.getUserById(message.senderId);
+      const receiver = await this.usersService.getUserById(message.receiverId);
+      const publicMessage: PublicChatMessage = {
+        content: message.content,
+        sender: sender!.username,
+        receiver: receiver!.username
+      };
+      if (messagesPerUser.has(otherUser as UUID)) {
+        messagesPerUser.get(otherUser as UUID)?.push(publicMessage);
       } else {
-        messagesPerUser.set(otherUser, [message]);
+        messagesPerUser.set(otherUser as UUID, [publicMessage]);
       }
     });
 
-    const users: PublicChatUser[] = [];
-
-    socket.emit('users', users);
+    const publicUsers: PublicChatUser[] = [];
+    const privateUsers = await this.usersService.getAllUsers();
+    if (privateUsers) {
+      privateUsers!.forEach((user) => {
+        publicUsers.push({
+          username: user.username!,
+          messages: messagesPerUser.get(user.id as UUID) || []
+        });
+      });
+    }
+    this.logger.debug(`users ${publicUsers}`);
+    socket.emit('users', publicUsers);
 
     socket.broadcast.emit('user connected', {
       userID: socket.user.id,
