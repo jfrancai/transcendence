@@ -20,6 +20,7 @@ import { ChatFilter } from './filters/chat.filter';
 import { MessageService } from '../database/service/message.service';
 import { UsersService } from '../database/service/users.service';
 import { UUID } from '../utils/types';
+import { IUsers } from 'src/database/service/interface/users';
 
 // WebSocketGateways are instantiated from the SocketIoAdapter (inside src/adapters)
 // inside this IoAdapter there is authentification process with JWT
@@ -86,6 +87,7 @@ export default class ChatGateway
     if (privateUsers) {
       privateUsers!.forEach((user) => {
         publicUsers.push({
+          userID: user.id as UUID,
           username: user.username!,
           messages: messagesPerUser.get(user.id as UUID) || []
         });
@@ -95,6 +97,7 @@ export default class ChatGateway
     socket.emit('users', publicUsers);
 
     socket.broadcast.emit('user connected', {
+      userID: socket.user.id,
       username: socket.user.username
     });
   }
@@ -106,13 +109,13 @@ export default class ChatGateway
     const matchingSockets = await this.io.in(socket.user.id!).fetchSockets();
 
     if (matchingSockets.length === 0) {
-      socket.broadcast.emit('user disconnected', socket.user.username);
+      socket.broadcast.emit('user disconnected', socket.user.id);
     }
   }
 
   @SubscribeMessage('private message')
   @UseFilters(ChatFilter)
-  handlePrivateMessage(
+  async handlePrivateMessage(
     @MessageBody(new ValidationPipe()) messageDto: PrivateMessageDto,
     @ConnectedSocket() socket: ChatSocket
   ) {

@@ -1,5 +1,6 @@
 import { Socket } from 'socket.io';
 import { IUsers } from '../database/service/interface/users';
+import { UUID } from '../utils/types';
 
 export interface ChatSocket extends Socket {
   user: Partial<IUsers>;
@@ -7,6 +8,7 @@ export interface ChatSocket extends Socket {
 }
 
 export interface PublicChatUser {
+  userID: UUID;
   username: string;
   messages: PublicChatMessage[];
 }
