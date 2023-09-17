@@ -3,8 +3,8 @@ import socket from '../../services/socket';
 
 export interface PrivateMessage {
   content: string;
-  from: string;
-  to: string;
+  senderId: string;
+  receiverId: string;
   date: Date;
   messageID: string;
 }
@@ -12,8 +12,8 @@ export interface PrivateMessage {
 function isPrivateMessage(data: any): data is PrivateMessage {
   return (
     data.content !== undefined &&
-    data.from !== undefined &&
-    data.to !== undefined &&
+    data.senderId !== undefined &&
+    data.receiverId !== undefined &&
     data.date !== undefined &&
     data.messageID !== undefined
   );
@@ -74,16 +74,9 @@ export function useStatus(): [Status, Dispatch<SetStateAction<Status>>] {
     const onDisconnect = () => setStatus((s) => ({ ...s, isConnected: false }));
     const onPrivateMessage = (data: any) => {
       if (isPrivateMessage(data)) {
-        const privateMessage = {
-          content: data.content,
-          from: data.from,
-          to: data.to,
-          date: data.date,
-          messageID: data.messageID
-        };
         setStatus((s) => ({
           ...s,
-          privateMessage
+          privateMessage: data
         }));
       }
     };

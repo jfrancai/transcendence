@@ -22,8 +22,8 @@ function Chat() {
 
     const updateContact = (newContact: Contact) => {
       if (
-        contact?.userID === status?.privateMessage?.to ||
-        status?.privateMessage?.from === contact?.userID
+        contact?.userID === status?.privateMessage?.receiverId ||
+        status?.privateMessage?.senderId === contact?.userID
       ) {
         setContact(newContact);
       }
@@ -31,8 +31,8 @@ function Chat() {
 
     const newContactList = status.contactList.map((c: Contact) => {
       if (
-        c.userID === status.privateMessage?.from ||
-        c.userID === status.privateMessage?.to
+        c.userID === status.privateMessage?.senderId ||
+        c.userID === status.privateMessage?.senderId
       ) {
         const newContact = {
           ...c,
@@ -78,7 +78,7 @@ function Chat() {
           {contactListOpen ? (
             <div>
               <h2 className="text-white">Contact List</h2>
-              <p className="text-red-400">{socket.userID}</p>
+              <p className="text-red-400">{`${socket.username} ${socket.userID}`}</p>
               {status.contactList?.map((user: any) => {
                 if (user.userID !== socket.userID) {
                   return (
@@ -90,7 +90,7 @@ function Chat() {
                           setContactListOpen(false);
                         }}
                       >
-                        {user.userID}
+                        {`${user.username} ${user.userID}`}
                       </button>
                     </p>
                   );
@@ -106,7 +106,7 @@ function Chat() {
 
       <Hide condition={close}>
         <SendMessageInput
-          to={contact ? contact.userID : ''}
+          receiverId={contact ? contact.userID : ''}
           isConnected={status.isConnected}
         />
       </Hide>
