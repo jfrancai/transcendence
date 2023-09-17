@@ -12,7 +12,7 @@ export class ChatFilter extends BaseExceptionFilter {
     const socket = host.switchToWs().getClient() as ChatSocket;
     const data = host.switchToWs().getData();
     socket.emit('error', {
-      id: socket.user.id,
+      username: socket.user.username,
       data,
       ...exception
     });

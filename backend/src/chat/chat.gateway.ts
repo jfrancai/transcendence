@@ -95,7 +95,6 @@ export default class ChatGateway
     socket.emit('users', publicUsers);
 
     socket.broadcast.emit('user connected', {
-      userID: socket.user.id,
       username: socket.user.username
     });
   }
@@ -107,7 +106,7 @@ export default class ChatGateway
     const matchingSockets = await this.io.in(socket.user.id!).fetchSockets();
 
     if (matchingSockets.length === 0) {
-      socket.broadcast.emit('user disconnected', socket.user.id);
+      socket.broadcast.emit('user disconnected', socket.user.username);
     }
   }
 
