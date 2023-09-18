@@ -73,9 +73,7 @@ export function useStatus(): [Status, Dispatch<SetStateAction<Status>>] {
     const onConnect = () => setStatus((s) => ({ ...s, isConnected: true }));
     const onDisconnect = () => setStatus((s) => ({ ...s, isConnected: false }));
     const onPrivateMessage = (data: any) => {
-      console.log('coucou1');
       if (isPrivateMessage(data)) {
-        console.log('coucou2');
         setStatus((s) => ({
           ...s,
           privateMessage: data

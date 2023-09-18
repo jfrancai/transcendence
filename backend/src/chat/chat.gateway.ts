@@ -82,7 +82,7 @@ export default class ChatGateway
         content: message.content,
         sender: sender!,
         receiver: receiver!,
-        messageID: message.id as UUID
+        id: message.id as UUID
       };
       if (messagesPerUser.has(otherUser as UUID)) {
         messagesPerUser.get(otherUser as UUID)?.push(publicMessage);
@@ -143,6 +143,7 @@ export default class ChatGateway
       senderId,
       receiverId
     });
+
     if (message) {
       this.io
         .to(receiverId)

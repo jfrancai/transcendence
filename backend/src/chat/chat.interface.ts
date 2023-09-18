@@ -15,7 +15,7 @@ export interface PublicChatUser {
 }
 
 export interface PublicChatMessage {
-  messageID: UUID;
+  id: UUID;
   content: string;
   sender: string;
   receiver: string;

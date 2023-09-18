@@ -32,7 +32,7 @@ function Chat() {
     const newContactList = status.contactList.map((c: Contact) => {
       if (
         c.userID === status.privateMessage?.senderId ||
-        c.userID === status.privateMessage?.senderId
+        c.userID === status.privateMessage?.receiverId
       ) {
         const newContact = {
           ...c,
