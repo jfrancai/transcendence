@@ -44,9 +44,6 @@ export default class ChatGateway
   @WebSocketServer() io: Server;
 
   afterInit() {
-    this.io.use(async (socket: ChatSocket, next) => {
-      return next();
-    });
     this.logger.log('Initialized');
   }
 
@@ -82,7 +79,8 @@ export default class ChatGateway
         content: message.content,
         sender: sender!,
         receiver: receiver!,
-        id: message.id as UUID
+        id: message.id as UUID,
+        createdAt: message.createdAt
       };
       if (messagesPerUser.has(otherUser as UUID)) {
         messagesPerUser.get(otherUser as UUID)?.push(publicMessage);
@@ -94,7 +92,6 @@ export default class ChatGateway
     const publicUsers: PublicChatUser[] = [];
     if (privateUsers) {
       privateUsers!.forEach((user) => {
-        this.logger.debug(messagesPerUser.get(user.id as UUID));
         publicUsers.push({
           userID: user.id as UUID,
           connected: user.connectedChat,

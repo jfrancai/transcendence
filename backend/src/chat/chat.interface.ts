@@ -19,4 +19,5 @@ export interface PublicChatMessage {
   content: string;
   sender: string;
   receiver: string;
+  createdAt: Date;
 }
