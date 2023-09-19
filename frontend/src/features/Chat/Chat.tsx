@@ -51,14 +51,14 @@ function Chat() {
   }, [status.privateMessage]);
 
   return (
-    <div className="w-fit overflow-hidden rounded-3xl">
+    <div className="absolute bottom-2 right-2 w-fit overflow-hidden rounded-3xl">
       <div
         className={`hide-scrollbar ${
           close ? '' : 'h-[758px] max-h-[90vh]'
         }  w-fit shrink-0 flex-col-reverse items-center justify-end overflow-y-scroll rounded-t-3xl bg-pong-blue-300`}
       >
         <ChatHeader
-          className="absolute z-30"
+          className={`absolute z-30 ${close ? '' : 'backdrop-blur'}`}
           isConnected={status.isConnected}
           handleClick={{
             toggleArrow: () => setClose(!close),

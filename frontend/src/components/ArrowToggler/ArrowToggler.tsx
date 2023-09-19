@@ -15,7 +15,7 @@ interface ArrowTogglerProps {
 /**
  * Toggle components
  */
-function ArrowToggler({ up = true, onClick }: ArrowTogglerProps) {
+function ArrowToggler({ up = false, onClick }: ArrowTogglerProps) {
   const [toggle, setToggle] = useState(up);
   const handleClick = () => {
     if (onClick) {
