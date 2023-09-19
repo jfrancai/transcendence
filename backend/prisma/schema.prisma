@@ -11,20 +11,47 @@ datasource db {
 }
 
 model Users {
-    id              String @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-    email           String @unique
-    username        String @unique
-    password        String
-    twoAuthOn       Boolean @default(false)
-    twoAuthSecret   String?
-    apiToken        String?
-    connectedChat   Boolean @default(false)
+  id            String  @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  email         String  @unique
+  username      String  @unique
+  password      String
+  twoAuthOn     Boolean @default(false)
+  twoAuthSecret String?
+  apiToken      String?
+  connectedChat Boolean @default(false)
 }
 
 model Message {
-  id                  String @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  content             String
-  senderId            String @db.Uuid
-  receiverId          String @db.Uuid
-  createdAt           DateTime @default(now())
+  id         String @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  content    String
+  senderId   String @db.Uuid
+  receiverId String @db.Uuid
+  createdAt DateTime @default(now())
+}
+
+model ChatRestrict {
+  id           String           @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  type         ChatRestrictType @default(MUTE)
+  restrictedId String           @db.Uuid
+  chatId       String           @db.Uuid
+  createdAt    DateTime         @default(now())
+}
+
+model Channel {
+  id          String      @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  displayName String
+  type        ChannelType @default(PUBLIC)
+  creatorId   String      @db.Uuid
+  admins      String[]    @db.Uuid
+}
+
+enum ChannelType {
+  PUBLIC
+  PRIVATE
+  PASSWORD
+}
+
+enum ChatRestrictType {
+  BAN
+  MUTE
 }
