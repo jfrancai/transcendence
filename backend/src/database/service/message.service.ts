@@ -25,6 +25,11 @@ export class MessageService {
   async getMessageByUserId(id: UUID) {
     try {
       return await this.prisma.message.findMany({
+        orderBy: [
+          {
+            createdAt: 'asc'
+          }
+        ],
         where: {
           OR: [
             {
