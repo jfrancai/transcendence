@@ -8,47 +8,39 @@ import SendMessageInput from '../../components/SendMessageInput/SendMessageInput
 import { Contact, useStatus } from '../../utils/hooks/useStatus';
 import { useContact } from '../../utils/hooks/useContact';
 
+const chat = new Map<string, Contact>();
+
 function Chat() {
   const [contactListOpen, setContactListOpen] = useState<boolean>(true);
   const [close, setClose] = useState<boolean>(true);
-
-  const [status, setStatus] = useStatus();
+  const status = useStatus();
   const [contact, setContact] = useContact(status);
 
   useEffect(() => {
-    if (!status.privateMessage || !status.contactList) {
-      return;
+    status.contactList.forEach((c: Contact) => {
+      chat.set(c.userID, c);
+    });
+  }, [status.contactList]);
+
+  useEffect(() => {
+    if (status.privateMessage) {
+      const { senderId, receiverId } = status.privateMessage;
+      const other = senderId === socket.userID ? receiverId : senderId;
+      const messages = chat.get(other)?.messages;
+      messages?.push(status.privateMessage);
     }
-
-    const updateContact = (newContact: Contact) => {
-      if (
-        contact?.userID === status?.privateMessage?.receiverId ||
-        status?.privateMessage?.senderId === contact?.userID
-      ) {
-        setContact(newContact);
-      }
-    };
-
-    const newContactList = status.contactList.map((c: Contact) => {
-      if (
-        c.userID === status.privateMessage?.senderId ||
-        c.userID === status.privateMessage?.receiverId
-      ) {
-        const newContact = {
-          ...c,
-          messages: [...c.messages, status.privateMessage]
-        };
-        updateContact(newContact);
-        return newContact;
-      }
-      return c;
-    });
-    setStatus({
-      isConnected: status.isConnected,
-      privateMessage: status.privateMessage,
-      contactList: newContactList
-    });
   }, [status.privateMessage]);
+
+  useEffect(() => {
+    if (status.privateMessage) {
+      const { senderId, receiverId } = status.privateMessage;
+      const other = senderId === socket.userID ? receiverId : senderId;
+      const messages = chat.get(other)?.messages;
+      if (senderId === contact?.userID || receiverId === contact?.userID) {
+        setContact((c: any) => ({ ...c, messages }));
+      }
+    }
+  }, [status.privateMessage, contact?.userID, setContact]);
 
   return (
     <div className="absolute bottom-2 right-2 w-fit overflow-hidden rounded-3xl">

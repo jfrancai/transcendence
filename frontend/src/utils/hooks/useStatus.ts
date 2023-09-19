@@ -58,7 +58,7 @@ export interface Status {
   privateMessage: PrivateMessage | undefined;
 }
 
-export function useStatus(): [Status, Dispatch<SetStateAction<Status>>] {
+export function useStatus(): Status {
   const defaultStatus = useMemo(
     () => ({
       isConnected: true,
@@ -114,7 +114,7 @@ export function useStatus(): [Status, Dispatch<SetStateAction<Status>>] {
     };
   }, [defaultStatus]);
 
-  return [status, setStatus];
+  return status;
 }
 
 export default {};
