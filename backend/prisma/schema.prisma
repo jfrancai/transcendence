@@ -22,11 +22,11 @@ model Users {
 }
 
 model Message {
-  id         String @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  id         String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
   content    String
-  senderId   String @db.Uuid
-  receiverId String @db.Uuid
-  createdAt DateTime @default(now())
+  senderId   String   @db.Uuid
+  receiverId String   @db.Uuid
+  createdAt  DateTime @default(now())
 }
 
 model ChatRestrict {
@@ -40,9 +40,11 @@ model ChatRestrict {
 model Channel {
   id          String      @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
   displayName String
-  type        ChannelType @default(PUBLIC)
+  type        ChannelType 
   creatorId   String      @db.Uuid
   admins      String[]    @db.Uuid
+  members     String[]    @db.Uuid
+  createdAt   DateTime    @default(now())
 }
 
 enum ChannelType {

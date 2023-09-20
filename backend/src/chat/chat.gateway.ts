@@ -15,11 +15,12 @@ import {
   PublicChatMessage,
   PublicChatUser
 } from './chat.interface';
-import { PrivateMessageDto } from './dto/MessageDto.dto';
+import { PrivateMessageDto } from './dto/PrivateMessage.dto';
 import { ChatFilter } from './filters/chat.filter';
 import { MessageService } from '../database/service/message.service';
 import { UsersService } from '../database/service/users.service';
 import { UUID } from '../utils/types';
+import { ChannelDto } from './dto/Channel.dto';
 
 // WebSocketGateways are instantiated from the SocketIoAdapter (inside src/adapters)
 // inside this IoAdapter there is authentification process with JWT
@@ -147,5 +148,18 @@ export default class ChatGateway
         .to(socket.user.id!)
         .emit('private message', message);
     }
+  }
+
+  @SubscribeMessage('create channel')
+  @UseFilters(ChatFilter)
+  async handleCreateChannel(
+    @MessageBody(new ValidationPipe()) channelDto: ChannelDto,
+    @ConnectedSocket() socket: ChatSocket
+  ) {
+    const { displayName, type } = channelDto;
+    const senderId = socket.user.id;
+    this.logger.log(
+      `Channel creation request from ${senderId}: [displayName ${displayName}] [type ${type}]`
+    );
   }
 }
