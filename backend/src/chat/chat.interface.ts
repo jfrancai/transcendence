@@ -5,6 +5,7 @@ import { UUID } from '../utils/types';
 export interface ChatSocket extends Socket {
   user: Partial<IUsers>;
   connected: boolean;
+  headers: any;
 }
 
 export interface PublicChatUser {

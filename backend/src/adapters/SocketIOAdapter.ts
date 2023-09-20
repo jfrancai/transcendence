@@ -21,7 +21,9 @@ import { IUsers } from '../database/service/interface/users';
 const createTokenMiddleware =
   (authService: AuthService, logger: Logger) =>
   async (socket: ChatSocket, next: (err?: ExtendedError) => void) => {
-    const { token } = socket.handshake.auth;
+    const { token } = socket.handshake.auth.token
+      ? socket.handshake.auth
+      : socket.handshake.headers;
     logger.log(`Validating auth token before connection: ${token}`);
 
     const user = await authService.findUserByJWT(token);
@@ -30,7 +32,7 @@ const createTokenMiddleware =
       next();
     } else {
       logger.warn(
-        "A unauthorized user tried to connect. If it's valid user then maybe the user is missing in the DB"
+        'A unauthorized user tried to connect. If there is no other error message then maybe the user does not exist in the db'
       );
     }
   };

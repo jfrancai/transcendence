@@ -21,6 +21,7 @@ import { MessageService } from '../database/service/message.service';
 import { UsersService } from '../database/service/users.service';
 import { UUID } from '../utils/types';
 import { ChannelDto } from './dto/Channel.dto';
+import { ChannelService } from '../database/service/channel.service';
 
 // WebSocketGateways are instantiated from the SocketIoAdapter (inside src/adapters)
 // inside this IoAdapter there is authentification process with JWT
@@ -35,7 +36,8 @@ export default class ChatGateway
 
   constructor(
     private usersService: UsersService,
-    private messageService: MessageService
+    private messageService: MessageService,
+    private channelService: ChannelService
   ) {}
 
   getLogger(): Logger {
@@ -157,9 +159,16 @@ export default class ChatGateway
     @ConnectedSocket() socket: ChatSocket
   ) {
     const { displayName, type } = channelDto;
-    const senderId = socket.user.id;
+    const creatorId = socket.user.id!;
     this.logger.log(
-      `Channel creation request from ${senderId}: [displayName ${displayName}] [type ${type}]`
+      `Channel creation request from ${creatorId}: [displayName: ${displayName}] [type: ${type}]`
     );
+
+    const channel = await this.channelService.createChannel({
+      displayName,
+      type,
+      creatorId,
+      admins: [creatorId]
+    });
   }
 }
