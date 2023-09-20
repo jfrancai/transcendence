@@ -27,8 +27,6 @@ function ChatHeader({ className, isConnected, handleClick }: ChatHeaderProps) {
     if (jwt) {
       const decodedToken: DecodedToken = jwt_decode(jwt!);
       socket.auth = {
-        username: decodedToken.username,
-        email: decodedToken.email,
         token: jwt
       };
       socket.username = decodedToken.username;
