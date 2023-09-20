@@ -1,3 +1,4 @@
+import { PrismaClientKnownRequestError } from '@prisma/client/runtime/library';
 import { Injectable, Logger } from '@nestjs/common';
 import { Prisma } from '@prisma/client';
 import { PrismaService } from './prisma.service';
@@ -15,7 +16,7 @@ export class ChannelService {
       });
     } catch (e: any) {
       this.logger.warn(e);
-      return null;
+      throw e;
     }
   }
 }

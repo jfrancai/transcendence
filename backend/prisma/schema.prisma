@@ -39,7 +39,7 @@ model ChatRestrict {
 
 model Channel {
   id          String      @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  displayName String
+  displayName String      @unique
   type        ChannelType @default(PRIVATE)
   creatorId   String      @db.Uuid
   admins      String[]    @db.Uuid

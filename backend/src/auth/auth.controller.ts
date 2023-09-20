@@ -24,7 +24,7 @@ import { ContentValidationPipe, createSchema } from './pipes/validation.pipe';
 import { CreateDto } from './dto/create-dto';
 import { CONST_INFO_URL, CONST_LOCAL_LOGIN, CONST_SALT } from './constants';
 import { AuthService } from './auth.service';
-import { IUsers } from 'src/database/service/interface/users';
+import { IUsers } from '../database/service/interface/users';
 
 @Controller('auth')
 export class AuthController {

@@ -56,9 +56,9 @@ export class MessageService {
       return await this.prisma.message.create({
         data: message
       });
-    } catch (error: any) {
-      this.logger.warn(error);
-      return null;
+    } catch (e: any) {
+      this.logger.warn(e);
+      throw e;
     }
   }
 }
