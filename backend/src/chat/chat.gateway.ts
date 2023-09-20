@@ -22,6 +22,7 @@ import { UsersService } from '../database/service/users.service';
 import { UUID } from '../utils/types';
 import { ChannelDto } from './dto/Channel.dto';
 import { ChannelService } from '../database/service/channel.service';
+import { JoinChannelDto } from './dto/JoinChannel.dto';
 
 // WebSocketGateways are instantiated from the SocketIoAdapter (inside src/adapters)
 // inside this IoAdapter there is authentification process with JWT
@@ -150,6 +151,11 @@ export default class ChatGateway
     }
   }
 
+  // To do :
+  //
+  // Guard that check if the receiverId is a valid userId
+  //
+  // Guard that check if the senderId is not muted by the receiverId
   @SubscribeMessage('private message')
   @UseFilters(ChatFilter)
   async handlePrivateMessage(
@@ -189,5 +195,55 @@ export default class ChatGateway
       admins: [creatorId],
       members: [creatorId]
     });
+
+    socket.join(channel.id);
+  }
+
+  // To do :
+  //
+  // Create a Guard that performs the Following checks
+  //
+  // If chan public
+  //    . Check if banned
+  //
+  // If chan private
+  //    . Check if banned
+  //    . Check if invited
+  //
+  // If chan password
+  //    . Check if banned
+  //    . Check password
+
+  @SubscribeMessage('join channel')
+  @UseFilters(ChatFilter)
+  async handleJoinChannel(
+    @MessageBody(new ValidationPipe()) joinChannelDto: JoinChannelDto,
+    @ConnectedSocket() socket: ChatSocket
+  ) {
+    const { chanId } = joinChannelDto;
+    const clientId = socket.user.id!;
+    this.logger.log(`ClientId ${clientId} request to join chanId ${chanId}`);
+
+    socket.join(chanId);
+  }
+
+  @SubscribeMessage('channel message')
+  @UseFilters(ChatFilter)
+  async handleChannelMessage(
+    @MessageBody(new ValidationPipe()) messageDto: PrivateMessageDto,
+    @ConnectedSocket() socket: ChatSocket
+  ) {
+    const { receiverId, content } = messageDto;
+    const senderId = socket.user.id!;
+    this.logger.log(
+      `Incoming private message from ${senderId} to ${receiverId} with content: ${content}`
+    );
+    const message = await this.messageService.createMessage({
+      content,
+      senderId,
+      receiverId
+    });
+
+    this.io.to(receiverId).to(socket.user.id!).emit('private message', message);
   }
 }
