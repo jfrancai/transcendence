@@ -40,11 +40,19 @@ model ChatRestrict {
 model Channel {
   id          String      @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
   displayName String      @unique
+
   type        ChannelType @default(PRIVATE)
+
   creatorId   String      @db.Uuid
   admins      String[]    @db.Uuid
   members     String[]    @db.Uuid
+
+  inviteList  String[]    @db.Uuid
+  banList     String[]    @db.Uuid
+  muteList    String[]    @db.Uuid
+
   createdAt   DateTime    @default(now())
+  password    String?
 }
 
 enum ChannelType {

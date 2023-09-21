@@ -1,8 +1,11 @@
-import { IsNotEmpty, IsString, IsUUID } from 'class-validator';
+import { IsNotEmpty, IsOptional, IsString } from 'class-validator';
 
 export class JoinChannelDto {
   @IsNotEmpty()
   @IsString()
-  @IsUUID()
-  readonly chanId: string;
+  readonly displayName: string;
+
+  @IsOptional()
+  @IsString()
+  readonly password: string;
 }

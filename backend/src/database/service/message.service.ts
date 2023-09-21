@@ -58,7 +58,7 @@ export class MessageService {
       });
     } catch (e: any) {
       this.logger.warn(e);
-      throw e;
+      return null;
     }
   }
 }

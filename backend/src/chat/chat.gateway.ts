@@ -23,7 +23,7 @@ import { UUID } from '../utils/types';
 import { ChannelDto } from './dto/Channel.dto';
 import { ChannelService } from '../database/service/channel.service';
 import { JoinChannelDto } from './dto/JoinChannel.dto';
-import { JoinChannelGuard } from './guards/roles.guard';
+import { JoinChannelGuard } from './guards/join-channel.guard';
 
 // WebSocketGateways are instantiated from the SocketIoAdapter (inside src/adapters)
 // inside this IoAdapter there is authentification process with JWT
@@ -217,14 +217,14 @@ export default class ChatGateway
   @UseGuards(JoinChannelGuard)
   @SubscribeMessage('join channel')
   async handleJoinChannel(
-    joinChannelDto: JoinChannelDto,
+    @MessageBody() joinChannelDto: JoinChannelDto,
     @ConnectedSocket() socket: ChatSocket
   ) {
-    const { chanId } = joinChannelDto;
+    const { displayName } = joinChannelDto;
     const clientId = socket.user.id!;
-    this.logger.log(`ClientId ${clientId} request to join chanId ${chanId}`);
+    this.logger.log(`ClientId ${clientId} request to join chan ${displayName}`);
 
-    socket.join(chanId);
+    socket.join(displayName);
   }
 
   @SubscribeMessage('channel message')
