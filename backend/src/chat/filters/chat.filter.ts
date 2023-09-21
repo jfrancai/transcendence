@@ -18,5 +18,3 @@ export class ChatFilter extends BaseExceptionFilter {
     });
   }
 }
-
-export default {};

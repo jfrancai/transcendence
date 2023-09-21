@@ -1,30 +1,40 @@
+import { plainToClass } from 'class-transformer';
 import {
   Injectable,
   CanActivate,
   ExecutionContext,
-  Logger
+  Logger,
+  BadRequestException
 } from '@nestjs/common';
 import { Reflector } from '@nestjs/core';
-import { Observable } from 'rxjs';
+import { validate } from 'class-validator';
 import { ChannelService } from 'src/database/service/channel.service';
 import { Roles } from '../decorators/roles.decorator';
+import { ChatSocket } from '../chat.interface';
+import { JoinChannelDto } from '../dto/JoinChannel.dto';
 
 @Injectable()
-export class RolesGuard implements CanActivate {
-  private readonly logger = new Logger(RolesGuard.name);
+export class JoinChannelGuard implements CanActivate {
+  private readonly logger = new Logger(JoinChannelGuard.name);
 
   constructor(
     private channelService: ChannelService,
     private reflector: Reflector
   ) {}
 
-  canActivate(
-    context: ExecutionContext
-  ): boolean | Promise<boolean> | Observable<boolean> {
+  async canActivate(context: ExecutionContext) {
     const roles = this.reflector.get(Roles, context.getHandler());
     if (!roles) {
       return true;
     }
-    return true;
+    const socket = context.switchToWs().getClient() as ChatSocket;
+    const data = context.switchToWs().getData();
+    const dataInstance = plainToClass(JoinChannelDto, data);
+    const validationErrors = await validate(dataInstance);
+    if (validationErrors.length > 0) {
+      throw new BadRequestException(validationErrors);
+    }
+    //const channel = this.channelService.getChannel();
+    return false;
   }
 }

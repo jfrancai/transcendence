@@ -23,14 +23,13 @@ import { UUID } from '../utils/types';
 import { ChannelDto } from './dto/Channel.dto';
 import { ChannelService } from '../database/service/channel.service';
 import { JoinChannelDto } from './dto/JoinChannel.dto';
-import { RolesGuard } from './guards/roles.guard';
+import { JoinChannelGuard } from './guards/roles.guard';
 
 // WebSocketGateways are instantiated from the SocketIoAdapter (inside src/adapters)
 // inside this IoAdapter there is authentification process with JWT
 // validation using the AuthModule. Be aware of this in case you are
 // stuck not understanding what is happenning.
 
-@UseGuards(RolesGuard)
 @UseFilters(ChatFilter)
 @WebSocketGateway()
 export default class ChatGateway
@@ -215,9 +214,10 @@ export default class ChatGateway
   //    . Check if banned
   //    . Check password
 
+  @UseGuards(JoinChannelGuard)
   @SubscribeMessage('join channel')
   async handleJoinChannel(
-    @MessageBody(new ValidationPipe()) joinChannelDto: JoinChannelDto,
+    joinChannelDto: JoinChannelDto,
     @ConnectedSocket() socket: ChatSocket
   ) {
     const { chanId } = joinChannelDto;

@@ -1,5 +1,4 @@
-import { PrismaClientKnownRequestError } from '@prisma/client/runtime/library';
-import { Injectable, Logger } from '@nestjs/common';
+import { ForbiddenException, Injectable, Logger } from '@nestjs/common';
 import { Prisma } from '@prisma/client';
 import { PrismaService } from './prisma.service';
 
@@ -14,9 +13,11 @@ export class ChannelService {
       return await this.prisma.channel.create({
         data: channel
       });
-    } catch (e: any) {
-      this.logger.warn(e);
-      throw e;
+    } catch (e) {
+      if (e.name === 'PrismaClientKnownRequestError') {
+        throw new ForbiddenException('Channel name must be unique');
+      }
+      throw new ForbiddenException('Channel creation forbiden');
     }
   }
 }
