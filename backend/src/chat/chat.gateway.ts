@@ -9,7 +9,7 @@ import {
   WebSocketServer
 } from '@nestjs/websockets';
 import { Server } from 'socket.io';
-import { Logger, UseFilters, ValidationPipe } from '@nestjs/common';
+import { Logger, UseFilters, UseGuards, ValidationPipe } from '@nestjs/common';
 import {
   ChatSocket,
   PublicChatMessage,
@@ -23,12 +23,15 @@ import { UUID } from '../utils/types';
 import { ChannelDto } from './dto/Channel.dto';
 import { ChannelService } from '../database/service/channel.service';
 import { JoinChannelDto } from './dto/JoinChannel.dto';
+import { RolesGuard } from './guards/roles.guard';
 
 // WebSocketGateways are instantiated from the SocketIoAdapter (inside src/adapters)
 // inside this IoAdapter there is authentification process with JWT
 // validation using the AuthModule. Be aware of this in case you are
 // stuck not understanding what is happenning.
 
+@UseGuards(RolesGuard)
+@UseFilters(ChatFilter)
 @WebSocketGateway()
 export default class ChatGateway
   implements OnGatewayInit, OnGatewayConnection, OnGatewayDisconnect
@@ -157,7 +160,6 @@ export default class ChatGateway
   //
   // Guard that check if the senderId is not muted by the receiverId
   @SubscribeMessage('private message')
-  @UseFilters(ChatFilter)
   async handlePrivateMessage(
     @MessageBody(new ValidationPipe()) messageDto: PrivateMessageDto,
     @ConnectedSocket() socket: ChatSocket
@@ -177,7 +179,6 @@ export default class ChatGateway
   }
 
   @SubscribeMessage('create channel')
-  @UseFilters(ChatFilter)
   async handleCreateChannel(
     @MessageBody(new ValidationPipe()) channelDto: ChannelDto,
     @ConnectedSocket() socket: ChatSocket
@@ -215,7 +216,6 @@ export default class ChatGateway
   //    . Check password
 
   @SubscribeMessage('join channel')
-  @UseFilters(ChatFilter)
   async handleJoinChannel(
     @MessageBody(new ValidationPipe()) joinChannelDto: JoinChannelDto,
     @ConnectedSocket() socket: ChatSocket
@@ -228,7 +228,6 @@ export default class ChatGateway
   }
 
   @SubscribeMessage('channel message')
-  @UseFilters(ChatFilter)
   async handleChannelMessage(
     @MessageBody(new ValidationPipe()) messageDto: PrivateMessageDto,
     @ConnectedSocket() socket: ChatSocket
