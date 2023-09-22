@@ -193,7 +193,6 @@ export default class ChatGateway
       type,
       creatorId,
       admins: [creatorId],
-      members: [creatorId],
       password: ''
     };
     if (password) {
@@ -240,18 +239,27 @@ export default class ChatGateway
     const { displayName } = joinChannelDto;
     const clientId = socket.user.id!;
     this.logger.log(`ClientId ${clientId} request to join chan ${displayName}`);
-    const channel = await this.channelService.getChanByName(displayName);
+    const channel = await this.channelService.getChanWithMessagesAndMembers(
+      displayName
+    );
     if (channel) {
       await this.channelService.updateChannelMembers(
         channel.id as UUID,
         socket.user.id!
       );
+      const members: Partial<PublicChatUser>[] = channel.members.map((m) => ({
+        userID: m.id as UUID,
+        connected: m.connectedChat,
+        username: m.username
+      }));
       socket.join(displayName);
       this.io.to(channel.id).to(socket.user.id!).emit('join channel', {
         message: 'user joining the channel',
         displayName: channel.displayName,
         userID: socket.user.id!,
-        chanID: channel.id
+        chanID: channel.id,
+        messages: channel.messages,
+        members
       });
     }
   }
@@ -266,7 +274,7 @@ export default class ChatGateway
     this.logger.log(
       `Incoming channel message from ${senderId} to ${receiverId} with content: ${content}`
     );
-    const message = await this.messageService.createMessage({
+    const message = await this.messageService.createChannelMessage({
       content,
       senderId,
       receiverId

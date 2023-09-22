@@ -11,17 +11,17 @@ datasource db {
 }
 
 model Users {
-  id            String         @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  email         String         @unique
-  username      String         @unique
+  id            String           @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  email         String           @unique
+  username      String           @unique
   password      String
-  twoAuthOn     Boolean        @default(false)
+  twoAuthOn     Boolean          @default(false)
   twoAuthSecret String?
   apiToken      String?
-  connectedChat Boolean        @default(false)
+  connectedChat Boolean          @default(false)
   restrictList  ChanRestrict[]
   inviteList    ChanInvite[]
-  messages      Message[]
+  channels      Channel[]
 }
 
 model Message {
@@ -30,10 +30,8 @@ model Message {
   senderId   String   @db.Uuid
   receiverId String   @db.Uuid
   createdAt  DateTime @default(now())
-  Channel    Channel? @relation(fields: [channelId], references: [id])
+  channel    Channel? @relation(fields: [channelId], references: [id])
   channelId  String?  @db.Uuid
-  Users      Users?   @relation(fields: [usersId], references: [id])
-  usersId    String?  @db.Uuid
 }
 
 model ChanInvite {
@@ -57,16 +55,16 @@ model ChanRestrict {
 }
 
 model Channel {
-  id           String         @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  displayName  String         @unique
-  type         ChannelType    @default(PRIVATE)
-  creatorId    String         @db.Uuid
-  admins       String[]       @db.Uuid
-  members      String[]       @db.Uuid
+  id           String           @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  displayName  String           @unique
+  type         ChannelType      @default(PRIVATE)
+  createdAt    DateTime         @default(now())
+  password     String?
+  creatorId    String           @db.Uuid
+  admins       String[]         @db.Uuid
+  members      Users[]
   inviteList   ChanInvite[]
   restrictList ChanRestrict[]
-  createdAt    DateTime       @default(now())
-  password     String?
   messages     Message[]
 }
 

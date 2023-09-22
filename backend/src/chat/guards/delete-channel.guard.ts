@@ -4,7 +4,6 @@ import {
   CanActivate,
   ExecutionContext,
   BadRequestException,
-  Logger,
   ForbiddenException
 } from '@nestjs/common';
 import { validate } from 'class-validator';
@@ -14,12 +13,9 @@ import { JoinChannelDto } from '../dto/join-channel.dto';
 
 @Injectable()
 export class DeleteChannelGuard implements CanActivate {
-  private readonly logger = new Logger(DeleteChannelGuard.name);
-
   constructor(private channelService: ChannelService) {}
 
   async canActivate(context: ExecutionContext) {
-    this.logger.debug('DeleteChannelGuard');
     const socket = context.switchToWs().getClient() as ChatSocket;
     const data = context.switchToWs().getData();
 
@@ -30,7 +26,7 @@ export class DeleteChannelGuard implements CanActivate {
       throw new BadRequestException(validationErrors);
     }
     const { displayName } = joinChannelDto;
-    const channel = await this.channelService.getChanByName(displayName);
+    const channel = await this.channelService.getChanWithMembers(displayName);
     if (channel && channel.creatorId === socket.user.id) {
       if (channel.members.length !== 1) {
         throw new ForbiddenException('Channel not empty');

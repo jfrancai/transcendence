@@ -10,9 +10,21 @@ export class ChannelService {
   constructor(private prisma: PrismaService) {}
 
   async createChannel(channel: Prisma.ChannelCreateInput) {
+    const { displayName, type, creatorId, admins, password } = channel;
     try {
       return await this.prisma.channel.create({
-        data: channel
+        data: {
+          displayName,
+          type,
+          creatorId,
+          admins,
+          password,
+          members: {
+            connect: {
+              id: creatorId
+            }
+          }
+        }
       });
     } catch (e) {
       if (e.name === 'PrismaClientKnownRequestError') {
@@ -27,10 +39,6 @@ export class ChannelService {
       return await this.prisma.channel.findUnique({
         where: {
           id
-        },
-        include: {
-          inviteList: true,
-          restrictList: true
         }
       });
     } catch (e) {
@@ -47,7 +55,41 @@ export class ChannelService {
         },
         include: {
           inviteList: true,
-          restrictList: true
+          restrictList: true,
+          members: true
+        }
+      });
+    } catch (e) {
+      this.logger.warn(e);
+      throw new ForbiddenException();
+    }
+  }
+
+  async getChanWithMessages(displayName: string) {
+    try {
+      return await this.prisma.channel.findUnique({
+        where: {
+          displayName
+        },
+        include: {
+          messages: true
+        }
+      });
+    } catch (e) {
+      this.logger.warn(e);
+      throw new ForbiddenException();
+    }
+  }
+
+  async getChanWithMessagesAndMembers(displayName: string) {
+    try {
+      return await this.prisma.channel.findUnique({
+        where: {
+          displayName
+        },
+        include: {
+          messages: true,
+          members: true
         }
       });
     } catch (e) {
@@ -69,15 +111,31 @@ export class ChannelService {
     }
   }
 
-  async updateChannelMembers(id: UUID, memberId: UUID) {
+  async getChanWithMembers(displayName: string) {
+    try {
+      return await this.prisma.channel.findUnique({
+        where: {
+          displayName
+        },
+        include: {
+          members: true
+        }
+      });
+    } catch (e) {
+      this.logger.warn(e);
+      throw new ForbiddenException();
+    }
+  }
+
+  async updateChannelMembers(chanId: UUID, memberId: UUID) {
     try {
       return await this.prisma.channel.update({
         where: {
-          id
+          id: chanId
         },
         data: {
           members: {
-            push: memberId
+            connect: { id: memberId }
           }
         }
       });

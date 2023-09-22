@@ -61,4 +61,22 @@ export class MessageService {
       return null;
     }
   }
+
+  async createChannelMessage(message: Prisma.MessageCreateInput) {
+    try {
+      return await this.prisma.message.create({
+        data: {
+          content: message.content,
+          senderId: message.senderId,
+          receiverId: message.receiverId,
+          channel: {
+            connect: { id: message.receiverId }
+          }
+        }
+      });
+    } catch (e: any) {
+      this.logger.warn(e);
+      return null;
+    }
+  }
 }

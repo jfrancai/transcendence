@@ -3,18 +3,14 @@ import {
   Injectable,
   CanActivate,
   ExecutionContext,
-  BadRequestException,
-  Logger
+  BadRequestException
 } from '@nestjs/common';
 import { validate } from 'class-validator';
 import { CreateChannelDto } from '../dto/create-channel.dto';
 
 @Injectable()
 export class CreateChannelGuard implements CanActivate {
-  private readonly logger = new Logger(CreateChannelGuard.name);
-
   async canActivate(context: ExecutionContext) {
-    this.logger.debug('CreateChannelGuard');
     const data = context.switchToWs().getData();
 
     const channelDto = plainToClass(CreateChannelDto, data);

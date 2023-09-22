@@ -4,7 +4,6 @@ import {
   CanActivate,
   ExecutionContext,
   BadRequestException,
-  Logger,
   ForbiddenException
 } from '@nestjs/common';
 import * as bcrypt from 'bcrypt';
@@ -18,8 +17,6 @@ import { ChanInviteService } from '../../database/service/chan-invite.service';
 
 @Injectable()
 export class JoinChannelGuard implements CanActivate {
-  private readonly logger = new Logger(JoinChannelGuard.name);
-
   constructor(
     private channelService: ChannelService,
     private chanInviteService: ChanInviteService,
@@ -27,7 +24,6 @@ export class JoinChannelGuard implements CanActivate {
   ) {}
 
   async canActivate(context: ExecutionContext) {
-    this.logger.debug('JoinChannelGuard');
     const socket = context.switchToWs().getClient() as ChatSocket;
     const data = context.switchToWs().getData();
 
@@ -43,7 +39,7 @@ export class JoinChannelGuard implements CanActivate {
     if (channel) {
       const { inviteList, restrictList } = channel;
 
-      if (channel.members.includes(socket.user.id!)) {
+      if (channel.members.find((m) => m.id === socket.user.id!)) {
         throw new ForbiddenException('User already in channel');
       }
       const restrict = restrictList.find((r) => r.usersId === socket.user.id!);
