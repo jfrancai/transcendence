@@ -10,28 +10,25 @@ import {
   WebSocketServer
 } from '@nestjs/websockets';
 import { Server } from 'socket.io';
-import {
-  BadRequestException,
-  Logger,
-  UseFilters,
-  UseGuards,
-  ValidationPipe
-} from '@nestjs/common';
+import { Logger, UseFilters, UseGuards, ValidationPipe } from '@nestjs/common';
 import {
   ChatSocket,
   PublicChatMessage,
   PublicChatUser
 } from './chat.interface';
-import { PrivateMessageDto } from './dto/PrivateMessage.dto';
+import { PrivateMessageDto } from './dto/private-message.dto';
 import { ChatFilter } from './filters/chat.filter';
 import { MessageService } from '../database/service/message.service';
 import { UsersService } from '../database/service/users.service';
 import { UUID } from '../utils/types';
-import { ChannelDto } from './dto/Channel.dto';
+import { CreateChannelDto } from './dto/create-channel.dto';
 import { ChannelService } from '../database/service/channel.service';
-import { JoinChannelDto } from './dto/JoinChannel.dto';
+import { JoinChannelDto } from './dto/join-channel.dto';
 import { JoinChannelGuard } from './guards/join-channel.guard';
 import { CONST_SALT } from '../auth/constants';
+import { CreateChannelGuard } from './guards/create-channel.guard';
+import { DeleteChannelDto } from './dto/delete-channel.dto';
+import { DeleteChannelGuard } from './guards/delete-channel.guard';
 
 // WebSocketGateways are instantiated from the SocketIoAdapter (inside src/adapters)
 // inside this IoAdapter there is authentification process with JWT
@@ -161,11 +158,6 @@ export default class ChatGateway
     }
   }
 
-  // To do :
-  //
-  // Guard that check if the receiverId is a valid userId
-  //
-  // Guard that check if the senderId is not muted by the receiverId
   @SubscribeMessage('private message')
   async handlePrivateMessage(
     @MessageBody(new ValidationPipe()) messageDto: PrivateMessageDto,
@@ -185,12 +177,13 @@ export default class ChatGateway
     this.io.to(receiverId).to(socket.user.id!).emit('private message', message);
   }
 
+  @UseGuards(CreateChannelGuard)
   @SubscribeMessage('create channel')
   async handleCreateChannel(
-    @MessageBody(new ValidationPipe()) channelDto: ChannelDto,
+    @MessageBody() channelDto: CreateChannelDto,
     @ConnectedSocket() socket: ChatSocket
   ) {
-    const { displayName, type } = channelDto;
+    const { displayName, type, password } = channelDto;
     const creatorId = socket.user.id!;
     this.logger.log(
       `Channel creation request from ${creatorId}: [displayName: ${displayName}] [type: ${type}]`
@@ -203,36 +196,40 @@ export default class ChatGateway
       members: [creatorId],
       password: ''
     };
-
-    if (chanDetail.type === 'PASSWORD') {
-      if (channelDto.password === undefined) {
-        throw new BadRequestException('Password is missing');
-      }
-
+    if (password) {
       const salt = await bcrypt.genSalt(CONST_SALT);
-      const passwordHash = await bcrypt.hash(channelDto.password, salt);
+      const passwordHash = await bcrypt.hash(password, salt);
       chanDetail.password = passwordHash;
     }
-
-    const channel = await this.channelService.createChannel(chanDetail);
-
-    socket.join(channel.id);
+    const privChan = await this.channelService.createChannel(chanDetail);
+    const pubChan = {
+      id: privChan.id,
+      type: privChan.type,
+      displayName: privChan.displayName,
+      createdAt: privChan.createdAt
+    };
+    socket.join(privChan.id);
+    this.io.to(socket.user.id!).emit('create channel', pubChan);
   }
 
-  // To do :
-  //
-  // Create a Guard that performs the Following checks
-  //
-  // If chan public
-  //    . Check if banned
-  //
-  // If chan private
-  //    . Check if banned
-  //    . Check if invited
-  //
-  // If chan password
-  //    . Check if banned
-  //    . Check password
+  @UseGuards(DeleteChannelGuard)
+  @SubscribeMessage('delete channel')
+  async handleDeleteChannel(
+    @MessageBody() deleteChannelDto: DeleteChannelDto,
+    @ConnectedSocket() socket: ChatSocket
+  ) {
+    const { displayName } = deleteChannelDto;
+    const clientId = socket.user.id!;
+    this.logger.log(`Client ${clientId} request to delete chan ${displayName}`);
+
+    const deletedChan = await this.channelService.deleteChannelByName(
+      displayName
+    );
+    this.io.to(socket.user.id!).emit('delete channel', {
+      message: 'Channel deleted',
+      chanID: deletedChan!.id
+    });
+  }
 
   @UseGuards(JoinChannelGuard)
   @SubscribeMessage('join channel')
@@ -245,11 +242,17 @@ export default class ChatGateway
     this.logger.log(`ClientId ${clientId} request to join chan ${displayName}`);
     const channel = await this.channelService.getChanByName(displayName);
     if (channel) {
-      await this.channelService.updateMembers(
+      await this.channelService.updateChannelMembers(
         channel.id as UUID,
         socket.user.id!
       );
       socket.join(displayName);
+      this.io.to(channel.id).to(socket.user.id!).emit('join channel', {
+        message: 'user joining the channel',
+        displayName: channel.displayName,
+        userID: socket.user.id!,
+        chanID: channel.id
+      });
     }
   }
 
@@ -261,7 +264,7 @@ export default class ChatGateway
     const { receiverId, content } = messageDto;
     const senderId = socket.user.id!;
     this.logger.log(
-      `Incoming private message from ${senderId} to ${receiverId} with content: ${content}`
+      `Incoming channel message from ${senderId} to ${receiverId} with content: ${content}`
     );
     const message = await this.messageService.createMessage({
       content,
@@ -269,6 +272,6 @@ export default class ChatGateway
       receiverId
     });
 
-    this.io.to(receiverId).to(socket.user.id!).emit('private message', message);
+    this.io.to(receiverId).to(socket.user.id!).emit('channel message', message);
   }
 }

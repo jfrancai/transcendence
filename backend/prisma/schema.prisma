@@ -21,6 +21,7 @@ model Users {
   connectedChat Boolean        @default(false)
   restrictList  ChanRestrict[]
   inviteList    ChanInvite[]
+  messages      Message[]
 }
 
 model Message {
@@ -29,6 +30,10 @@ model Message {
   senderId   String   @db.Uuid
   receiverId String   @db.Uuid
   createdAt  DateTime @default(now())
+  Channel    Channel? @relation(fields: [channelId], references: [id])
+  channelId  String?  @db.Uuid
+  Users      Users?   @relation(fields: [usersId], references: [id])
+  usersId    String?  @db.Uuid
 }
 
 model ChanInvite {
@@ -62,6 +67,7 @@ model Channel {
   restrictList ChanRestrict[]
   createdAt    DateTime       @default(now())
   password     String?
+  messages     Message[]
 }
 
 enum ChannelType {

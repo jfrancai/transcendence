@@ -7,19 +7,19 @@ import {
 } from 'class-validator';
 
 const channelTypes = ['PUBLIC', 'PRIVATE', 'PASSWORD'] as const;
-export type ChannelType = (typeof channelTypes)[number];
+export type CreateChannelType = (typeof channelTypes)[number];
 
-export class ChannelDto {
+export class CreateChannelDto {
   @IsNotEmpty()
   @IsString()
   readonly displayName: string;
 
   @IsOptional()
   @IsIn(channelTypes)
-  readonly type: ChannelType = 'PRIVATE';
+  readonly type: CreateChannelType = 'PRIVATE';
 
   @IsOptional()
   @IsString()
   @IsStrongPassword()
-  readonly password: string;
+  readonly password: string | undefined;
 }

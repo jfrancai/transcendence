@@ -69,7 +69,7 @@ export class ChannelService {
     }
   }
 
-  async updateMembers(id: UUID, memberId: UUID) {
+  async updateChannelMembers(id: UUID, memberId: UUID) {
     try {
       return await this.prisma.channel.update({
         where: {
@@ -79,6 +79,19 @@ export class ChannelService {
           members: {
             push: memberId
           }
+        }
+      });
+    } catch (e) {
+      this.logger.warn(e);
+      return null;
+    }
+  }
+
+  async deleteChannelByName(displayName: string) {
+    try {
+      return await this.prisma.channel.delete({
+        where: {
+          displayName
         }
       });
     } catch (e) {

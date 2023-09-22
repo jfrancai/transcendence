@@ -9,9 +9,9 @@ import {
 } from '@nestjs/common';
 import * as bcrypt from 'bcrypt';
 import { validate } from 'class-validator';
-import { ChannelService } from 'src/database/service/channel.service';
+import { ChannelService } from '../../database/service/channel.service';
 import { ChatSocket } from '../chat.interface';
-import { JoinChannelDto } from '../dto/JoinChannel.dto';
+import { JoinChannelDto } from '../dto/join-channel.dto';
 import { UUID } from '../../utils/types';
 import { ChanRestrictService } from '../../database/service/chan-restrict.service';
 import { ChanInviteService } from '../../database/service/chan-invite.service';
@@ -71,7 +71,8 @@ export class JoinChannelGuard implements CanActivate {
           throw new ForbiddenException('Wrong password');
         }
       }
+      return true;
     }
-    return true;
+    return false;
   }
 }
