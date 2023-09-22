@@ -29,6 +29,7 @@ import { CONST_SALT } from '../auth/constants';
 import { CreateChannelGuard } from './guards/create-channel.guard';
 import { DeleteChannelDto } from './dto/delete-channel.dto';
 import { DeleteChannelGuard } from './guards/delete-channel.guard';
+import { ChannelMessageGuard } from './guards/channel-message.guard';
 
 // WebSocketGateways are instantiated from the SocketIoAdapter (inside src/adapters)
 // inside this IoAdapter there is authentification process with JWT
@@ -56,27 +57,27 @@ export default class ChatGateway
 
   async afterInit() {
     // /!\ To remove test only /!\
-    // await this.usersService.createUser({
-    //   id: 'ffa03160-6419-4e52-8879-f99e90eeca35',
-    //   email: 'jfrancai@student.42.fr',
-    //   username: 'jfrancai',
-    //   password: 'toto',
-    //   twoAuthOn: false,
-    //   twoAuthSecret: 'toto',
-    //   apiToken: 'toto',
-    //   connectedChat: false
-    // });
+    await this.usersService.createUser({
+      id: 'ffa03160-6419-4e52-8879-f99e90eeca35',
+      email: 'jfrancai@student.42.fr',
+      username: 'jfrancai',
+      password: 'toto',
+      twoAuthOn: false,
+      twoAuthSecret: 'toto',
+      apiToken: 'toto',
+      connectedChat: false
+    });
 
-    // await this.usersService.createUser({
-    //   id: '693e8fcf-915b-472d-beee-ed53fec63008',
-    //   email: 'toto@student.42.fr',
-    //   username: 'toto',
-    //   password: 'toto',
-    //   twoAuthOn: false,
-    //   twoAuthSecret: 'toto',
-    //   apiToken: 'toto',
-    //   connectedChat: false
-    // });
+    await this.usersService.createUser({
+      id: '693e8fcf-915b-472d-beee-ed53fec63008',
+      email: 'toto@student.42.fr',
+      username: 'toto',
+      password: 'toto',
+      twoAuthOn: false,
+      twoAuthSecret: 'toto',
+      apiToken: 'toto',
+      connectedChat: false
+    });
     // /!\ To remove test only /!\
     this.logger.log('Initialized');
   }
@@ -264,9 +265,10 @@ export default class ChatGateway
     }
   }
 
+  @UseGuards(ChannelMessageGuard)
   @SubscribeMessage('channel message')
   async handleChannelMessage(
-    @MessageBody(new ValidationPipe()) messageDto: PrivateMessageDto,
+    @MessageBody() messageDto: PrivateMessageDto,
     @ConnectedSocket() socket: ChatSocket
   ) {
     const { receiverId, content } = messageDto;

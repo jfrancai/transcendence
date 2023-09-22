@@ -47,6 +47,23 @@ export class ChannelService {
     }
   }
 
+  async getChanByIdWithMembersAndRestrict(id: UUID) {
+    try {
+      return await this.prisma.channel.findUnique({
+        where: {
+          id
+        },
+        include: {
+          members: true,
+          restrictList: true
+        }
+      });
+    } catch (e) {
+      this.logger.warn(e);
+      throw new ForbiddenException();
+    }
+  }
+
   async getDeepChanByName(displayName: string) {
     try {
       return await this.prisma.channel.findUnique({
