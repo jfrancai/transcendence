@@ -13,6 +13,7 @@ import { Server } from 'socket.io';
 import { Logger, UseFilters, UseGuards, ValidationPipe } from '@nestjs/common';
 import {
   ChatSocket,
+  PublicChannel,
   PublicChatMessage,
   PublicChatUser
 } from './chat.interface';
@@ -76,6 +77,17 @@ export default class ChatGateway
       twoAuthOn: false,
       twoAuthSecret: 'toto',
       apiToken: 'toto',
+      connectedChat: false
+    });
+
+    await this.usersService.createUser({
+      id: '673e8fcf-915b-472d-beee-ed53fec63008',
+      email: 'tata@student.42.fr',
+      username: 'tata',
+      password: 'tata',
+      twoAuthOn: false,
+      twoAuthSecret: 'tata',
+      apiToken: 'tata',
       connectedChat: false
     });
     // /!\ To remove test only /!\
@@ -248,20 +260,32 @@ export default class ChatGateway
         channel.id as UUID,
         socket.user.id!
       );
-      const members: Partial<PublicChatUser>[] = channel.members.map((m) => ({
-        userID: m.id as UUID,
-        connected: m.connectedChat,
-        username: m.username
+      const pubMembers: Partial<PublicChatUser>[] = channel.members.map(
+        (m) => ({
+          userID: m.id as UUID,
+          connected: m.connectedChat,
+          username: m.username
+        })
+      );
+      const pubMessages: PublicChatMessage[] = channel.messages.map((m) => ({
+        id: m.id as UUID,
+        content: m.content,
+        sender: m.senderId as UUID,
+        receiver: m.receiverId as UUID,
+        createdAt: m.createdAt
       }));
-      socket.join(displayName);
-      this.io.to(channel.id).to(socket.user.id!).emit('join channel', {
-        message: 'user joining the channel',
+      const pubChannel: PublicChannel = {
+        id: channel.id as UUID,
         displayName: channel.displayName,
         userID: socket.user.id!,
-        chanID: channel.id,
-        messages: channel.messages,
-        members
-      });
+        messages: pubMessages,
+        members: pubMembers
+      };
+      socket.join(displayName);
+      this.io
+        .to(channel.id)
+        .to(socket.user.id!)
+        .emit('join channel', pubChannel);
     }
   }
 

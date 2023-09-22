@@ -22,3 +22,11 @@ export interface PublicChatMessage {
   receiver: string;
   createdAt: Date;
 }
+
+export interface PublicChannel {
+  id: UUID;
+  displayName: string;
+  userID: UUID;
+  messages: PublicChatMessage[];
+  members: Partial<PublicChatUser>[];
+}
