@@ -1,3 +1,4 @@
+import * as bcrypt from 'bcrypt';
 import {
   ConnectedSocket,
   MessageBody,
@@ -9,7 +10,13 @@ import {
   WebSocketServer
 } from '@nestjs/websockets';
 import { Server } from 'socket.io';
-import { Logger, UseFilters, UseGuards, ValidationPipe } from '@nestjs/common';
+import {
+  BadRequestException,
+  Logger,
+  UseFilters,
+  UseGuards,
+  ValidationPipe
+} from '@nestjs/common';
 import {
   ChatSocket,
   PublicChatMessage,
@@ -24,6 +31,7 @@ import { ChannelDto } from './dto/Channel.dto';
 import { ChannelService } from '../database/service/channel.service';
 import { JoinChannelDto } from './dto/JoinChannel.dto';
 import { JoinChannelGuard } from './guards/join-channel.guard';
+import { CONST_SALT } from '../auth/constants';
 
 // WebSocketGateways are instantiated from the SocketIoAdapter (inside src/adapters)
 // inside this IoAdapter there is authentification process with JWT
@@ -187,14 +195,26 @@ export default class ChatGateway
     this.logger.log(
       `Channel creation request from ${creatorId}: [displayName: ${displayName}] [type: ${type}]`
     );
-
-    const channel = await this.channelService.createChannel({
+    const chanDetail = {
       displayName,
       type,
       creatorId,
       admins: [creatorId],
-      members: [creatorId]
-    });
+      members: [creatorId],
+      password: ''
+    };
+
+    if (chanDetail.type === 'PASSWORD') {
+      if (channelDto.password === undefined) {
+        throw new BadRequestException('Password is missing');
+      }
+
+      const salt = await bcrypt.genSalt(CONST_SALT);
+      const passwordHash = await bcrypt.hash(channelDto.password, salt);
+      chanDetail.password = passwordHash;
+    }
+
+    const channel = await this.channelService.createChannel(chanDetail);
 
     socket.join(channel.id);
   }
@@ -223,8 +243,14 @@ export default class ChatGateway
     const { displayName } = joinChannelDto;
     const clientId = socket.user.id!;
     this.logger.log(`ClientId ${clientId} request to join chan ${displayName}`);
-
-    socket.join(displayName);
+    const channel = await this.channelService.getChanByName(displayName);
+    if (channel) {
+      await this.channelService.updateMembers(
+        channel.id as UUID,
+        socket.user.id!
+      );
+      socket.join(displayName);
+    }
   }
 
   @SubscribeMessage('channel message')

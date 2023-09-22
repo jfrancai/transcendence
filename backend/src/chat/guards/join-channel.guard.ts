@@ -13,13 +13,18 @@ import { ChannelService } from 'src/database/service/channel.service';
 import { ChatSocket } from '../chat.interface';
 import { JoinChannelDto } from '../dto/JoinChannel.dto';
 import { UUID } from '../../utils/types';
-import { CONST_SALT } from '../../auth/constants';
+import { ChanRestrictService } from '../../database/service/chan-restrict.service';
+import { ChanInviteService } from '../../database/service/chan-invite.service';
 
 @Injectable()
 export class JoinChannelGuard implements CanActivate {
   private readonly logger = new Logger(JoinChannelGuard.name);
 
-  constructor(private channelService: ChannelService) {}
+  constructor(
+    private channelService: ChannelService,
+    private chanInviteService: ChanInviteService,
+    private chanRestrictService: ChanRestrictService
+  ) {}
 
   async canActivate(context: ExecutionContext) {
     this.logger.debug('JoinChannelGuard');
@@ -32,32 +37,39 @@ export class JoinChannelGuard implements CanActivate {
     if (validationErrors.length > 0) {
       throw new BadRequestException(validationErrors);
     }
-    const channel = await this.channelService.getChanByName(
+    const channel = await this.channelService.getDeepChanByName(
       joinChannelDto.displayName as UUID
     );
-    if (channel!.members.includes(socket.user.id!)) {
-      throw new ForbiddenException('User already in channel');
-    }
-    if (channel!.banList.includes(socket.user.id!)) {
-      throw new ForbiddenException('Banned from channel');
-    }
-    if (channel!.type === 'PRIVATE') {
-      if (channel!.inviteList.includes(socket.user.id!) === false) {
-        throw new ForbiddenException('Private channel: invite only');
+    if (channel) {
+      const { inviteList, restrictList } = channel;
+
+      if (channel.members.includes(socket.user.id!)) {
+        throw new ForbiddenException('User already in channel');
       }
-      const updatedInviteList = channel?.inviteList.filter(
-        (invite) => invite !== socket.user.id
-      );
-      this.channelService.updateInviteList(
-        channel!.id as UUID,
-        updatedInviteList! as UUID[]
-      );
-      this.channelService.updateMembers(channel!.id as UUID, socket.user.id!);
-    } else if (channel!.type === 'PASSWORD') {
-      const salt = await bcrypt.genSalt(CONST_SALT);
-      const passwordHash = await bcrypt.hash(joinChannelDto.password, salt);
-      if (passwordHash !== channel?.password) {
-        throw new ForbiddenException('Wrong password');
+      const restrict = restrictList.find((r) => r.usersId === socket.user.id!);
+
+      if (restrict && restrict.endOfRestrict < new Date()) {
+        this.chanRestrictService.deleteChanRestrictById(restrict.id as UUID);
+      }
+      if (restrict && restrict.type === 'BAN') {
+        throw new ForbiddenException(
+          `Banned from channel until ${restrict.endOfRestrict}`
+        );
+      }
+      if (channel!.type === 'PRIVATE') {
+        const invite = inviteList.find((i) => i.usersId === socket.user.id);
+        if (invite === undefined) {
+          throw new ForbiddenException('Private channel: invite only');
+        }
+        await this.chanInviteService.deleteChanInviteById(invite.id as UUID);
+      } else if (channel.type === 'PASSWORD') {
+        const result = await bcrypt.compare(
+          joinChannelDto.password,
+          channel.password!
+        );
+        if (result === false) {
+          throw new ForbiddenException('Wrong password');
+        }
       }
     }
     return true;

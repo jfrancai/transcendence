@@ -7,5 +7,5 @@ export class JoinChannelDto {
 
   @IsOptional()
   @IsString()
-  readonly password: string;
+  readonly password: string = '';
 }

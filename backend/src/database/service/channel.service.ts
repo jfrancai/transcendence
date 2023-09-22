@@ -27,11 +27,32 @@ export class ChannelService {
       return await this.prisma.channel.findUnique({
         where: {
           id
+        },
+        include: {
+          inviteList: true,
+          restrictList: true
         }
       });
     } catch (e) {
       this.logger.warn(e);
-      return null;
+      throw new ForbiddenException();
+    }
+  }
+
+  async getDeepChanByName(displayName: string) {
+    try {
+      return await this.prisma.channel.findUnique({
+        where: {
+          displayName
+        },
+        include: {
+          inviteList: true,
+          restrictList: true
+        }
+      });
+    } catch (e) {
+      this.logger.warn(e);
+      throw new ForbiddenException();
     }
   }
 
@@ -44,23 +65,7 @@ export class ChannelService {
       });
     } catch (e) {
       this.logger.warn(e);
-      return null;
-    }
-  }
-
-  async updateInviteList(id: UUID, inviteList: UUID[]) {
-    try {
-      return await this.prisma.channel.update({
-        where: {
-          id
-        },
-        data: {
-          inviteList
-        }
-      });
-    } catch (e) {
-      this.logger.warn(e);
-      return null;
+      throw new ForbiddenException();
     }
   }
 

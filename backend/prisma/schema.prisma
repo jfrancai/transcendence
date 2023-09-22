@@ -11,14 +11,16 @@ datasource db {
 }
 
 model Users {
-  id            String  @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  email         String  @unique
-  username      String  @unique
+  id            String         @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  email         String         @unique
+  username      String         @unique
   password      String
-  twoAuthOn     Boolean @default(false)
+  twoAuthOn     Boolean        @default(false)
   twoAuthSecret String?
   apiToken      String?
-  connectedChat Boolean @default(false)
+  connectedChat Boolean        @default(false)
+  restrictList  ChanRestrict[]
+  inviteList    ChanInvite[]
 }
 
 model Message {
@@ -29,30 +31,37 @@ model Message {
   createdAt  DateTime @default(now())
 }
 
-model ChatRestrict {
-  id           String           @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  type         ChatRestrictType @default(MUTE)
-  restrictedId String           @db.Uuid
-  chatId       String           @db.Uuid
-  createdAt    DateTime         @default(now())
+model ChanInvite {
+  id        String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  user      Users    @relation(fields: [usersId], references: [id])
+  usersId   String   @db.Uuid
+  channel   Channel  @relation(fields: [channelId], references: [id])
+  channelId String   @db.Uuid
+  createdAt DateTime @default(now())
+}
+
+model ChanRestrict {
+  id            String           @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  type          ChatRestrictType @default(MUTE)
+  user          Users            @relation(fields: [usersId], references: [id])
+  usersId       String           @db.Uuid
+  channel       Channel          @relation(fields: [channelId], references: [id])
+  channelId     String           @db.Uuid
+  createdAt     DateTime         @default(now())
+  endOfRestrict DateTime
 }
 
 model Channel {
-  id          String      @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  displayName String      @unique
-
-  type        ChannelType @default(PRIVATE)
-
-  creatorId   String      @db.Uuid
-  admins      String[]    @db.Uuid
-  members     String[]    @db.Uuid
-
-  inviteList  String[]    @db.Uuid
-  banList     String[]    @db.Uuid
-  muteList    String[]    @db.Uuid
-
-  createdAt   DateTime    @default(now())
-  password    String?
+  id           String         @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  displayName  String         @unique
+  type         ChannelType    @default(PRIVATE)
+  creatorId    String         @db.Uuid
+  admins       String[]       @db.Uuid
+  members      String[]       @db.Uuid
+  inviteList   ChanInvite[]
+  restrictList ChanRestrict[]
+  createdAt    DateTime       @default(now())
+  password     String?
 }
 
 enum ChannelType {
