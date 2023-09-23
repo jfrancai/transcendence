@@ -146,10 +146,25 @@ export default class ChatGateway
         });
       });
     }
-    socket.emit('session', {
-      userID: socket.user.id
-    });
     socket.emit('users', publicUsers);
+
+    const pubChan: { id: string; displayName: string }[] = [];
+    const { channels } = socket.user;
+    if (channels) {
+      channels.forEach((channel) => {
+        this.logger.debug(channel);
+        pubChan.push({
+          id: channel.id!,
+          displayName: channel.displayName!
+        });
+        socket.join(channel.id!);
+      });
+    }
+
+    socket.emit('session', {
+      userID: socket.user.id,
+      channels: pubChan
+    });
 
     socket.broadcast.emit('user connected', {
       userID: socket.user.id,
@@ -276,7 +291,6 @@ export default class ChatGateway
       const pubChannel: PublicChannel = {
         id: channel.id as string,
         displayName: channel.displayName,
-        userID: socket.user.id!,
         messages: pubMessages,
         members: pubMembers
       };

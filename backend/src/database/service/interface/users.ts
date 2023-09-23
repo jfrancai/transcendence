@@ -1,8 +1,5 @@
+import { $Enums } from '@prisma/client';
 import ITwoAuth from './two-auth';
-
-export type ChannelType = 'PUBLIC' | 'PRIVATE' | 'PASSWORD';
-
-export type ChatRestrictType = 'BAN' | 'MUTE';
 
 export interface IMessage {
   id: string;
@@ -16,16 +13,14 @@ export interface IMessage {
 
 export interface IChanInvite {
   id: string;
-  user: IUsers;
   usersId: string;
-  channel: IChannel;
   channelId: string;
   createdAt: Date;
 }
 
 export interface IChanRestrict {
   id: string;
-  type: ChannelType;
+  type: $Enums.ChatRestrictType;
   user: IUsers;
   usersId: string;
   channel: IChannel;
@@ -37,15 +32,15 @@ export interface IChanRestrict {
 export interface IChannel {
   id: string;
   displayName: string;
-  type: ChatRestrictType;
+  type: $Enums.ChannelType;
   createdAt: Date;
   password: string | null;
   creatorId: string;
   admins: string[];
-  members: IUsers[];
-  inviteList: IChanInvite[];
-  restrictList: IChanRestrict[];
-  messages: IMessage[];
+  members: Partial<IUsers>[];
+  inviteList: Partial<IChanInvite>[];
+  restrictList: Partial<IChanRestrict>[];
+  messages: Partial<IMessage>[];
 }
 
 export interface IUsers {
@@ -53,10 +48,10 @@ export interface IUsers {
   email: string;
   username: string;
   password: string;
-  apiToken: string;
+  apiToken: string | null;
   twoAuth: ITwoAuth;
   connectedChat: boolean;
-  inviteList: IChanInvite[];
-  restrictList: IChanRestrict[];
-  channels: IChannel[];
+  inviteList: Partial<IChanInvite>[];
+  restrictList: Partial<IChanRestrict>[];
+  channels: Partial<IChannel>[];
 }
