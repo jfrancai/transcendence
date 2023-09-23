@@ -32,6 +32,7 @@ import { DeleteChannelGuard } from './guards/delete-channel.guard';
 import { ChannelMessageGuard } from './guards/channel-message.guard';
 import { LeaveChannelDto } from './dto/leave-channel.dto';
 import { LeaveChannelGuard } from './guards/leave-channel.guard';
+import { AdminChannelDto } from './dto/admin-channel.dto';
 
 // WebSocketGateways are instantiated from the SocketIoAdapter (inside src/adapters)
 // inside this IoAdapter there is authentification process with JWT
@@ -350,4 +351,9 @@ export default class ChatGateway
       });
     }
   }
+
+  async handleAdminChannel(
+    @MessageBody() adminChannelDto: AdminChannelDto,
+    @ConnectedSocket() socket: ChatSocket
+  ) {}
 }
