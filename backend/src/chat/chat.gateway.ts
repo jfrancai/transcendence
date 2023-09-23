@@ -30,6 +30,8 @@ import { CreateChannelGuard } from './guards/create-channel.guard';
 import { DeleteChannelDto } from './dto/delete-channel.dto';
 import { DeleteChannelGuard } from './guards/delete-channel.guard';
 import { ChannelMessageGuard } from './guards/channel-message.guard';
+import { LeaveChannelDto } from './dto/leave-channel.dto';
+import { LeaveChannelGuard } from './guards/leave-channel.guard';
 
 // WebSocketGateways are instantiated from the SocketIoAdapter (inside src/adapters)
 // inside this IoAdapter there is authentification process with JWT
@@ -152,7 +154,6 @@ export default class ChatGateway
     const { channels } = socket.user;
     if (channels) {
       channels.forEach((channel) => {
-        this.logger.debug(channel);
         pubChan.push({
           id: channel.id!,
           displayName: channel.displayName!
@@ -251,6 +252,11 @@ export default class ChatGateway
     const deletedChan = await this.channelService.deleteChannelByName(
       displayName
     );
+    socket.leave(deletedChan!.id);
+    this.io.to(socket.user.id!).emit('leave channel', {
+      displayName: deletedChan!.displayName,
+      chanID: deletedChan!.id
+    });
     this.io.to(socket.user.id!).emit('delete channel', {
       message: 'Channel deleted',
       chanID: deletedChan!.id
@@ -270,7 +276,7 @@ export default class ChatGateway
       displayName
     );
     if (channel) {
-      await this.channelService.updateChannelMembers(
+      await this.channelService.addChannelMember(
         channel.id as string,
         socket.user.id!
       );
@@ -321,6 +327,27 @@ export default class ChatGateway
       receiverId
     });
 
-    this.io.to(receiverId).to(socket.user.id!).emit('channel message', message);
+    this.io.to(receiverId).to(senderId).emit('channel message', message);
+  }
+
+  @UseGuards(LeaveChannelGuard)
+  @SubscribeMessage('leave channel')
+  async handleLeaveChannel(
+    @MessageBody() leaveChannelDto: LeaveChannelDto,
+    @ConnectedSocket() socket: ChatSocket
+  ) {
+    const { displayName } = leaveChannelDto;
+    const senderId = socket.user.id!;
+    this.logger.log(`User ${senderId} leave channel [${displayName}]`);
+    const channel = await this.channelService.getChanWithMembers(displayName);
+    if (channel) {
+      const admins = channel.admins.filter((a) => a !== senderId);
+      this.channelService.removeChannelMember(channel.id, senderId, admins);
+      socket.leave(channel.id);
+      this.io.to(channel.id).to(senderId).emit('leave channel', {
+        message: 'User leaves channel',
+        userID: senderId
+      });
+    }
   }
 }

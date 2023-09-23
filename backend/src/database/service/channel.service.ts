@@ -143,7 +143,7 @@ export class ChannelService {
     }
   }
 
-  async updateChannelMembers(chanId: string, memberId: string) {
+  async addChannelMember(chanId: string, memberId: string) {
     try {
       return await this.prisma.channel.update({
         where: {
@@ -152,6 +152,29 @@ export class ChannelService {
         data: {
           members: {
             connect: { id: memberId }
+          }
+        }
+      });
+    } catch (e) {
+      this.logger.warn(e);
+      return null;
+    }
+  }
+
+  async removeChannelMember(
+    chanId: string,
+    memberId: string,
+    admins: string[]
+  ) {
+    try {
+      return await this.prisma.channel.update({
+        where: {
+          id: chanId
+        },
+        data: {
+          admins,
+          members: {
+            disconnect: { id: memberId }
           }
         }
       });

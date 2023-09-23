@@ -2,12 +2,14 @@ Chat endpoint:
 
 - Primary
 
-  . Leave channel (only if not creator channel OR in channel)
-  . Change channel creator (transfer of ownership)
+  * Leave channel (only if not creator channel OR in channel)
+  . Change channel creator, transfer of ownership (creator only)
   . Channel messages for channel id
-  . Switch change mode channel
-  . Ban / Mute user from channel
-  . Unban / Unmute user from channel
+  . Switch change mode channel (admin only)
+  . Add admin
+  . Ban user from channel, if user on channel -> leave channel (admin only)
+  . Mute user
+  . Unban / Unmute user from channel (admin only)
 
 - Secondary
 
