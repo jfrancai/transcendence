@@ -1,0 +1,20 @@
+Chat endpoint:
+
+- Primary
+
+  . Leave channel (only if not creator channel OR in channel)
+  . Change channel creator (transfer of ownership)
+  . Channel messages for channel id
+  . Switch change mode channel
+  . Ban / Mute user from channel
+  . Unban / Unmute user from channel
+
+- Secondary
+
+  . Change channel name
+
+Private Message endpoint:
+
+- Secondary
+  . Remove auto load of all message for all users a user know in its contact list
+  . Private messages for user id (idealy load n messages after n messages)
