@@ -1,7 +1,6 @@
 import { Prisma } from '@prisma/client';
 import { Injectable, Logger } from '@nestjs/common';
 import { PrismaService } from './prisma.service';
-import { UUID } from '../../utils/types';
 
 @Injectable()
 export class ChanInviteService {
@@ -9,7 +8,7 @@ export class ChanInviteService {
 
   constructor(private prisma: PrismaService) {}
 
-  async getChanInviteById(id: UUID) {
+  async getChanInviteById(id: string) {
     try {
       return await this.prisma.chanInvite.findUnique({
         where: {
@@ -22,7 +21,7 @@ export class ChanInviteService {
     }
   }
 
-  async deleteChanInviteById(id: UUID) {
+  async deleteChanInviteById(id: string) {
     try {
       return await this.prisma.chanInvite.delete({
         where: {

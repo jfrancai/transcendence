@@ -2,7 +2,6 @@ import { Injectable, Logger } from '@nestjs/common';
 import { Prisma } from '@prisma/client';
 import { PrismaService } from './prisma.service';
 import { IUsers } from './interface/users';
-import { UUID } from '../../utils/types';
 
 @Injectable()
 export class UsersService {
@@ -10,7 +9,7 @@ export class UsersService {
 
   constructor(private prisma: PrismaService) {}
 
-  async getUserById(id: UUID) {
+  async getUserById(id: string) {
     try {
       return await this.prisma.users.findUnique({
         where: {
@@ -26,6 +25,24 @@ export class UsersService {
   async getAllUsers() {
     try {
       return await this.prisma.users.findMany();
+    } catch (e: any) {
+      this.logger.warn(e);
+      return null;
+    }
+  }
+
+  async getFullUserWithEmail(email: string) {
+    try {
+      return await this.prisma.users.findUnique({
+        where: {
+          email
+        },
+        include: {
+          restrictList: true,
+          inviteList: true,
+          channels: true
+        }
+      });
     } catch (e: any) {
       this.logger.warn(e);
       return null;
@@ -63,7 +80,7 @@ export class UsersService {
     }
   }
 
-  async deleteUserById(id: UUID) {
+  async deleteUserById(id: string) {
     try {
       return await this.prisma.users.delete({
         where: {
@@ -172,7 +189,7 @@ export class UsersService {
     }
   }
 
-  async setChatConnected(id: UUID) {
+  async setChatConnected(id: string) {
     try {
       return await this.prisma.users.update({
         where: {
@@ -190,7 +207,7 @@ export class UsersService {
     }
   }
 
-  async setChatDisonnected(id: UUID) {
+  async setChatDisonnected(id: string) {
     try {
       return await this.prisma.users.update({
         where: {

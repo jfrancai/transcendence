@@ -21,7 +21,6 @@ import { PrivateMessageDto } from './dto/private-message.dto';
 import { ChatFilter } from './filters/chat.filter';
 import { MessageService } from '../database/service/message.service';
 import { UsersService } from '../database/service/users.service';
-import { UUID } from '../utils/types';
 import { CreateChannelDto } from './dto/create-channel.dto';
 import { ChannelService } from '../database/service/channel.service';
 import { JoinChannelDto } from './dto/join-channel.dto';
@@ -102,16 +101,16 @@ export default class ChatGateway
 
     socket.join(socket.user.id!);
 
-    const messagesPerUser = new Map<UUID, PublicChatMessage[]>();
+    const messagesPerUser = new Map<string, PublicChatMessage[]>();
     const messages = await this.messageService.getMessageByUserId(
       socket.user.id!
     );
     const privateUsers = await this.usersService.getAllUsers();
 
-    const mapUserIdUsername = new Map<UUID, string>();
+    const mapUserIdUsername = new Map<string, string>();
     if (privateUsers) {
       privateUsers.forEach((user) => {
-        mapUserIdUsername.set(user.id as UUID, user.username);
+        mapUserIdUsername.set(user.id as string, user.username);
       });
     }
 
@@ -120,19 +119,19 @@ export default class ChatGateway
         socket.user.id === message.senderId
           ? message.receiverId
           : message.senderId;
-      const sender = mapUserIdUsername.get(message.senderId as UUID);
-      const receiver = mapUserIdUsername.get(message.receiverId as UUID);
+      const sender = mapUserIdUsername.get(message.senderId as string);
+      const receiver = mapUserIdUsername.get(message.receiverId as string);
       const publicMessage: PublicChatMessage = {
         content: message.content,
         sender: sender!,
         receiver: receiver!,
-        id: message.id as UUID,
+        id: message.id as string,
         createdAt: message.createdAt
       };
-      if (messagesPerUser.has(otherUser as UUID)) {
-        messagesPerUser.get(otherUser as UUID)?.push(publicMessage);
+      if (messagesPerUser.has(otherUser as string)) {
+        messagesPerUser.get(otherUser as string)?.push(publicMessage);
       } else {
-        messagesPerUser.set(otherUser as UUID, [publicMessage]);
+        messagesPerUser.set(otherUser as string, [publicMessage]);
       }
     });
 
@@ -140,10 +139,10 @@ export default class ChatGateway
     if (privateUsers) {
       privateUsers!.forEach((user) => {
         publicUsers.push({
-          userID: user.id as UUID,
+          userID: user.id as string,
           connected: user.connectedChat,
           username: user.username!,
-          messages: messagesPerUser.get(user.id as UUID) || []
+          messages: messagesPerUser.get(user.id as string) || []
         });
       });
     }
@@ -257,35 +256,37 @@ export default class ChatGateway
     );
     if (channel) {
       await this.channelService.updateChannelMembers(
-        channel.id as UUID,
+        channel.id as string,
         socket.user.id!
       );
       const pubMembers: Partial<PublicChatUser>[] = channel.members.map(
         (m) => ({
-          userID: m.id as UUID,
+          userID: m.id as string,
           connected: m.connectedChat,
           username: m.username
         })
       );
       const pubMessages: PublicChatMessage[] = channel.messages.map((m) => ({
-        id: m.id as UUID,
+        id: m.id as string,
         content: m.content,
-        sender: m.senderId as UUID,
-        receiver: m.receiverId as UUID,
+        sender: m.senderId as string,
+        receiver: m.receiverId as string,
         createdAt: m.createdAt
       }));
       const pubChannel: PublicChannel = {
-        id: channel.id as UUID,
+        id: channel.id as string,
         displayName: channel.displayName,
         userID: socket.user.id!,
         messages: pubMessages,
         members: pubMembers
       };
       socket.join(displayName);
-      this.io
-        .to(channel.id)
-        .to(socket.user.id!)
-        .emit('join channel', pubChannel);
+      this.io.to(socket.user.id!).emit('join channel', pubChannel);
+      this.io.to(channel.id).emit('channel user', {
+        id: channel.id as string,
+        displayName: channel.displayName,
+        userID: socket.user.id!
+      });
     }
   }
 

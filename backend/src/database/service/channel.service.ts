@@ -1,7 +1,6 @@
 import { ForbiddenException, Injectable, Logger } from '@nestjs/common';
 import { Prisma } from '@prisma/client';
 import { PrismaService } from './prisma.service';
-import { UUID } from '../../utils/types';
 
 @Injectable()
 export class ChannelService {
@@ -34,7 +33,7 @@ export class ChannelService {
     }
   }
 
-  async getChanById(id: UUID) {
+  async getChanById(id: string) {
     try {
       return await this.prisma.channel.findUnique({
         where: {
@@ -47,7 +46,7 @@ export class ChannelService {
     }
   }
 
-  async getChanByIdWithMembersAndRestrict(id: UUID) {
+  async getChanByIdWithMembersAndRestrict(id: string) {
     try {
       return await this.prisma.channel.findUnique({
         where: {
@@ -144,7 +143,7 @@ export class ChannelService {
     }
   }
 
-  async updateChannelMembers(chanId: UUID, memberId: UUID) {
+  async updateChannelMembers(chanId: string, memberId: string) {
     try {
       return await this.prisma.channel.update({
         where: {

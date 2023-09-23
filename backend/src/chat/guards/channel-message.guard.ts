@@ -10,7 +10,6 @@ import { validate } from 'class-validator';
 import { ChannelService } from '../../database/service/channel.service';
 import { ChatSocket } from '../chat.interface';
 import { PrivateMessageDto } from '../dto/private-message.dto';
-import { UUID } from '../../utils/types';
 import { ChanRestrictService } from '../../database/service/chan-restrict.service';
 
 @Injectable()
@@ -32,7 +31,7 @@ export class ChannelMessageGuard implements CanActivate {
     }
     const { receiverId } = messageDto;
     const channel = await this.channelService.getChanByIdWithMembersAndRestrict(
-      receiverId as UUID
+      receiverId
     );
     if (channel) {
       const { members, restrictList } = channel;
@@ -48,7 +47,7 @@ export class ChannelMessageGuard implements CanActivate {
             endOfRestrict: restrict?.endOfRestrict
           });
         } else {
-          this.chanRestrictService.deleteChanRestrictById(restrict.id as UUID);
+          this.chanRestrictService.deleteChanRestrictById(restrict.id);
         }
       }
       return true;

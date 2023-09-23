@@ -11,7 +11,6 @@ import { validate } from 'class-validator';
 import { ChannelService } from '../../database/service/channel.service';
 import { ChatSocket } from '../chat.interface';
 import { JoinChannelDto } from '../dto/join-channel.dto';
-import { UUID } from '../../utils/types';
 import { ChanRestrictService } from '../../database/service/chan-restrict.service';
 import { ChanInviteService } from '../../database/service/chan-invite.service';
 
@@ -34,7 +33,7 @@ export class JoinChannelGuard implements CanActivate {
       throw new BadRequestException(validationErrors);
     }
     const channel = await this.channelService.getDeepChanByName(
-      joinChannelDto.displayName as UUID
+      joinChannelDto.displayName
     );
     if (channel) {
       const { inviteList, restrictList } = channel;
@@ -45,7 +44,7 @@ export class JoinChannelGuard implements CanActivate {
       const restrict = restrictList.find((r) => r.usersId === socket.user.id!);
 
       if (restrict && restrict.endOfRestrict < new Date()) {
-        this.chanRestrictService.deleteChanRestrictById(restrict.id as UUID);
+        this.chanRestrictService.deleteChanRestrictById(restrict.id);
       }
       if (restrict && restrict.type === 'BAN') {
         throw new ForbiddenException(
@@ -57,7 +56,7 @@ export class JoinChannelGuard implements CanActivate {
         if (invite === undefined) {
           throw new ForbiddenException('Private channel: invite only');
         }
-        await this.chanInviteService.deleteChanInviteById(invite.id as UUID);
+        await this.chanInviteService.deleteChanInviteById(invite.id);
       } else if (channel.type === 'PASSWORD') {
         const result = await bcrypt.compare(
           joinChannelDto.password,

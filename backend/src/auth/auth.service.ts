@@ -169,7 +169,7 @@ export class AuthService {
       this.jwtService.verify(token);
       const payload: any = this.jwtService.decode(token);
       const { email } = payload;
-      return await this.usersService.getUser({ email });
+      return await this.usersService.getFullUserWithEmail(email);
     } catch (error) {
       this.logger.warn(error);
       return null;

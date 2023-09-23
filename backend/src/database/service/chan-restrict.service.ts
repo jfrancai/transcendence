@@ -1,7 +1,6 @@
 import { Prisma } from '@prisma/client';
 import { Injectable, Logger } from '@nestjs/common';
 import { PrismaService } from './prisma.service';
-import { UUID } from '../../utils/types';
 
 @Injectable()
 export class ChanRestrictService {
@@ -9,7 +8,7 @@ export class ChanRestrictService {
 
   constructor(private prisma: PrismaService) {}
 
-  async getChanRestrictById(id: UUID) {
+  async getChanRestrictById(id: string) {
     try {
       return await this.prisma.chanRestrict.findUnique({
         where: {
@@ -22,7 +21,7 @@ export class ChanRestrictService {
     }
   }
 
-  async deleteChanRestrictById(id: UUID) {
+  async deleteChanRestrictById(id: string) {
     try {
       return await this.prisma.chanRestrict.delete({
         where: {

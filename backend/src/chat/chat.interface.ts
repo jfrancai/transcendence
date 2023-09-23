@@ -1,6 +1,5 @@
 import { Socket } from 'socket.io';
 import { IUsers } from '../database/service/interface/users';
-import { UUID } from '../utils/types';
 
 export interface ChatSocket extends Socket {
   user: Partial<IUsers>;
@@ -9,14 +8,14 @@ export interface ChatSocket extends Socket {
 }
 
 export interface PublicChatUser {
-  userID: UUID;
+  userID: string;
   connected: boolean;
   username: string;
   messages: PublicChatMessage[];
 }
 
 export interface PublicChatMessage {
-  id: UUID;
+  id: string;
   content: string;
   sender: string;
   receiver: string;
@@ -24,9 +23,9 @@ export interface PublicChatMessage {
 }
 
 export interface PublicChannel {
-  id: UUID;
+  id: string;
   displayName: string;
-  userID: UUID;
+  userID: string;
   messages: PublicChatMessage[];
   members: Partial<PublicChatUser>[];
 }

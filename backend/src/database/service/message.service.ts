@@ -1,7 +1,6 @@
 import { Prisma } from '@prisma/client';
 import { Injectable, Logger } from '@nestjs/common';
 import { PrismaService } from './prisma.service';
-import { UUID } from '../../utils/types';
 
 @Injectable()
 export class MessageService {
@@ -9,7 +8,7 @@ export class MessageService {
 
   constructor(private prisma: PrismaService) {}
 
-  async getMessageById(id: UUID) {
+  async getMessageById(id: string) {
     try {
       return await this.prisma.message.findUnique({
         where: {
@@ -22,7 +21,7 @@ export class MessageService {
     }
   }
 
-  async getMessageByUserId(id: UUID) {
+  async getMessageByUserId(id: string) {
     try {
       return await this.prisma.message.findMany({
         orderBy: [
