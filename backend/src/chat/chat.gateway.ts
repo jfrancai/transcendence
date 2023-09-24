@@ -21,18 +21,20 @@ import { PrivateMessageDto } from './dto/private-message.dto';
 import { ChatFilter } from './filters/chat.filter';
 import { MessageService } from '../database/service/message.service';
 import { UsersService } from '../database/service/users.service';
-import { CreateChannelDto } from './dto/create-channel.dto';
 import { ChannelService } from '../database/service/channel.service';
-import { JoinChannelDto } from './dto/join-channel.dto';
 import { JoinChannelGuard } from './guards/join-channel.guard';
 import { CONST_SALT } from '../auth/constants';
-import { CreateChannelGuard } from './guards/create-channel.guard';
-import { DeleteChannelDto } from './dto/delete-channel.dto';
-import { DeleteChannelGuard } from './guards/delete-channel.guard';
+import { EmptyChannelGuard } from './guards/delete-channel.guard';
 import { ChannelMessageGuard } from './guards/channel-message.guard';
 import { LeaveChannelDto } from './dto/leave-channel.dto';
 import { LeaveChannelGuard } from './guards/leave-channel.guard';
 import { AdminChannelDto } from './dto/admin-channel.dto';
+import { AddAdminChannelGuard } from './guards/admin-channel.guard';
+import { RolesGuard } from './guards/role.guard';
+import { Roles } from './decorators/roles.decorator';
+import { ChannelDto } from './dto/channel.dto';
+import { RestrictGuard } from './guards/restrict.guard';
+import { Restrict } from './decorators/restricts.decorator';
 
 // WebSocketGateways are instantiated from the SocketIoAdapter (inside src/adapters)
 // inside this IoAdapter there is authentification process with JWT
@@ -40,6 +42,8 @@ import { AdminChannelDto } from './dto/admin-channel.dto';
 // stuck not understanding what is happenning.
 
 @UseFilters(ChatFilter)
+@UseGuards(RolesGuard)
+@UseGuards(RestrictGuard)
 @WebSocketGateway()
 export default class ChatGateway
   implements OnGatewayInit, OnGatewayConnection, OnGatewayDisconnect
@@ -151,13 +155,13 @@ export default class ChatGateway
     }
     socket.emit('users', publicUsers);
 
-    const pubChan: { id: string; displayName: string }[] = [];
+    const pubChan: { chanID: string; chanName: string }[] = [];
     const { channels } = socket.user;
     if (channels) {
       channels.forEach((channel) => {
         pubChan.push({
-          id: channel.id!,
-          displayName: channel.displayName!
+          chanID: channel.id!,
+          chanName: channel.chanName!
         });
         socket.join(channel.id!);
       });
@@ -206,56 +210,54 @@ export default class ChatGateway
     this.io.to(receiverId).to(socket.user.id!).emit('private message', message);
   }
 
-  @UseGuards(CreateChannelGuard)
   @SubscribeMessage('create channel')
   async handleCreateChannel(
-    @MessageBody() channelDto: CreateChannelDto,
+    @MessageBody(new ValidationPipe({ transform: true }))
+    channelDto: ChannelDto,
     @ConnectedSocket() socket: ChatSocket
   ) {
-    const { displayName, type, password } = channelDto;
+    const { chanName, type, password } = channelDto;
     const creatorId = socket.user.id!;
     this.logger.log(
-      `Channel creation request from ${creatorId}: [displayName: ${displayName}] [type: ${type}]`
+      `Channel creation request from ${creatorId}: [chanName: ${chanName}] [type: ${type}]`
     );
-    const chanDetail = {
-      displayName,
+    const privChan = await this.channelService.createChannel({
+      chanName,
       type,
       creatorId,
       admins: [creatorId],
-      password: ''
-    };
+      password
+    });
     if (password) {
       const salt = await bcrypt.genSalt(CONST_SALT);
       const passwordHash = await bcrypt.hash(password, salt);
-      chanDetail.password = passwordHash;
+      privChan.password = passwordHash;
     }
-    const privChan = await this.channelService.createChannel(chanDetail);
     const pubChan = {
       id: privChan.id,
       type: privChan.type,
-      displayName: privChan.displayName,
+      chanName: privChan.chanName,
       createdAt: privChan.createdAt
     };
     socket.join(privChan.id);
     this.io.to(socket.user.id!).emit('create channel', pubChan);
   }
 
-  @UseGuards(DeleteChannelGuard)
+  @Roles(['creator'])
+  @UseGuards(EmptyChannelGuard)
   @SubscribeMessage('delete channel')
   async handleDeleteChannel(
-    @MessageBody() deleteChannelDto: DeleteChannelDto,
+    @MessageBody() channelDto: ChannelDto,
     @ConnectedSocket() socket: ChatSocket
   ) {
-    const { displayName } = deleteChannelDto;
+    const { chanName } = channelDto;
     const clientId = socket.user.id!;
-    this.logger.log(`Client ${clientId} request to delete chan ${displayName}`);
+    this.logger.log(`Client ${clientId} request to delete chan ${chanName}`);
 
-    const deletedChan = await this.channelService.deleteChannelByName(
-      displayName
-    );
+    const deletedChan = await this.channelService.deleteChannelByName(chanName);
     socket.leave(deletedChan!.id);
     this.io.to(socket.user.id!).emit('leave channel', {
-      displayName: deletedChan!.displayName,
+      chanName: deletedChan!.chanName,
       chanID: deletedChan!.id
     });
     this.io.to(socket.user.id!).emit('delete channel', {
@@ -264,17 +266,18 @@ export default class ChatGateway
     });
   }
 
+  @Restrict(['banned'])
   @UseGuards(JoinChannelGuard)
   @SubscribeMessage('join channel')
   async handleJoinChannel(
-    @MessageBody() joinChannelDto: JoinChannelDto,
+    @MessageBody() joinChannelDto: ChannelDto,
     @ConnectedSocket() socket: ChatSocket
   ) {
-    const { displayName } = joinChannelDto;
+    const { chanName } = joinChannelDto;
     const clientId = socket.user.id!;
-    this.logger.log(`ClientId ${clientId} request to join chan ${displayName}`);
+    this.logger.log(`ClientId ${clientId} request to join chan ${chanName}`);
     const channel = await this.channelService.getChanWithMessagesAndMembers(
-      displayName
+      chanName
     );
     if (channel) {
       await this.channelService.addChannelMember(
@@ -297,20 +300,22 @@ export default class ChatGateway
       }));
       const pubChannel: PublicChannel = {
         id: channel.id as string,
-        displayName: channel.displayName,
+        chanName: channel.chanName,
         messages: pubMessages,
         members: pubMembers
       };
-      socket.join(displayName);
+      socket.join(chanName);
       this.io.to(socket.user.id!).emit('join channel', pubChannel);
       this.io.to(channel.id).emit('channel user', {
         id: channel.id as string,
-        displayName: channel.displayName,
+        chanName: channel.chanName,
         userID: socket.user.id!
       });
     }
   }
 
+  @Restrict(['muted'])
+  @Roles(['creator', 'admin', 'member'])
   @UseGuards(ChannelMessageGuard)
   @SubscribeMessage('channel message')
   async handleChannelMessage(
@@ -331,16 +336,17 @@ export default class ChatGateway
     this.io.to(receiverId).to(senderId).emit('channel message', message);
   }
 
+  @Roles(['member'])
   @UseGuards(LeaveChannelGuard)
   @SubscribeMessage('leave channel')
   async handleLeaveChannel(
     @MessageBody() leaveChannelDto: LeaveChannelDto,
     @ConnectedSocket() socket: ChatSocket
   ) {
-    const { displayName } = leaveChannelDto;
+    const { chanName } = leaveChannelDto;
     const senderId = socket.user.id!;
-    this.logger.log(`User ${senderId} leave channel [${displayName}]`);
-    const channel = await this.channelService.getChanWithMembers(displayName);
+    this.logger.log(`User ${senderId} leave channel [${chanName}]`);
+    const channel = await this.channelService.getChanWithMembers(chanName);
     if (channel) {
       const admins = channel.admins.filter((a) => a !== senderId);
       this.channelService.removeChannelMember(channel.id, senderId, admins);
@@ -352,8 +358,25 @@ export default class ChatGateway
     }
   }
 
+  @Roles(['creator', 'admin'])
+  @UseGuards(AddAdminChannelGuard)
+  @SubscribeMessage('admin channel')
   async handleAdminChannel(
     @MessageBody() adminChannelDto: AdminChannelDto,
     @ConnectedSocket() socket: ChatSocket
-  ) {}
+  ) {
+    const { userId, chanName } = adminChannelDto;
+    const senderId = socket.user.id!;
+    this.logger.log(
+      `Admin request for ${userId} by ${senderId} for channel ${chanName}`
+    );
+    const channel = await this.channelService.addAdmin(chanName, userId);
+    if (channel) {
+      this.io.to(senderId).to(userId).emit('admin channel', {
+        message: 'user is admin of the channel',
+        chanID: channel.id,
+        userID: userId
+      });
+    }
+  }
 }

@@ -10,46 +10,34 @@ import * as bcrypt from 'bcrypt';
 import { validate } from 'class-validator';
 import { ChannelService } from '../../database/service/channel.service';
 import { ChatSocket } from '../chat.interface';
-import { JoinChannelDto } from '../dto/join-channel.dto';
-import { ChanRestrictService } from '../../database/service/chan-restrict.service';
 import { ChanInviteService } from '../../database/service/chan-invite.service';
+import { ChannelDto } from '../dto/channel.dto';
 
 @Injectable()
 export class JoinChannelGuard implements CanActivate {
   constructor(
     private channelService: ChannelService,
-    private chanInviteService: ChanInviteService,
-    private chanRestrictService: ChanRestrictService
+    private chanInviteService: ChanInviteService
   ) {}
 
   async canActivate(context: ExecutionContext) {
     const socket = context.switchToWs().getClient() as ChatSocket;
     const data = context.switchToWs().getData();
 
-    const joinChannelDto = plainToClass(JoinChannelDto, data);
+    const joinChannelDto = plainToClass(ChannelDto, data);
     const validationErrors = await validate(joinChannelDto);
 
     if (validationErrors.length > 0) {
       throw new BadRequestException(validationErrors);
     }
     const channel = await this.channelService.getDeepChanByName(
-      joinChannelDto.displayName
+      joinChannelDto.chanName
     );
     if (channel) {
-      const { inviteList, restrictList } = channel;
+      const { inviteList } = channel;
 
       if (channel.members.find((m) => m.id === socket.user.id!)) {
         throw new ForbiddenException('User already in channel');
-      }
-      const restrict = restrictList.find((r) => r.usersId === socket.user.id!);
-
-      if (restrict && restrict.endOfRestrict < new Date()) {
-        this.chanRestrictService.deleteChanRestrictById(restrict.id);
-      }
-      if (restrict && restrict.type === 'BAN') {
-        throw new ForbiddenException(
-          `Banned from channel until ${restrict.endOfRestrict}`
-        );
       }
       if (channel!.type === 'PRIVATE') {
         const invite = inviteList.find((i) => i.usersId === socket.user.id);
@@ -59,7 +47,7 @@ export class JoinChannelGuard implements CanActivate {
         await this.chanInviteService.deleteChanInviteById(invite.id);
       } else if (channel.type === 'PASSWORD') {
         const result = await bcrypt.compare(
-          joinChannelDto.password,
+          joinChannelDto.password!,
           channel.password!
         );
         if (result === false) {

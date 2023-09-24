@@ -9,7 +9,7 @@ import {
 import { validate } from 'class-validator';
 import { ChannelService } from '../../database/service/channel.service';
 import { ChatSocket } from '../chat.interface';
-import { JoinChannelDto } from '../dto/join-channel.dto';
+import { LeaveChannelDto } from '../dto/leave-channel.dto';
 
 @Injectable()
 export class LeaveChannelGuard implements CanActivate {
@@ -19,21 +19,16 @@ export class LeaveChannelGuard implements CanActivate {
     const socket = context.switchToWs().getClient() as ChatSocket;
     const data = context.switchToWs().getData();
 
-    const joinChannelDto = plainToClass(JoinChannelDto, data);
-    const validationErrors = await validate(joinChannelDto);
+    const leaveChannelDto = plainToClass(LeaveChannelDto, data);
+    const validationErrors = await validate(leaveChannelDto);
 
     if (validationErrors.length > 0) {
       throw new BadRequestException(validationErrors);
     }
     const channel = await this.channelService.getChanWithMembers(
-      joinChannelDto.displayName
+      leaveChannelDto.chanName
     );
     if (channel) {
-      const { members } = channel;
-      const member = members.find((m) => m.id === socket.user.id);
-      if (member === undefined) {
-        throw new ForbiddenException('User not on channel');
-      }
       if (channel.creatorId === socket.user.id) {
         throw new ForbiddenException("Creator of a channel can't leaves it");
       }

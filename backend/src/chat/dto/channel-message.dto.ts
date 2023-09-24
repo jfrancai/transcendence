@@ -1,10 +1,9 @@
 import { IsNotEmpty, IsString, IsUUID } from 'class-validator';
 
-export class AdminChannelDto {
+export class ChannelMessageDto {
   @IsNotEmpty()
   @IsString()
-  @IsUUID()
-  readonly userId: string;
+  readonly content: string;
 
   @IsNotEmpty()
   @IsString()

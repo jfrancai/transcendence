@@ -3,19 +3,23 @@ Chat endpoint:
 - Primary
 
   * Leave channel (only if not creator channel OR in channel)
-  . Change channel creator, transfer of ownership (creator only)
-  . Channel messages for channel id
+  * Add admin (admin only)
+  . Remove admin (creator only)
   . Switch change mode channel (admin only)
-  . Add admin
-  . Ban user from channel, if user on channel -> leave channel (admin only)
-  . Mute user
-  . Unban / Unmute user from channel (admin only)
+  . Ban, if user on channel -> leave channel (admin only)
+  . Mute (admin only)
+  . Unban (admin only)
+  . Unmute (admin only)
 
 - Secondary
 
   . Change channel name
+  . Channel messages for channel id
+  . Change channel creator, transfer of ownership (creator only)
 
 Private Message endpoint:
+
+- block user
 
 - Secondary
   . Remove auto load of all message for all users a user know in its contact list

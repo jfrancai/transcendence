@@ -8,26 +8,24 @@ import {
 } from '@nestjs/common';
 import { validate } from 'class-validator';
 import { ChannelService } from '../../database/service/channel.service';
-import { ChatSocket } from '../chat.interface';
-import { JoinChannelDto } from '../dto/join-channel.dto';
+import { ChannelDto } from '../dto/channel.dto';
 
 @Injectable()
-export class DeleteChannelGuard implements CanActivate {
+export class EmptyChannelGuard implements CanActivate {
   constructor(private channelService: ChannelService) {}
 
   async canActivate(context: ExecutionContext) {
-    const socket = context.switchToWs().getClient() as ChatSocket;
     const data = context.switchToWs().getData();
 
-    const joinChannelDto = plainToClass(JoinChannelDto, data);
-    const validationErrors = await validate(joinChannelDto);
+    const channelDto = plainToClass(ChannelDto, data);
+    const validationErrors = await validate(channelDto);
 
     if (validationErrors.length > 0) {
       throw new BadRequestException(validationErrors);
     }
-    const { displayName } = joinChannelDto;
-    const channel = await this.channelService.getChanWithMembers(displayName);
-    if (channel && channel.creatorId === socket.user.id) {
+    const { chanName } = channelDto;
+    const channel = await this.channelService.getChanWithMembers(chanName);
+    if (channel) {
       if (channel.members.length !== 1) {
         throw new ForbiddenException('Channel not empty');
       }

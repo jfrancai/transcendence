@@ -31,7 +31,7 @@ export interface IChanRestrict {
 
 export interface IChannel {
   id: string;
-  displayName: string;
+  chanName: string;
   type: $Enums.ChannelType;
   createdAt: Date;
   password: string | null;

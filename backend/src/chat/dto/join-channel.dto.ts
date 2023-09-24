@@ -1,11 +1,4 @@
-import { IsNotEmpty, IsOptional, IsString } from 'class-validator';
+import { IntersectionType } from '@nestjs/swagger';
+import { ChannelDto } from './channel.dto';
 
-export class JoinChannelDto {
-  @IsNotEmpty()
-  @IsString()
-  readonly displayName: string;
-
-  @IsOptional()
-  @IsString()
-  readonly password: string = '';
-}
+export class JoinChannelDto extends IntersectionType(ChannelDto, PasswordDto) {}
