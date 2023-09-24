@@ -2,20 +2,20 @@ Chat endpoint:
 
 - Primary
 
-  * Leave channel (only if not creator channel OR in channel)
-  * Add admin (admin only)
-  . Remove admin (creator only)
-  . Switch change mode channel (admin only)
-  . Ban, if user on channel -> leave channel (admin only)
-  . Mute (admin only)
-  . Unban (admin only)
-  . Unmute (admin only)
+  * Leave channel (admin | member)
+  * Add admin (creator | admin)
+  . Remove admin (creator)
+  . change channel mode (creator | admin)
+  . Ban, if user on channel -> leave channel (creator | admin)
+  . Mute (creator | admin)
+  . Unban (creator | admin)
+  . Unmute (creator | admin)
 
 - Secondary
 
-  . Change channel name
-  . Channel messages for channel id
-  . Change channel creator, transfer of ownership (creator only)
+  . Change channel name (creator | admin)
+  . Channel messages for channel id (creator | admin | member)
+  . Change channel creator, transfer of ownership (creator)
 
 Private Message endpoint:
 

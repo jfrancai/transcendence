@@ -35,8 +35,9 @@ export class RestrictGuard implements CanActivate {
 
     const channelDto = plainToClass(ChannelDto, data);
     const validationErrors = await validate(channelDto);
+    const message = validationErrors.map((e) => e.constraints);
     if (validationErrors.length > 0) {
-      throw new BadRequestException(validationErrors);
+      throw new BadRequestException({ message });
     }
 
     const { chanName } = channelDto;

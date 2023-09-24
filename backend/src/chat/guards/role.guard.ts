@@ -5,12 +5,13 @@ import {
   Injectable,
   CanActivate,
   ExecutionContext,
-  BadRequestException
+  BadRequestException,
+  ForbiddenException
 } from '@nestjs/common';
 import { ChannelService } from '../../database/service/channel.service';
 import { ChatSocket } from '../chat.interface';
 import { Roles } from '../decorators/roles.decorator';
-import { ChannelDto } from '../dto/channel.dto';
+import { ChannelNameDto } from '../dto/channel-name.dto';
 
 @Injectable()
 export class RolesGuard implements CanActivate {
@@ -28,24 +29,33 @@ export class RolesGuard implements CanActivate {
     const socket = context.switchToWs().getClient() as ChatSocket;
     const data = context.switchToWs().getData();
 
-    const channelDto = plainToClass(ChannelDto, data);
+    const channelDto = plainToClass(ChannelNameDto, data);
     const validationErrors = await validate(channelDto);
+    const message = validationErrors.map((e) => e.constraints);
     if (validationErrors.length > 0) {
-      throw new BadRequestException(validationErrors);
+      throw new BadRequestException({ message });
     }
 
     const { chanName } = channelDto;
-    const channel = await this.channelService.getChanByName(chanName);
+    const channel = await this.channelService.getChanWithMembers(chanName);
     if (channel) {
       let socketRole: 'creator' | 'admin' | 'member';
       if (channel.creatorId === socket.user.id) {
         socketRole = 'creator';
       } else if (channel.admins.includes(socket.user.id!)) {
         socketRole = 'admin';
-      } else {
+      } else if (channel.members.find((m) => m.id === socket.user.id)) {
         socketRole = 'member';
+      } else {
+        throw new ForbiddenException({ message: 'User not on channel' });
       }
-      return roles.includes(socketRole);
+      const isActivate = roles.includes(socketRole);
+      if (isActivate === false) {
+        throw new ForbiddenException({
+          message: 'Unauthorized role',
+          authorizedRoles: roles
+        });
+      }
     }
     return false;
   }

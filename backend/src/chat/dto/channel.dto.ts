@@ -1,17 +1,14 @@
+import { IntersectionType } from '@nestjs/swagger';
 import { $Enums } from '@prisma/client';
 import {
   IsEnum,
-  IsNotEmpty,
   IsString,
   IsStrongPassword,
   ValidateIf
 } from 'class-validator';
+import { ChannelNameDto } from './channel-name.dto';
 
-export class ChannelDto {
-  @IsNotEmpty()
-  @IsString()
-  readonly chanName: string;
-
+export class ChannelDto extends IntersectionType(ChannelNameDto) {
   @IsEnum($Enums.ChannelType)
   readonly type: $Enums.ChannelType;
 

@@ -26,9 +26,9 @@ export class JoinChannelGuard implements CanActivate {
 
     const joinChannelDto = plainToClass(ChannelDto, data);
     const validationErrors = await validate(joinChannelDto);
-
+    const message = validationErrors.map((e) => e.constraints);
     if (validationErrors.length > 0) {
-      throw new BadRequestException(validationErrors);
+      throw new BadRequestException({ message });
     }
     const channel = await this.channelService.getDeepChanByName(
       joinChannelDto.chanName

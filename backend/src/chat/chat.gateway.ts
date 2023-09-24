@@ -25,9 +25,6 @@ import { ChannelService } from '../database/service/channel.service';
 import { JoinChannelGuard } from './guards/join-channel.guard';
 import { CONST_SALT } from '../auth/constants';
 import { EmptyChannelGuard } from './guards/delete-channel.guard';
-import { ChannelMessageGuard } from './guards/channel-message.guard';
-import { LeaveChannelDto } from './dto/leave-channel.dto';
-import { LeaveChannelGuard } from './guards/leave-channel.guard';
 import { AdminChannelDto } from './dto/admin-channel.dto';
 import { AddAdminChannelGuard } from './guards/admin-channel.guard';
 import { RolesGuard } from './guards/role.guard';
@@ -35,6 +32,8 @@ import { Roles } from './decorators/roles.decorator';
 import { ChannelDto } from './dto/channel.dto';
 import { RestrictGuard } from './guards/restrict.guard';
 import { Restrict } from './decorators/restricts.decorator';
+import { ChannelNameDto } from './dto/channel-name.dto';
+import { ChannelMessageDto } from './dto/channel-message.dto';
 
 // WebSocketGateways are instantiated from the SocketIoAdapter (inside src/adapters)
 // inside this IoAdapter there is authentification process with JWT
@@ -234,10 +233,12 @@ export default class ChatGateway
       privChan.password = passwordHash;
     }
     const pubChan = {
-      id: privChan.id,
-      type: privChan.type,
+      chanId: privChan.id,
       chanName: privChan.chanName,
-      createdAt: privChan.createdAt
+      type: privChan.type,
+      createdAt: privChan.createdAt,
+      creatorId: privChan.creatorId,
+      chanAdmins: privChan.admins
     };
     socket.join(privChan.id);
     this.io.to(socket.user.id!).emit('create channel', pubChan);
@@ -247,7 +248,7 @@ export default class ChatGateway
   @UseGuards(EmptyChannelGuard)
   @SubscribeMessage('delete channel')
   async handleDeleteChannel(
-    @MessageBody() channelDto: ChannelDto,
+    @MessageBody(new ValidationPipe()) channelDto: ChannelNameDto,
     @ConnectedSocket() socket: ChatSocket
   ) {
     const { chanName } = channelDto;
@@ -270,7 +271,7 @@ export default class ChatGateway
   @UseGuards(JoinChannelGuard)
   @SubscribeMessage('join channel')
   async handleJoinChannel(
-    @MessageBody() joinChannelDto: ChannelDto,
+    @MessageBody(new ValidationPipe()) joinChannelDto: ChannelDto,
     @ConnectedSocket() socket: ChatSocket
   ) {
     const { chanName } = joinChannelDto;
@@ -316,31 +317,29 @@ export default class ChatGateway
 
   @Restrict(['muted'])
   @Roles(['creator', 'admin', 'member'])
-  @UseGuards(ChannelMessageGuard)
   @SubscribeMessage('channel message')
   async handleChannelMessage(
-    @MessageBody() messageDto: PrivateMessageDto,
+    @MessageBody(new ValidationPipe()) messageDto: ChannelMessageDto,
     @ConnectedSocket() socket: ChatSocket
   ) {
-    const { receiverId, content } = messageDto;
+    const { chanName, content } = messageDto;
     const senderId = socket.user.id!;
     this.logger.log(
-      `Incoming channel message from ${senderId} to ${receiverId} with content: ${content}`
+      `Incoming channel message from ${senderId} to ${chanName} with content: ${content}`
     );
     const message = await this.messageService.createChannelMessage({
       content,
       senderId,
-      receiverId
+      receiverId: chanName
     });
 
-    this.io.to(receiverId).to(senderId).emit('channel message', message);
+    this.io.to(chanName).to(senderId).emit('channel message', message);
   }
 
-  @Roles(['member'])
-  @UseGuards(LeaveChannelGuard)
+  @Roles(['member', 'admin'])
   @SubscribeMessage('leave channel')
   async handleLeaveChannel(
-    @MessageBody() leaveChannelDto: LeaveChannelDto,
+    @MessageBody(new ValidationPipe()) leaveChannelDto: ChannelNameDto,
     @ConnectedSocket() socket: ChatSocket
   ) {
     const { chanName } = leaveChannelDto;

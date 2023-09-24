@@ -22,8 +22,9 @@ export class AddAdminChannelGuard implements CanActivate {
     const adminChannelDto = plainToClass(AdminChannelDto, data);
 
     const validationErrors = await validate(adminChannelDto);
+    const message = validationErrors.map((e) => e.constraints);
     if (validationErrors.length > 0) {
-      throw new BadRequestException(validationErrors);
+      throw new BadRequestException({ message });
     }
 
     const { chanName, userId } = adminChannelDto;
