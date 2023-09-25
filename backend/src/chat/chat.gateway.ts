@@ -442,4 +442,42 @@ export default class ChatGateway
       }
     }
   }
+
+  @Roles(['creator', 'admin', 'member'])
+  @SubscribeMessage('channel messages')
+  async handleChannelMessages(
+    @MessageBody(new ValidationPipe()) channelNameDto: ChannelNameDto,
+    @ConnectedSocket() socket: ChatSocket
+  ) {
+    const { chanName } = channelNameDto;
+    const senderId = socket.user.id!;
+    this.logger.log(
+      `Channel messages request for channel ${chanName} by user ${senderId}`
+    );
+
+    const channel = await this.channelService.getChanWithMessages(chanName);
+    if (channel) {
+      const { messages } = channel;
+      this.io.to(senderId).emit('channel messages', messages);
+    }
+  }
+
+  @Roles(['creator', 'admin', 'member'])
+  @SubscribeMessage('channel members')
+  async handleChannelMembers(
+    @MessageBody(new ValidationPipe()) channelNameDto: ChannelNameDto,
+    @ConnectedSocket() socket: ChatSocket
+  ) {
+    const { chanName } = channelNameDto;
+    const senderId = socket.user.id!;
+    this.logger.log(
+      `Channel members request for channel ${chanName} by user ${senderId}`
+    );
+
+    const channel = await this.channelService.getChanWithMembers(chanName);
+    if (channel) {
+      const { members } = channel;
+      this.io.to(senderId).emit('channel messages', members);
+    }
+  }
 }

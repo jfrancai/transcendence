@@ -11,8 +11,8 @@ Chat endpoint:
   . Mute (creator | admin)
   . Unban (creator | admin)
   . Unmute (creator | admin)
-  . Channel messages for channel id (creator | admin | member)
-  . Channel users for channel id (creator | admin | member)
+  * Channel messages for channel id (creator | admin | member)
+  * Channel users for channel id (creator | admin | member)
 
 - Secondary
 
