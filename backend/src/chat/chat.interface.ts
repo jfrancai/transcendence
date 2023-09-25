@@ -25,6 +25,6 @@ export interface PublicChatMessage {
 export interface PublicChannel {
   id: string;
   chanName: string;
-  messages: PublicChatMessage[];
-  members: Partial<PublicChatUser>[];
+  type: string;
+  createdAt: Date;
 }

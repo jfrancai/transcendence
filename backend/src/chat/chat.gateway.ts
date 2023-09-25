@@ -221,28 +221,27 @@ export default class ChatGateway
     this.logger.log(
       `Channel creation request from ${creatorId}: [chanName: ${chanName}] [type: ${type}]`
     );
-    const privChan = await this.channelService.createChannel({
+    const privChan = {
       chanName,
       type,
       creatorId,
       admins: [creatorId],
       password
-    });
+    };
     if (password) {
       const salt = await bcrypt.genSalt(CONST_SALT);
       const passwordHash = await bcrypt.hash(password, salt);
       privChan.password = passwordHash;
     }
-    const pubChan = {
-      chanId: privChan.id,
-      chanName: privChan.chanName,
-      type: privChan.type,
-      createdAt: privChan.createdAt,
-      creatorId: privChan.creatorId,
-      chanAdmins: privChan.admins
+    const channel = await this.channelService.createChannel(privChan);
+    const pubChan: PublicChannel = {
+      id: channel.id,
+      chanName: channel.chanName,
+      type: channel.type,
+      createdAt: channel.createdAt
     };
-    socket.join(privChan.id);
-    this.io.to(socket.user.id!).emit('create channel', pubChan);
+    socket.join(channel.id);
+    this.io.to(socket.user.id!).emit('channel info', pubChan);
   }
 
   @EmptyChannel()
@@ -279,41 +278,17 @@ export default class ChatGateway
     const { chanName } = channelDto;
     const clientId = socket.user.id!;
     this.logger.log(`ClientId ${clientId} request to join chan ${chanName}`);
-    const channel = await this.channelService.getChanWithMessagesAndMembers(
-      chanName
-    );
+    const channel = await this.channelService.getChanByName(chanName);
     if (channel) {
-      await this.channelService.addChannelMember(
-        channel.id as string,
-        socket.user.id!
-      );
-      const pubMembers: Partial<PublicChatUser>[] = channel.members.map(
-        (m) => ({
-          userID: m.id as string,
-          connected: m.connectedChat,
-          username: m.username
-        })
-      );
-      const pubMessages: PublicChatMessage[] = channel.messages.map((m) => ({
-        id: m.id as string,
-        content: m.content,
-        sender: m.senderId as string,
-        receiver: m.receiverId as string,
-        createdAt: m.createdAt
-      }));
+      await this.channelService.addChannelMember(channel.id, socket.user.id!);
       const pubChannel: PublicChannel = {
-        id: channel.id as string,
+        id: channel.id,
         chanName: channel.chanName,
-        messages: pubMessages,
-        members: pubMembers
+        type: channel.type,
+        createdAt: channel.createdAt
       };
       socket.join(chanName);
-      this.io.to(socket.user.id!).emit('join channel', pubChannel);
-      this.io.to(channel.id).emit('channel user', {
-        id: channel.id as string,
-        chanName: channel.chanName,
-        userID: socket.user.id!
-      });
+      this.io.to(socket.user.id!).emit('channel info', pubChannel);
     }
   }
 
@@ -360,15 +335,15 @@ export default class ChatGateway
   }
 
   @Roles(['creator', 'admin'])
-  @SubscribeMessage('admin channel')
-  async handleAdminChannel(
+  @SubscribeMessage('add admin channel')
+  async handleAddAdminChannel(
     @MessageBody(new ValidationPipe()) channelUsersDto: ChannelUsersDto,
     @ConnectedSocket() socket: ChatSocket
   ) {
     const { usersId, chanName } = channelUsersDto;
     const senderId = socket.user.id!;
     this.logger.log(
-      `Admin request for ${usersId} by ${senderId} for channel ${chanName}`
+      `Add admin request for ${usersId} by ${senderId} for channel ${chanName}`
     );
     const channel = await this.channelService.getChanByName(chanName);
     if (channel) {
@@ -376,11 +351,84 @@ export default class ChatGateway
       admins.concat(usersId);
       const adminsSet = new Set(admins);
       await this.channelService.updateAdmins(chanName, Array.from(adminsSet));
-      this.io.to(senderId).to(usersId).emit('admin channel', {
+      this.io.to(senderId).to(usersId).emit('add admin channel', {
         message: 'user is admin of the channel',
         chanID: channel.id,
         userID: usersId
       });
+    }
+  }
+
+  @SubscribeMessage('channel info')
+  async handleChannelInfo(
+    @MessageBody(new ValidationPipe()) channelNameDto: ChannelNameDto,
+    @ConnectedSocket() socket: ChatSocket
+  ) {
+    const { chanName } = channelNameDto;
+    const senderId = socket.user.id!;
+    this.logger.log(
+      `Channel info request for channel ${chanName} by user ${senderId}`
+    );
+
+    const channel = await this.channelService.getChanByName(chanName);
+    if (channel) {
+      const pubChan: PublicChannel = {
+        id: channel.id,
+        chanName: channel.chanName,
+        type: channel.type,
+        createdAt: channel.createdAt
+      };
+      this.io.to(senderId).emit('channel info', pubChan);
+    }
+  }
+
+  @Roles(['creator'])
+  @SubscribeMessage('remove admin channel')
+  async handleRemoveAdminChannel(
+    @MessageBody(new ValidationPipe()) channelUsersDto: ChannelUsersDto,
+    @ConnectedSocket() socket: ChatSocket
+  ) {
+    const { usersId, chanName } = channelUsersDto;
+    const senderId = socket.user.id!;
+    this.logger.log(
+      `Remove admin request for ${usersId} by ${senderId} for channel ${chanName}`
+    );
+    const channel = await this.channelService.getChanByName(chanName);
+    if (channel) {
+      const admins = channel.admins.filter((admin) => !usersId.includes(admin));
+      const adminsSet = new Set(admins);
+      await this.channelService.updateAdmins(chanName, Array.from(adminsSet));
+      this.io.to(senderId).to(usersId).emit('remove admin channel', {
+        message: 'user is admin of the channel',
+        chanID: channel.id,
+        userID: usersId
+      });
+    }
+  }
+
+  @Roles(['creator', 'admin'])
+  @SubscribeMessage('channel mode')
+  async handleChannelMode(
+    @MessageBody(new ValidationPipe()) channelDto: ChannelDto,
+    @ConnectedSocket() socket: ChatSocket
+  ) {
+    const { chanName, type, password } = channelDto;
+    const senderId = socket.user.id!;
+    this.logger.log(
+      `Channel mode change to ${type} requested by user ${senderId}`
+    );
+
+    const channel = await this.channelService.getChanByName(chanName);
+    if (channel) {
+      const privChan = await this.channelService.updateChannelType({
+        type,
+        password
+      });
+      if (password) {
+        const salt = await bcrypt.genSalt(CONST_SALT);
+        const passwordHash = await bcrypt.hash(password, salt);
+        privChan.password = passwordHash;
+      }
     }
   }
 }
