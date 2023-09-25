@@ -507,29 +507,42 @@ export default class ChatGateway
       if (userId === channel.creatorId) {
         throw new ForbiddenException("Channel creator can't be restricted");
       }
-      const restrict = await this.chanRestrictService.createChanRestrict({
-        type: restrictType,
-        endOfRestrict,
-        reason,
-        user: { connect: { id: userId } },
-        channel: { connect: { id: channel.id } }
-      });
+      if (restrictType === 'BAN' || restrictType === 'MUTE') {
+        const restrict = await this.chanRestrictService.createChanRestrict({
+          type: restrictType,
+          endOfRestrict,
+          reason,
+          user: { connect: { id: userId } },
+          channel: { connect: { id: channel.id } }
+        });
+        if (restrict) {
+          const payload = {
+            chanID: restrict.channelId,
+            reason: restrict.reason
+          };
+          if (restrictType === 'BAN') {
+            this.io.to(userId).emit('channel ban', payload);
 
-      if (restrict) {
-        const payload = {
-          chanID: restrict.channelId,
-          reason: restrict.reason
-        };
-        if (restrictType === 'BAN') {
-          this.io.to(userId).emit('channel ban', payload);
-
-          const admins = channel.admins.filter((a) => a !== userId);
-          this.channelService.removeChannelMember(channel.id, senderId, admins);
-          socket.leave(restrict.channelId);
-        } else if (restrictType === 'MUTE') {
-          this.io.to(userId).emit('channel mute', payload);
+            const admins = channel.admins.filter((a) => a !== userId);
+            this.channelService.removeChannelMember(
+              channel.id,
+              senderId,
+              admins
+            );
+            socket.leave(restrict.channelId);
+          } else if (restrictType === 'MUTE') {
+            this.io.to(userId).emit('channel mute', payload);
+          }
+          this.io.to(senderId).emit('channel restrict', payload);
         }
-        this.io.to(senderId).emit('channel restrict', payload);
+      } else if (restrictType === 'KICK') {
+        const admins = channel.admins.filter((a) => a !== userId);
+        this.channelService.removeChannelMember(channel.id, senderId, admins);
+        socket.leave(channel.id);
+        this.io.to(senderId).emit('channel restrict', {
+          chanID: restrictType,
+          reason
+        });
       }
     }
   }

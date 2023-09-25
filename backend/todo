@@ -11,6 +11,7 @@ Chat endpoint:
   * Mute (creator | admin)
   * Channel messages for channel id (creator | admin | member)
   * Channel users for channel id (creator | admin | member)
+  * kick user
 
 - Secondary
 
