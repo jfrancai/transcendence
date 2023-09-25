@@ -33,6 +33,7 @@ import { Restrict } from './decorators/restricts.decorator';
 import { ChannelNameDto } from './dto/channel-name.dto';
 import { ChannelMessageDto } from './dto/channel-message.dto';
 import { ChannelUsersDto } from './dto/users-channel.dto';
+import { ChannelIsNotEmpty } from './decorators/channel-is-not-empty';
 
 // WebSocketGateways are instantiated from the SocketIoAdapter (inside src/adapters)
 // inside this IoAdapter there is authentification process with JWT
@@ -42,6 +43,7 @@ import { ChannelUsersDto } from './dto/users-channel.dto';
 @UseFilters(ChatFilter)
 @UseGuards(RolesGuard)
 @UseGuards(RestrictGuard)
+@UseGuards(EmptyChannelGuard)
 @WebSocketGateway()
 export default class ChatGateway
   implements OnGatewayInit, OnGatewayConnection, OnGatewayDisconnect
@@ -243,8 +245,8 @@ export default class ChatGateway
     this.io.to(socket.user.id!).emit('create channel', pubChan);
   }
 
+  @ChannelIsNotEmpty()
   @Roles(['creator'])
-  @UseGuards(EmptyChannelGuard)
   @SubscribeMessage('delete channel')
   async handleDeleteChannel(
     @MessageBody(new ValidationPipe()) channelDto: ChannelNameDto,
