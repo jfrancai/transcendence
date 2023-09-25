@@ -6,7 +6,7 @@ Chat endpoint:
   * Add admin (creator | admin)
   * Get chan info (To know if the chan is public/private/public so that you can send the type of channel you are joinning when sending join request)
   * Remove admin (creator)
-  . change channel mode (creator | admin)
+  * change channel mode (creator | admin)
   . Ban, if user on channel -> leave channel (creator | admin)
   . Mute (creator | admin)
   . Unban (creator | admin)

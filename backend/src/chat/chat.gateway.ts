@@ -412,7 +412,8 @@ export default class ChatGateway
     @MessageBody(new ValidationPipe()) channelDto: ChannelDto,
     @ConnectedSocket() socket: ChatSocket
   ) {
-    const { chanName, type, password } = channelDto;
+    const { chanName, type } = channelDto;
+    let { password } = channelDto;
     const senderId = socket.user.id!;
     this.logger.log(
       `Channel mode change to ${type} requested by user ${senderId}`
@@ -420,14 +421,24 @@ export default class ChatGateway
 
     const channel = await this.channelService.getChanByName(chanName);
     if (channel) {
-      const privChan = await this.channelService.updateChannelType({
-        type,
-        password
-      });
       if (password) {
         const salt = await bcrypt.genSalt(CONST_SALT);
         const passwordHash = await bcrypt.hash(password, salt);
-        privChan.password = passwordHash;
+        password = passwordHash;
+      }
+      const privChan = await this.channelService.updateChanType(
+        channel.id,
+        type,
+        password
+      );
+      if (privChan) {
+        const pubChan: PublicChannel = {
+          id: privChan.id,
+          chanName: privChan.chanName,
+          type: privChan.type,
+          createdAt: privChan.createdAt
+        };
+        this.io.to(senderId).emit('channel info', pubChan);
       }
     }
   }
