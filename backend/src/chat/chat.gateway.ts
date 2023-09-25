@@ -10,7 +10,13 @@ import {
   WebSocketServer
 } from '@nestjs/websockets';
 import { Server } from 'socket.io';
-import { Logger, UseFilters, UseGuards, ValidationPipe } from '@nestjs/common';
+import {
+  ForbiddenException,
+  Logger,
+  UseFilters,
+  UseGuards,
+  ValidationPipe
+} from '@nestjs/common';
 import {
   ChatSocket,
   PublicChannel,
@@ -32,8 +38,10 @@ import { RestrictGuard } from './guards/restrict.guard';
 import { Restrict } from './decorators/restricts.decorator';
 import { ChannelNameDto } from './dto/channel-name.dto';
 import { ChannelMessageDto } from './dto/channel-message.dto';
-import { ChannelUsersDto } from './dto/users-channel.dto';
+import { ChannelUsersDto } from './dto/channel-users.dto';
 import { EmptyChannel } from './decorators/empty-channel';
+import { ChanRestrictService } from '../database/service/chan-restrict.service';
+import { ChannelRestrictDto } from './dto/channel-restrict.dto';
 
 // WebSocketGateways are instantiated from the SocketIoAdapter (inside src/adapters)
 // inside this IoAdapter there is authentification process with JWT
@@ -53,7 +61,8 @@ export default class ChatGateway
   constructor(
     private usersService: UsersService,
     private messageService: MessageService,
-    private channelService: ChannelService
+    private channelService: ChannelService,
+    private chanRestrictService: ChanRestrictService
   ) {}
 
   getLogger(): Logger {
@@ -478,6 +487,50 @@ export default class ChatGateway
     if (channel) {
       const { members } = channel;
       this.io.to(senderId).emit('channel messages', members);
+    }
+  }
+
+  @Roles(['creator', 'admin'])
+  @SubscribeMessage('channel restrict')
+  async handleRestrictUser(
+    @MessageBody(new ValidationPipe()) channelRestrictDto: ChannelRestrictDto,
+    @ConnectedSocket() socket: ChatSocket
+  ) {
+    const { userId, chanName, restrictType, endOfRestrict, reason } =
+      channelRestrictDto;
+    const senderId = socket.user.id!;
+    this.logger.log(
+      `Channel restrict request for ${userId} by ${senderId} for channel ${chanName}. Restrict type: ${restrictType}`
+    );
+    const channel = await this.channelService.getChanByName(chanName);
+    if (channel) {
+      if (userId === channel.creatorId) {
+        throw new ForbiddenException("Channel creator can't be restricted");
+      }
+      const restrict = await this.chanRestrictService.createChanRestrict({
+        type: restrictType,
+        endOfRestrict,
+        reason,
+        user: { connect: { id: userId } },
+        channel: { connect: { id: channel.id } }
+      });
+
+      if (restrict) {
+        const payload = {
+          chanID: restrict.channelId,
+          reason: restrict.reason
+        };
+        if (restrictType === 'BAN') {
+          this.io.to(userId).emit('channel ban', payload);
+
+          const admins = channel.admins.filter((a) => a !== userId);
+          this.channelService.removeChannelMember(channel.id, senderId, admins);
+          socket.leave(restrict.channelId);
+        } else if (restrictType === 'MUTE') {
+          this.io.to(userId).emit('channel mute', payload);
+        }
+        this.io.to(senderId).emit('channel restrict', payload);
+      }
     }
   }
 }

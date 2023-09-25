@@ -45,7 +45,8 @@ model ChanInvite {
 
 model ChanRestrict {
   id            String           @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  type          ChatRestrictType @default(MUTE)
+  type          ChatRestrictType
+  reason        String
   user          Users            @relation(fields: [usersId], references: [id])
   usersId       String           @db.Uuid
   channel       Channel          @relation(fields: [channelId], references: [id])

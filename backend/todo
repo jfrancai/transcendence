@@ -7,10 +7,8 @@ Chat endpoint:
   * Get chan info (To know if the chan is public/private/public so that you can send the type of channel you are joinning when sending join request)
   * Remove admin (creator)
   * change channel mode (creator | admin)
-  . Ban, if user on channel -> leave channel (creator | admin)
-  . Mute (creator | admin)
-  . Unban (creator | admin)
-  . Unmute (creator | admin)
+  * Ban, if user on channel -> leave channel (creator | admin)
+  * Mute (creator | admin)
   * Channel messages for channel id (creator | admin | member)
   * Channel users for channel id (creator | admin | member)
 
@@ -18,6 +16,8 @@ Chat endpoint:
 
   . Change channel name (creator | admin)
   . Change channel creator, transfer of ownership (creator)
+  . Unban (creator | admin)
+  . Unmute (creator | admin)
 
 Private Message endpoint:
 
@@ -26,3 +26,7 @@ Private Message endpoint:
 - Secondary
   . Remove auto load of all message for all users a user know in its contact list
   . Private messages for user id (idealy load n messages after n messages)
+
+Periodic task
+
+  . Setup cron job every day or week that clears from db ended mute or ban
