@@ -28,6 +28,10 @@ Private Message endpoint:
   . Remove auto load of all message for all users a user know in its contact list
   . Private messages for user id (idealy load n messages after n messages)
 
-Periodic task
+- Periodic task
 
   . Setup cron job every day or week that clears from db ended mute or ban
+
+- Handle 'null' case for ws handlers
+
+- Normalize log message of the gateway
