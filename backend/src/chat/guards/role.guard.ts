@@ -56,6 +56,7 @@ export class RolesGuard implements CanActivate {
           authorizedRoles: roles
         });
       }
+      return true;
     }
     return false;
   }

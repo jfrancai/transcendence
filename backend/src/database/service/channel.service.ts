@@ -183,18 +183,14 @@ export class ChannelService {
     }
   }
 
-  async addAdmin(chanName: string, adminId: string) {
-    const channel = await this.getChanByName(chanName);
-    if (channel === null) {
-      return null;
-    }
+  async updateAdmins(chanName: string, admins: string[]) {
     try {
       return await this.prisma.channel.update({
         where: {
           chanName
         },
         data: {
-          admins: [...channel.admins, adminId]
+          admins
         }
       });
     } catch (e) {

@@ -25,8 +25,6 @@ import { ChannelService } from '../database/service/channel.service';
 import { JoinChannelGuard } from './guards/join-channel.guard';
 import { CONST_SALT } from '../auth/constants';
 import { EmptyChannelGuard } from './guards/delete-channel.guard';
-import { AdminChannelDto } from './dto/admin-channel.dto';
-import { AddAdminChannelGuard } from './guards/admin-channel.guard';
 import { RolesGuard } from './guards/role.guard';
 import { Roles } from './decorators/roles.decorator';
 import { ChannelDto } from './dto/channel.dto';
@@ -34,6 +32,7 @@ import { RestrictGuard } from './guards/restrict.guard';
 import { Restrict } from './decorators/restricts.decorator';
 import { ChannelNameDto } from './dto/channel-name.dto';
 import { ChannelMessageDto } from './dto/channel-message.dto';
+import { ChannelUsersDto } from './dto/users-channel.dto';
 
 // WebSocketGateways are instantiated from the SocketIoAdapter (inside src/adapters)
 // inside this IoAdapter there is authentification process with JWT
@@ -271,7 +270,7 @@ export default class ChatGateway
   @UseGuards(JoinChannelGuard)
   @SubscribeMessage('join channel')
   async handleJoinChannel(
-    @MessageBody(new ValidationPipe()) joinChannelDto: ChannelDto,
+    @MessageBody(new ValidationPipe()) joinChannelDto: ChannelNameDto,
     @ConnectedSocket() socket: ChatSocket
   ) {
     const { chanName } = joinChannelDto;
@@ -358,23 +357,26 @@ export default class ChatGateway
   }
 
   @Roles(['creator', 'admin'])
-  @UseGuards(AddAdminChannelGuard)
   @SubscribeMessage('admin channel')
   async handleAdminChannel(
-    @MessageBody() adminChannelDto: AdminChannelDto,
+    @MessageBody(new ValidationPipe()) channelUsersDto: ChannelUsersDto,
     @ConnectedSocket() socket: ChatSocket
   ) {
-    const { userId, chanName } = adminChannelDto;
+    const { usersId, chanName } = channelUsersDto;
     const senderId = socket.user.id!;
     this.logger.log(
-      `Admin request for ${userId} by ${senderId} for channel ${chanName}`
+      `Admin request for ${usersId} by ${senderId} for channel ${chanName}`
     );
-    const channel = await this.channelService.addAdmin(chanName, userId);
+    const channel = await this.channelService.getChanByName(chanName);
     if (channel) {
-      this.io.to(senderId).to(userId).emit('admin channel', {
+      const { admins } = channel;
+      admins.concat(usersId);
+      const adminsSet = new Set(admins);
+      await this.channelService.updateAdmins(chanName, Array.from(adminsSet));
+      this.io.to(senderId).to(usersId).emit('admin channel', {
         message: 'user is admin of the channel',
         chanID: channel.id,
-        userID: userId
+        userID: usersId
       });
     }
   }

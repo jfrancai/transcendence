@@ -11,8 +11,8 @@ import {
 import { ChannelService } from '../../database/service/channel.service';
 import { ChanRestrictService } from '../../database/service/chan-restrict.service';
 import { ChatSocket } from '../chat.interface';
-import { ChannelDto } from '../dto/channel.dto';
 import { Restrict } from '../decorators/restricts.decorator';
+import { ChannelNameDto } from '../dto/channel-name.dto';
 
 @Injectable()
 export class RestrictGuard implements CanActivate {
@@ -33,7 +33,7 @@ export class RestrictGuard implements CanActivate {
     const socket = context.switchToWs().getClient() as ChatSocket;
     const data = context.switchToWs().getData();
 
-    const channelDto = plainToClass(ChannelDto, data);
+    const channelDto = plainToClass(ChannelNameDto, data);
     const validationErrors = await validate(channelDto);
     const message = validationErrors.map((e) => e.constraints);
     if (validationErrors.length > 0) {
