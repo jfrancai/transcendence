@@ -30,15 +30,12 @@ export class JoinChannelGuard implements CanActivate {
     if (validationErrors.length > 0) {
       throw new BadRequestException({ message });
     }
-    const channel = await this.channelService.getDeepChanByName(
+    const channel = await this.channelService.getChanWithInviteList(
       joinChannelDto.chanName
     );
     if (channel) {
       const { inviteList } = channel;
 
-      if (channel.members.find((m) => m.id === socket.user.id!)) {
-        throw new ForbiddenException('User already in channel');
-      }
       if (channel!.type === 'PRIVATE') {
         const invite = inviteList.find((i) => i.usersId === socket.user.id);
         if (invite === undefined) {

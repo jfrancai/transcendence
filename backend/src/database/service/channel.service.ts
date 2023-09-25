@@ -46,7 +46,7 @@ export class ChannelService {
     }
   }
 
-  async getDeepChanByName(chanName: string) {
+  async getChanWithInviteList(chanName: string) {
     try {
       return await this.prisma.channel.findUnique({
         where: {
@@ -54,8 +54,7 @@ export class ChannelService {
         },
         include: {
           inviteList: true,
-          restrictList: true,
-          members: true
+          restrictList: true
         }
       });
     } catch (e) {

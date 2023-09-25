@@ -10,7 +10,7 @@ import {
 } from '@nestjs/common';
 import { ChannelService } from '../../database/service/channel.service';
 import { ChatSocket } from '../chat.interface';
-import { Roles } from '../decorators/roles.decorator';
+import { Roles, RolesType } from '../decorators/roles.decorator';
 import { ChannelNameDto } from '../dto/channel-name.dto';
 
 @Injectable()
@@ -39,7 +39,7 @@ export class RolesGuard implements CanActivate {
     const { chanName } = channelDto;
     const channel = await this.channelService.getChanWithMembers(chanName);
     if (channel) {
-      let socketRole: 'creator' | 'admin' | 'member';
+      let socketRole: RolesType;
       if (channel.creatorId === socket.user.id) {
         socketRole = 'creator';
       } else if (channel.admins.includes(socket.user.id!)) {
@@ -47,7 +47,7 @@ export class RolesGuard implements CanActivate {
       } else if (channel.members.find((m) => m.id === socket.user.id)) {
         socketRole = 'member';
       } else {
-        throw new ForbiddenException({ message: 'User not on channel' });
+        socketRole = 'stranger';
       }
       const isActivate = roles.includes(socketRole);
       if (isActivate === false) {

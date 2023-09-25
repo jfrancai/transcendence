@@ -33,7 +33,7 @@ import { Restrict } from './decorators/restricts.decorator';
 import { ChannelNameDto } from './dto/channel-name.dto';
 import { ChannelMessageDto } from './dto/channel-message.dto';
 import { ChannelUsersDto } from './dto/users-channel.dto';
-import { ChannelIsNotEmpty } from './decorators/channel-is-not-empty';
+import { EmptyChannel } from './decorators/empty-channel';
 
 // WebSocketGateways are instantiated from the SocketIoAdapter (inside src/adapters)
 // inside this IoAdapter there is authentification process with JWT
@@ -245,7 +245,7 @@ export default class ChatGateway
     this.io.to(socket.user.id!).emit('create channel', pubChan);
   }
 
-  @ChannelIsNotEmpty()
+  @EmptyChannel()
   @Roles(['creator'])
   @SubscribeMessage('delete channel')
   async handleDeleteChannel(
@@ -269,13 +269,14 @@ export default class ChatGateway
   }
 
   @Restrict(['banned'])
+  @Roles(['stranger'])
   @UseGuards(JoinChannelGuard)
   @SubscribeMessage('join channel')
   async handleJoinChannel(
-    @MessageBody(new ValidationPipe()) joinChannelDto: ChannelNameDto,
+    @MessageBody(new ValidationPipe()) channelDto: ChannelDto,
     @ConnectedSocket() socket: ChatSocket
   ) {
-    const { chanName } = joinChannelDto;
+    const { chanName } = channelDto;
     const clientId = socket.user.id!;
     this.logger.log(`ClientId ${clientId} request to join chan ${chanName}`);
     const channel = await this.channelService.getChanWithMessagesAndMembers(

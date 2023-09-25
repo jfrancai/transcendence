@@ -10,7 +10,7 @@ import {
 import { validate } from 'class-validator';
 import { ChannelService } from '../../database/service/channel.service';
 import { ChannelNameDto } from '../dto/channel-name.dto';
-import { ChannelIsNotEmpty } from '../decorators/channel-is-not-empty';
+import { EmptyChannel } from '../decorators/empty-channel';
 
 @Injectable()
 export class EmptyChannelGuard implements CanActivate {
@@ -20,10 +20,7 @@ export class EmptyChannelGuard implements CanActivate {
   ) {}
 
   async canActivate(context: ExecutionContext) {
-    const notEmpty = this.reflector.get(
-      ChannelIsNotEmpty,
-      context.getHandler()
-    );
+    const notEmpty = this.reflector.get(EmptyChannel, context.getHandler());
     if (!notEmpty) {
       return true;
     }
