@@ -35,3 +35,5 @@ Private Message endpoint:
 - Handle 'null' case for ws handlers
 
 - Normalize log message of the gateway
+
+- Change chat gateway salt for password channel

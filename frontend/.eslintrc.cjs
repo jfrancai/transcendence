@@ -36,6 +36,7 @@ module.exports = {
     'comma-dangle': 'off',
     'operator-linebreak': ['error', 'after'],
     '@typescript-eslint/comma-dangle': 'off',
-    'import/no-extraneous-dependencies': ['error', { devDependencies: true }]
+    'import/no-extraneous-dependencies': ['error', { devDependencies: true }],
+    'import/prefer-default-export': 'off'
   }
 };
