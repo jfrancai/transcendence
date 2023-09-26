@@ -183,7 +183,7 @@ export default class ChatGateway
       channels: pubChan
     });
 
-    socket.broadcast.emit('user connected', {
+    socket.broadcast.emit('userConnected', {
       userID: socket.user.id,
       username: socket.user.username
     });
@@ -198,11 +198,11 @@ export default class ChatGateway
     const matchingSockets = await this.io.in(socket.user.id!).fetchSockets();
 
     if (matchingSockets.length === 0) {
-      socket.broadcast.emit('user disconnected', socket.user.id);
+      socket.broadcast.emit('userDisconnected', socket.user.id);
     }
   }
 
-  @SubscribeMessage('private message')
+  @SubscribeMessage('privateMessage')
   async handlePrivateMessage(
     @MessageBody(new ValidationPipe()) messageDto: PrivateMessageDto,
     @ConnectedSocket() socket: ChatSocket
@@ -218,10 +218,10 @@ export default class ChatGateway
       receiverId
     });
 
-    this.io.to(receiverId).to(socket.user.id!).emit('private message', message);
+    this.io.to(receiverId).to(socket.user.id!).emit('privateMessage', message);
   }
 
-  @SubscribeMessage('create channel')
+  @SubscribeMessage('channelCreate')
   async handleCreateChannel(
     @MessageBody(new ValidationPipe({ transform: true }))
     channelDto: ChannelDto,
@@ -252,12 +252,12 @@ export default class ChatGateway
       chanCreatedAt: channel.createdAt
     };
     socket.join(channel.id);
-    this.io.to(creatorId).emit('create channel', pubChan);
+    this.io.to(creatorId).emit('channelCreate', pubChan);
   }
 
   @EmptyChannel()
   @Roles(['creator'])
-  @SubscribeMessage('delete channel')
+  @SubscribeMessage('channelDelete')
   async handleDeleteChannel(
     @MessageBody(new ValidationPipe()) channelDto: ChannelNameDto,
     @ConnectedSocket() socket: ChatSocket
@@ -275,14 +275,14 @@ export default class ChatGateway
         chanType: deletedChan.type,
         chanCreatedAt: deletedChan.createdAt
       };
-      this.io.to(clientId).emit('delete channel', pubChan);
+      this.io.to(clientId).emit('channelDelete', pubChan);
     }
   }
 
   @Restrict(['banned'])
   @Roles(['stranger'])
   @UseGuards(JoinChannelGuard)
-  @SubscribeMessage('join channel')
+  @SubscribeMessage('channelJoin')
   async handleJoinChannel(
     @MessageBody(new ValidationPipe()) channelDto: ChannelDto,
     @ConnectedSocket() socket: ChatSocket
@@ -310,19 +310,19 @@ export default class ChatGateway
         chanCreatedAt: channel.createdAt
       };
       socket.join(chanName);
-      this.io.to(clientId).emit('join channel', pubChannel);
+      this.io.to(clientId).emit('channelJoin', pubChannel);
       const pubChatUser: Partial<PublicChatUser> = {
         username: user.username,
         userID: user.id,
         connected: user.connectedChat
       };
-      this.io.to(channel.id).emit('user join channel', pubChatUser);
+      this.io.to(channel.id).emit('channelUserJoin', pubChatUser);
     }
   }
 
   @Restrict(['muted'])
   @Roles(['creator', 'admin', 'member'])
-  @SubscribeMessage('channel message')
+  @SubscribeMessage('channelMessage')
   async handleChannelMessage(
     @MessageBody(new ValidationPipe()) messageDto: ChannelMessageDto,
     @ConnectedSocket() socket: ChatSocket
@@ -346,12 +346,12 @@ export default class ChatGateway
         receiver: chanMessage.receiverId,
         createdAt: chanMessage.createdAt
       };
-      this.io.to(chanMessage.channelId).emit('channel message', pubChanMessage);
+      this.io.to(chanMessage.channelId).emit('channelMessage', pubChanMessage);
     }
   }
 
   @Roles(['member', 'admin'])
-  @SubscribeMessage('leave channel')
+  @SubscribeMessage('channelLeave')
   async handleLeaveChannel(
     @MessageBody(new ValidationPipe()) leaveChannelDto: ChannelNameDto,
     @ConnectedSocket() socket: ChatSocket
@@ -365,7 +365,7 @@ export default class ChatGateway
     );
     if (channel) {
       socket.leave(channel.id);
-      this.io.to(channel.id).to(senderId).emit('leave channel', {
+      this.io.to(channel.id).to(senderId).emit('channelLeave', {
         chanName,
         chanID: channel.id,
         userID: senderId
@@ -374,7 +374,7 @@ export default class ChatGateway
   }
 
   @Roles(['creator', 'admin'])
-  @SubscribeMessage('add admin channel')
+  @SubscribeMessage('channelAddAdmin')
   async handleAddAdminChannel(
     @MessageBody(new ValidationPipe()) channelUsersDto: ChannelUsersDto,
     @ConnectedSocket() socket: ChatSocket
@@ -390,8 +390,7 @@ export default class ChatGateway
       admins.concat(usersId);
       const adminsSet = new Set(admins);
       await this.channelService.updateAdmins(chanName, Array.from(adminsSet));
-      this.io.to(senderId).to(usersId).emit('add admin channel', {
-        message: 'user is admin of the channel',
+      this.io.to(senderId).to(usersId).emit('channelAddAdmin', {
         chanID: channel.id,
         userID: usersId
       });
@@ -399,7 +398,7 @@ export default class ChatGateway
   }
 
   @Roles(['creator'])
-  @SubscribeMessage('remove admin channel')
+  @SubscribeMessage('channelRemoveAdmin')
   async handleRemoveAdminChannel(
     @MessageBody(new ValidationPipe()) channelUsersDto: ChannelUsersDto,
     @ConnectedSocket() socket: ChatSocket
@@ -414,15 +413,14 @@ export default class ChatGateway
       const admins = channel.admins.filter((admin) => !usersId.includes(admin));
       const adminsSet = new Set(admins);
       await this.channelService.updateAdmins(chanName, Array.from(adminsSet));
-      this.io.to(senderId).to(usersId).emit('remove admin channel', {
-        message: 'user is admin of the channel',
+      this.io.to(senderId).to(usersId).emit('channelRemoveAdmin', {
         chanID: channel.id,
         userID: usersId
       });
     }
   }
 
-  @SubscribeMessage('channel info')
+  @SubscribeMessage('channelInfo')
   async handleChannelInfo(
     @MessageBody(new ValidationPipe()) channelNameDto: ChannelNameDto,
     @ConnectedSocket() socket: ChatSocket
@@ -441,12 +439,12 @@ export default class ChatGateway
         chanType: channel.type,
         chanCreatedAt: channel.createdAt
       };
-      this.io.to(senderId).emit('channel info', pubChan);
+      this.io.to(senderId).emit('channelInfo', pubChan);
     }
   }
 
   @Roles(['creator', 'admin'])
-  @SubscribeMessage('channel mode')
+  @SubscribeMessage('channelMode')
   async handleChannelMode(
     @MessageBody(new ValidationPipe()) channelDto: ChannelDto,
     @ConnectedSocket() socket: ChatSocket
@@ -477,13 +475,13 @@ export default class ChatGateway
           chanType: privChan.type,
           chanCreatedAt: privChan.createdAt
         };
-        this.io.to(senderId).emit('channel info', pubChan);
+        this.io.to(senderId).emit('channelInfo', pubChan);
       }
     }
   }
 
   @Roles(['creator', 'admin', 'member'])
-  @SubscribeMessage('channel messages')
+  @SubscribeMessage('channelMessages')
   async handleChannelMessages(
     @MessageBody(new ValidationPipe()) channelNameDto: ChannelNameDto,
     @ConnectedSocket() socket: ChatSocket
@@ -497,12 +495,12 @@ export default class ChatGateway
     const channel = await this.channelService.getChanWithMessages(chanName);
     if (channel) {
       const { messages } = channel;
-      this.io.to(senderId).emit('channel messages', messages);
+      this.io.to(senderId).emit('channelMessages', messages);
     }
   }
 
   @Roles(['creator', 'admin', 'member'])
-  @SubscribeMessage('channel members')
+  @SubscribeMessage('channelMembers')
   async handleChannelMembers(
     @MessageBody(new ValidationPipe()) channelNameDto: ChannelNameDto,
     @ConnectedSocket() socket: ChatSocket
@@ -516,12 +514,12 @@ export default class ChatGateway
     const channel = await this.channelService.getChanWithMembers(chanName);
     if (channel) {
       const { members } = channel;
-      this.io.to(senderId).emit('channel messages', members);
+      this.io.to(senderId).emit('channelMembers', members);
     }
   }
 
   @Roles(['creator', 'admin'])
-  @SubscribeMessage('channel restrict')
+  @SubscribeMessage('channelRestrict')
   async handleRestrictUser(
     @MessageBody(new ValidationPipe()) channelRestrictDto: ChannelRestrictDto,
     @ConnectedSocket() socket: ChatSocket
@@ -551,19 +549,19 @@ export default class ChatGateway
             reason: restrict.reason
           };
           if (restrictType === 'BAN') {
-            this.io.to(userId).emit('channel ban', payload);
+            this.io.to(userId).emit('channelBan', payload);
 
             this.channelService.removeChannelMember(channel.id, senderId);
             socket.leave(restrict.channelId);
           } else if (restrictType === 'MUTE') {
-            this.io.to(userId).emit('channel mute', payload);
+            this.io.to(userId).emit('channelMute', payload);
           }
-          this.io.to(senderId).emit('channel restrict', payload);
+          this.io.to(senderId).emit('channelRestrict', payload);
         }
       } else if (restrictType === 'KICK') {
         this.channelService.removeChannelMember(channel.id, senderId);
         socket.leave(channel.id);
-        this.io.to(senderId).emit('channel restrict', {
+        this.io.to(senderId).emit('channelRestrict', {
           chanID: restrictType,
           reason
         });
