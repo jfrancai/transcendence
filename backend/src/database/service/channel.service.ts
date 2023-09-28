@@ -9,18 +9,18 @@ export class ChannelService {
   constructor(private prisma: PrismaService) {}
 
   async createChannel(channel: Prisma.ChannelCreateInput) {
-    const { chanName, type, creatorId, admins, password } = channel;
+    const { chanName, type, creatorID, admins, password } = channel;
     try {
       return await this.prisma.channel.create({
         data: {
           chanName,
           type,
-          creatorId,
+          creatorID,
           admins,
           password,
           members: {
             connect: {
-              id: creatorId
+              id: creatorID
             }
           }
         }

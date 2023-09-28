@@ -22,24 +22,28 @@ model Users {
   restrictList  ChanRestrict[]
   inviteList    ChanInvite[]
   channels      Channel[]
+  messageSent   Message[] @relation(name: "sender")
+  messageReceived Message[] @relation(name: "receiver")
 }
 
 model Message {
   id         String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
   content    String
-  senderId   String   @db.Uuid
-  receiverId String   @db.Uuid
+  sender     Users    @relation(name: "sender", fields: [senderID], references: [id])
+  senderID   String   @db.Uuid
+  receiver   Users    @relation(name: "receiver", fields: [receiverID], references: [id])
+  receiverID String   @db.Uuid
   createdAt  DateTime @default(now())
-  channel    Channel? @relation(fields: [channelId], references: [id])
-  channelId  String?  @db.Uuid
+  channel    Channel? @relation(fields: [channelID], references: [id])
+  channelID  String?  @db.Uuid
 }
 
 model ChanInvite {
   id        String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  user      Users    @relation(fields: [usersId], references: [id])
-  usersId   String   @db.Uuid
-  channel   Channel  @relation(fields: [channelId], references: [id])
-  channelId String   @db.Uuid
+  user      Users    @relation(fields: [usersID], references: [id])
+  usersID   String   @db.Uuid
+  channel   Channel  @relation(fields: [channelID], references: [id])
+  channelID String   @db.Uuid
   createdAt DateTime @default(now())
 }
 
@@ -47,10 +51,10 @@ model ChanRestrict {
   id            String           @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
   type          ChatRestrictType
   reason        String
-  user          Users            @relation(fields: [usersId], references: [id])
-  usersId       String           @db.Uuid
-  channel       Channel          @relation(fields: [channelId], references: [id])
-  channelId     String           @db.Uuid
+  user          Users            @relation(fields: [usersID], references: [id])
+  usersID       String           @db.Uuid
+  channel       Channel          @relation(fields: [channelID], references: [id])
+  channelID     String           @db.Uuid
   createdAt     DateTime         @default(now())
   endOfRestrict DateTime
 }
@@ -61,7 +65,7 @@ model Channel {
   type         ChannelType    @default(PRIVATE)
   createdAt    DateTime       @default(now())
   password     String?
-  creatorId    String         @db.Uuid
+  creatorID    String         @db.Uuid
   admins       String[]       @db.Uuid
   members      Users[]
   inviteList   ChanInvite[]

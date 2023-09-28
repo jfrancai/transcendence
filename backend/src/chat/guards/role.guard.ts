@@ -40,7 +40,7 @@ export class RolesGuard implements CanActivate {
     const channel = await this.channelService.getChanWithMembers(chanName);
     if (channel) {
       let socketRole: RolesType;
-      if (channel.creatorId === socket.user.id) {
+      if (channel.creatorID === socket.user.id) {
         socketRole = 'creator';
       } else if (channel.admins.includes(socket.user.id!)) {
         socketRole = 'admin';

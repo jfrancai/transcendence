@@ -37,7 +37,7 @@ export class JoinChannelGuard implements CanActivate {
       const { inviteList } = channel;
 
       if (channel!.type === 'PRIVATE') {
-        const invite = inviteList.find((i) => i.usersId === socket.user.id);
+        const invite = inviteList.find((i) => i.usersID === socket.user.id);
         if (invite === undefined) {
           throw new ForbiddenException('Private channel: invite only');
         }

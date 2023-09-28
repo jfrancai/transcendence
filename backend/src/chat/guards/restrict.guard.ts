@@ -46,7 +46,7 @@ export class RestrictGuard implements CanActivate {
       const restrictSet: Set<'banned' | 'muted'> = new Set();
       const { restrictList } = channel;
       const userRestricts = restrictList.filter(
-        (r) => r.usersId === socket.user.id!
+        (r) => r.usersID === socket.user.id!
       );
       userRestricts.forEach((restrict) => {
         if (restrict.endOfRestrict < new Date()) {

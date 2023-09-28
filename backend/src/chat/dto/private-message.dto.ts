@@ -8,5 +8,5 @@ export class PrivateMessageDto {
   @IsNotEmpty()
   @IsString()
   @IsUUID('4')
-  readonly receiverId: string;
+  readonly receiverID: string;
 }

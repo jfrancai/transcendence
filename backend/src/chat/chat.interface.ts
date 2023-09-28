@@ -11,14 +11,16 @@ export interface PublicChatUser {
   userID: string;
   connected: boolean;
   username: string;
-  messages: PublicPrivateMessage[];
+  messages: PublicMessage[];
 }
 
-export interface PublicPrivateMessage {
+export interface PublicMessage {
   messageID: string;
   content: string;
   sender: string;
+  senderID: string;
   receiver: string;
+  receiverID: string;
   createdAt: Date;
 }
 

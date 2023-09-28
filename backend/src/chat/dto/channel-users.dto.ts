@@ -8,5 +8,5 @@ export class ChannelUsersDto extends IntersectionType(ChannelNameDto) {
   @IsArray()
   @IsUUID('4', { each: true })
   @IsArrayUnique()
-  readonly usersId: string[];
+  readonly usersID: string[];
 }

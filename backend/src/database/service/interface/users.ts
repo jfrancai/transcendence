@@ -4,8 +4,8 @@ import ITwoAuth from './two-auth';
 export interface IMessage {
   id: string;
   content: string;
-  senderId: string;
-  receiverId: string;
+  senderID: string;
+  receiverID: string;
   createdAt: Date;
   channel?: IChannel;
   channelId?: string;

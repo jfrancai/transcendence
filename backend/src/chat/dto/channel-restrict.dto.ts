@@ -5,7 +5,7 @@ import { ChannelNameDto } from './channel-name.dto';
 export class ChannelRestrictDto extends IntersectionType(ChannelNameDto) {
   @IsNotEmpty()
   @IsUUID('4')
-  readonly userId: string;
+  readonly userID: string;
 
   @IsNotEmpty()
   @IsString()

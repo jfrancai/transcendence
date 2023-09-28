@@ -23,7 +23,7 @@ import {
   PublicChannel,
   PublicChannelMessage,
   PublicChatUser,
-  PublicPrivateMessage
+  PublicMessage
 } from './chat.interface';
 import { PrivateMessageDto } from './dto/private-message.dto';
 import { ChatFilter } from './filters/chat.filter';
@@ -51,9 +51,7 @@ import { ChannelRestrictDto } from './dto/channel-restrict.dto';
 // stuck not understanding what is happenning.
 
 @UseFilters(ChatFilter)
-@UseGuards(RolesGuard)
-@UseGuards(RestrictGuard)
-@UseGuards(EmptyChannelGuard)
+@UseGuards(EmptyChannelGuard, RestrictGuard, RolesGuard)
 @WebSocketGateway()
 export default class ChatGateway
   implements OnGatewayInit, OnGatewayConnection, OnGatewayDisconnect
@@ -119,7 +117,7 @@ export default class ChatGateway
 
     socket.join(socket.user.id!);
 
-    const messagesPerUser = new Map<string, PublicPrivateMessage[]>();
+    const messagesPerUser = new Map<string, PublicMessage[]>();
     const messages = await this.messageService.getMessageByUserId(
       socket.user.id!
     );
@@ -134,15 +132,17 @@ export default class ChatGateway
 
     messages!.forEach((message) => {
       const otherUser =
-        socket.user.id === message.senderId
-          ? message.receiverId
-          : message.senderId;
-      const sender = mapUserIdUsername.get(message.senderId as string);
-      const receiver = mapUserIdUsername.get(message.receiverId as string);
-      const publicMessage: PublicPrivateMessage = {
+        socket.user.id === message.senderID
+          ? message.receiverID
+          : message.senderID;
+      const sender = mapUserIdUsername.get(message.senderID);
+      const receiver = mapUserIdUsername.get(message.receiverID);
+      const publicMessage: PublicMessage = {
         content: message.content,
         sender: sender!,
+        senderID: message.senderID,
         receiver: receiver!,
+        receiverID: message.receiverID,
         messageID: message.id,
         createdAt: message.createdAt
       };
@@ -207,18 +207,34 @@ export default class ChatGateway
     @MessageBody(new ValidationPipe()) messageDto: PrivateMessageDto,
     @ConnectedSocket() socket: ChatSocket
   ) {
-    const { receiverId, content } = messageDto;
-    const senderId = socket.user.id!;
+    const { receiverID, content } = messageDto;
+    const senderID = socket.user.id!;
     this.logger.log(
-      `Incoming private message from ${senderId} to ${receiverId} with content: ${content}`
+      `Incoming private message from ${senderID} to ${receiverID} with content: ${content}`
     );
     const message = await this.messageService.createMessage({
       content,
-      senderId,
-      receiverId
+      senderID,
+      receiverID
     });
+    const sender = await this.usersService.getUserById(senderID);
+    const receiver = await this.usersService.getUserById(receiverID);
+    if (message) {
+      const publicMessage: PublicMessage = {
+        content: message.content,
+        sender: sender!.username,
+        senderID: message.senderID,
+        receiver: receiver!.username,
+        receiverID: message.receiverID,
+        messageID: message.id,
+        createdAt: message.createdAt
+      };
 
-    this.io.to(receiverId).to(socket.user.id!).emit('privateMessage', message);
+      this.io
+        .to(receiverID)
+        .to(socket.user.id!)
+        .emit('privateMessage', publicMessage);
+    }
   }
 
   @SubscribeMessage('channelCreate')
@@ -228,15 +244,15 @@ export default class ChatGateway
     @ConnectedSocket() socket: ChatSocket
   ) {
     const { chanName, type, password } = channelDto;
-    const creatorId = socket.user.id!;
+    const creatorID = socket.user.id!;
     this.logger.log(
-      `Channel creation request from ${creatorId}: [chanName: ${chanName}] [type: ${type}]`
+      `Channel creation request from ${creatorID}: [chanName: ${chanName}] [type: ${type}]`
     );
     const privChan = {
       chanName,
       type,
-      creatorId,
-      admins: [creatorId],
+      creatorID,
+      admins: [creatorID],
       password
     };
     if (password) {
@@ -252,7 +268,7 @@ export default class ChatGateway
       chanCreatedAt: channel.createdAt
     };
     socket.join(channel.id);
-    this.io.to(creatorId).emit('channelCreate', pubChan);
+    this.io.to(creatorID).emit('channelCreate', pubChan);
   }
 
   @EmptyChannel()
@@ -328,25 +344,25 @@ export default class ChatGateway
     @ConnectedSocket() socket: ChatSocket
   ) {
     const { chanName, content } = messageDto;
-    const senderId = socket.user.id!;
+    const senderID = socket.user.id!;
     this.logger.log(
-      `Incoming channel message from ${senderId} to ${chanName} with content: ${content}`
+      `Incoming channel message from ${senderID} to ${chanName} with content: ${content}`
     );
     const chanMessage = await this.messageService.createChannelMessage({
       content,
-      senderId,
-      receiverId: chanName
+      senderID,
+      receiverID: chanName
     });
-    if (chanMessage && chanMessage.channelId) {
+    if (chanMessage && chanMessage.channelID) {
       const pubChanMessage: PublicChannelMessage = {
         messageID: chanMessage.id,
-        chanID: chanMessage.channelId,
+        chanID: chanMessage.channelID,
         content: chanMessage.content,
-        sender: chanMessage.senderId,
-        receiver: chanMessage.receiverId,
+        sender: chanMessage.senderID,
+        receiver: chanMessage.receiverID,
         createdAt: chanMessage.createdAt
       };
-      this.io.to(chanMessage.channelId).emit('channelMessage', pubChanMessage);
+      this.io.to(chanMessage.channelID).emit('channelMessage', pubChanMessage);
     }
   }
 
@@ -357,18 +373,18 @@ export default class ChatGateway
     @ConnectedSocket() socket: ChatSocket
   ) {
     const { chanName } = leaveChannelDto;
-    const senderId = socket.user.id!;
-    this.logger.log(`User ${senderId} leave channel [${chanName}]`);
+    const senderID = socket.user.id!;
+    this.logger.log(`User ${senderID} leave channel [${chanName}]`);
     const channel = await this.channelService.removeChannelMember(
       chanName,
-      senderId
+      senderID
     );
     if (channel) {
       socket.leave(channel.id);
-      this.io.to(channel.id).to(senderId).emit('channelLeave', {
+      this.io.to(channel.id).to(senderID).emit('channelLeave', {
         chanName,
         chanID: channel.id,
-        userID: senderId
+        userID: senderID
       });
     }
   }
@@ -379,20 +395,20 @@ export default class ChatGateway
     @MessageBody(new ValidationPipe()) channelUsersDto: ChannelUsersDto,
     @ConnectedSocket() socket: ChatSocket
   ) {
-    const { usersId, chanName } = channelUsersDto;
-    const senderId = socket.user.id!;
+    const { usersID, chanName } = channelUsersDto;
+    const senderID = socket.user.id!;
     this.logger.log(
-      `Add admin request for ${usersId} by ${senderId} for channel ${chanName}`
+      `Add admin request for ${usersID} by ${senderID} for channel ${chanName}`
     );
     const channel = await this.channelService.getChanByName(chanName);
     if (channel) {
       const { admins } = channel;
-      admins.concat(usersId);
+      admins.concat(usersID);
       const adminsSet = new Set(admins);
       await this.channelService.updateAdmins(chanName, Array.from(adminsSet));
-      this.io.to(senderId).to(usersId).emit('channelAddAdmin', {
+      this.io.to(senderID).to(usersID).emit('channelAddAdmin', {
         chanID: channel.id,
-        userID: usersId
+        userID: usersID
       });
     }
   }
@@ -403,19 +419,19 @@ export default class ChatGateway
     @MessageBody(new ValidationPipe()) channelUsersDto: ChannelUsersDto,
     @ConnectedSocket() socket: ChatSocket
   ) {
-    const { usersId, chanName } = channelUsersDto;
-    const senderId = socket.user.id!;
+    const { usersID, chanName } = channelUsersDto;
+    const senderID = socket.user.id!;
     this.logger.log(
-      `Remove admin request for ${usersId} by ${senderId} for channel ${chanName}`
+      `Remove admin request for ${usersID} by ${senderID} for channel ${chanName}`
     );
     const channel = await this.channelService.getChanByName(chanName);
     if (channel) {
-      const admins = channel.admins.filter((admin) => !usersId.includes(admin));
+      const admins = channel.admins.filter((admin) => !usersID.includes(admin));
       const adminsSet = new Set(admins);
       await this.channelService.updateAdmins(chanName, Array.from(adminsSet));
-      this.io.to(senderId).to(usersId).emit('channelRemoveAdmin', {
+      this.io.to(senderID).to(usersID).emit('channelRemoveAdmin', {
         chanID: channel.id,
-        userID: usersId
+        userID: usersID
       });
     }
   }
@@ -426,9 +442,9 @@ export default class ChatGateway
     @ConnectedSocket() socket: ChatSocket
   ) {
     const { chanName } = channelNameDto;
-    const senderId = socket.user.id!;
+    const senderID = socket.user.id!;
     this.logger.log(
-      `Channel info request for channel ${chanName} by user ${senderId}`
+      `Channel info request for channel ${chanName} by user ${senderID}`
     );
 
     const channel = await this.channelService.getChanByName(chanName);
@@ -439,7 +455,7 @@ export default class ChatGateway
         chanType: channel.type,
         chanCreatedAt: channel.createdAt
       };
-      this.io.to(senderId).emit('channelInfo', pubChan);
+      this.io.to(senderID).emit('channelInfo', pubChan);
     }
   }
 
@@ -451,9 +467,9 @@ export default class ChatGateway
   ) {
     const { chanName, type } = channelDto;
     let { password } = channelDto;
-    const senderId = socket.user.id!;
+    const senderID = socket.user.id!;
     this.logger.log(
-      `Channel mode change to ${type} requested by user ${senderId}`
+      `Channel mode change to ${type} requested by user ${senderID}`
     );
 
     const channel = await this.channelService.getChanByName(chanName);
@@ -475,7 +491,7 @@ export default class ChatGateway
           chanType: privChan.type,
           chanCreatedAt: privChan.createdAt
         };
-        this.io.to(senderId).emit('channelInfo', pubChan);
+        this.io.to(senderID).emit('channelInfo', pubChan);
       }
     }
   }
@@ -487,15 +503,15 @@ export default class ChatGateway
     @ConnectedSocket() socket: ChatSocket
   ) {
     const { chanName } = channelNameDto;
-    const senderId = socket.user.id!;
+    const senderID = socket.user.id!;
     this.logger.log(
-      `Channel messages request for channel ${chanName} by user ${senderId}`
+      `Channel messages request for channel ${chanName} by user ${senderID}`
     );
 
     const channel = await this.channelService.getChanWithMessages(chanName);
     if (channel) {
       const { messages } = channel;
-      this.io.to(senderId).emit('channelMessages', messages);
+      this.io.to(senderID).emit('channelMessages', messages);
     }
   }
 
@@ -506,15 +522,15 @@ export default class ChatGateway
     @ConnectedSocket() socket: ChatSocket
   ) {
     const { chanName } = channelNameDto;
-    const senderId = socket.user.id!;
+    const senderID = socket.user.id!;
     this.logger.log(
-      `Channel members request for channel ${chanName} by user ${senderId}`
+      `Channel members request for channel ${chanName} by user ${senderID}`
     );
 
     const channel = await this.channelService.getChanWithMembers(chanName);
     if (channel) {
       const { members } = channel;
-      this.io.to(senderId).emit('channelMembers', members);
+      this.io.to(senderID).emit('channelMembers', members);
     }
   }
 
@@ -524,15 +540,15 @@ export default class ChatGateway
     @MessageBody(new ValidationPipe()) channelRestrictDto: ChannelRestrictDto,
     @ConnectedSocket() socket: ChatSocket
   ) {
-    const { userId, chanName, restrictType, endOfRestrict, reason } =
+    const { userID, chanName, restrictType, endOfRestrict, reason } =
       channelRestrictDto;
-    const senderId = socket.user.id!;
+    const senderID = socket.user.id!;
     this.logger.log(
-      `Channel restrict request for ${userId} by ${senderId} for channel ${chanName}. Restrict type: ${restrictType}`
+      `Channel restrict request for ${userID} by ${senderID} for channel ${chanName}. Restrict type: ${restrictType}`
     );
     const channel = await this.channelService.getChanByName(chanName);
     if (channel) {
-      if (userId === channel.creatorId) {
+      if (userID === channel.creatorID) {
         throw new ForbiddenException("Channel creator can't be restricted");
       }
       if (restrictType === 'BAN' || restrictType === 'MUTE') {
@@ -540,28 +556,28 @@ export default class ChatGateway
           type: restrictType,
           endOfRestrict,
           reason,
-          user: { connect: { id: userId } },
+          user: { connect: { id: userID } },
           channel: { connect: { id: channel.id } }
         });
         if (restrict) {
           const payload = {
-            chanID: restrict.channelId,
+            chanID: restrict.channelID,
             reason: restrict.reason
           };
           if (restrictType === 'BAN') {
-            this.io.to(userId).emit('channelBan', payload);
+            this.io.to(userID).emit('channelBan', payload);
 
-            this.channelService.removeChannelMember(channel.id, senderId);
-            socket.leave(restrict.channelId);
+            this.channelService.removeChannelMember(channel.id, senderID);
+            socket.leave(restrict.channelID);
           } else if (restrictType === 'MUTE') {
-            this.io.to(userId).emit('channelMute', payload);
+            this.io.to(userID).emit('channelMute', payload);
           }
-          this.io.to(senderId).emit('channelRestrict', payload);
+          this.io.to(senderID).emit('channelRestrict', payload);
         }
       } else if (restrictType === 'KICK') {
-        this.channelService.removeChannelMember(channel.id, senderId);
+        this.channelService.removeChannelMember(channel.id, senderID);
         socket.leave(channel.id);
-        this.io.to(senderId).emit('channelRestrict', {
+        this.io.to(senderID).emit('channelRestrict', {
           chanID: restrictType,
           reason
         });

@@ -1,4 +1,3 @@
-import { Prisma } from '@prisma/client';
 import { Injectable, Logger } from '@nestjs/common';
 import { PrismaService } from './prisma.service';
 
@@ -32,12 +31,12 @@ export class MessageService {
         where: {
           OR: [
             {
-              senderId: {
+              senderID: {
                 equals: id
               }
             },
             {
-              receiverId: {
+              receiverID: {
                 equals: id
               }
             }
@@ -50,10 +49,22 @@ export class MessageService {
     }
   }
 
-  async createMessage(message: Prisma.MessageCreateInput) {
+  async createMessage(message: {
+    content: string;
+    senderID: string;
+    receiverID: string;
+  }) {
     try {
       return await this.prisma.message.create({
-        data: message
+        data: {
+          content: message.content,
+          sender: {
+            connect: { id: message.senderID }
+          },
+          receiver: {
+            connect: { id: message.receiverID }
+          }
+        }
       });
     } catch (e: any) {
       this.logger.warn(e);
@@ -61,15 +72,23 @@ export class MessageService {
     }
   }
 
-  async createChannelMessage(message: Prisma.MessageCreateInput) {
+  async createChannelMessage(message: {
+    content: string;
+    senderID: string;
+    receiverID: string;
+  }) {
     try {
       return await this.prisma.message.create({
         data: {
           content: message.content,
-          senderId: message.senderId,
-          receiverId: message.receiverId,
+          sender: {
+            connect: { id: message.senderID }
+          },
+          receiver: {
+            connect: { id: message.receiverID }
+          },
           channel: {
-            connect: { id: message.receiverId }
+            connect: { id: message.receiverID }
           }
         }
       });
