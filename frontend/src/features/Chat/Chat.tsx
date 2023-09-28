@@ -1,20 +1,33 @@
-import { useEffect, useState } from 'react';
+import { useMachine } from '@xstate/react';
+import { useEffect } from 'react';
 import socket from '../../services/socket';
-import ChatFeed from '../../components/ChatFeed/ChatFeed';
-import ChatHeader from '../../components/ChatHeader/ChatHeader';
-import ChatMessage from '../../components/ChatMessage/ChatMessage';
-import Hide from '../../components/Hide/Hide';
-import SendMessageInput from '../../components/SendMessageInput/SendMessageInput';
+import ChatFeed from '../../components/chat/ChatFeed/ChatFeed';
+import ChatHeader from '../../components/chat/ChatHeader/ChatHeader';
+import ChatMessage from '../../components/chat/ChatMessage/ChatMessage';
+import RenderIf from '../../components/chat/RenderIf/RenderIf';
+import SendMessageInput from '../../components/chat/SendMessageInput/SendMessageInput';
 import { Contact, useStatus } from '../../utils/hooks/useStatus';
 import { useContact } from '../../utils/hooks/useContact';
+import { chatMachine } from '../../machines/chatMachine';
+import MenuSelector from '../../components/chat/MenuSelector/MenuSelector';
 
 const chat = new Map<string, Contact>();
 
 function Chat() {
-  const [contactListOpen, setContactListOpen] = useState<boolean>(true);
-  const [close, setClose] = useState<boolean>(true);
   const status = useStatus();
   const [contact, setContact] = useContact(status);
+  const [state, send] = useMachine(chatMachine);
+  const isChatClosed = state.matches('closed');
+  const isMessageView = state.matches({ opened: 'messageView' });
+  const isChannelView = state.matches({ opened: 'channelView' });
+  const isSearchView = state.matches({ opened: 'searchView' });
+  const isConversationView = state.matches({ opened: 'conversationView' });
+  const isChanConversationView = state.matches({
+    opened: 'channelConversationView'
+  });
+  const toggleChat = () => {
+    send(isChatClosed ? 'OPEN' : 'CLOSE');
+  };
 
   useEffect(() => {
     status.contactList.forEach((c: Contact) => {
@@ -24,8 +37,8 @@ function Chat() {
 
   useEffect(() => {
     if (status.privateMessage) {
-      const { senderId, receiverId } = status.privateMessage;
-      const other = senderId === socket.userID ? receiverId : senderId;
+      const { senderID, receiverID } = status.privateMessage;
+      const other = senderID === socket.userID ? receiverID : senderID;
       const messages = chat.get(other)?.messages;
       messages?.push(status.privateMessage);
     }
@@ -33,10 +46,10 @@ function Chat() {
 
   useEffect(() => {
     if (status.privateMessage) {
-      const { senderId, receiverId } = status.privateMessage;
-      const other = senderId === socket.userID ? receiverId : senderId;
+      const { senderID, receiverID } = status.privateMessage;
+      const other = senderID === socket.userID ? receiverID : senderID;
       const messages = chat.get(other)?.messages;
-      if (senderId === contact?.userID || receiverId === contact?.userID) {
+      if (senderID === contact?.userID || receiverID === contact?.userID) {
         setContact((c: any) => ({ ...c, messages }));
       }
     }
@@ -46,15 +59,15 @@ function Chat() {
     <div className="absolute bottom-2 right-2 w-fit overflow-hidden rounded-3xl">
       <div
         className={`hide-scrollbar ${
-          close ? '' : 'h-[758px] max-h-[90vh]'
-        }  w-fit shrink-0 flex-col-reverse items-center justify-end overflow-y-scroll rounded-t-3xl bg-pong-blue-300`}
+          isChatClosed ? '' : 'h-[758px] max-h-[90vh]'
+        } w-fit shrink-0 flex-col-reverse items-center justify-end overflow-y-scroll rounded-t-3xl bg-pong-blue-300`}
       >
         <ChatHeader
-          className={`absolute z-30 ${close ? '' : 'backdrop-blur'}`}
+          className={`absolute z-30 ${isChatClosed ? '' : 'backdrop-blur'}`}
           isConnected={status.isConnected}
           handleClick={{
-            toggleArrow: () => setClose(!close),
-            openContactList: () => setContactListOpen(true)
+            toggleArrow: toggleChat,
+            changeView: () => send({ type: 'selectHeader' })
           }}
         />
         <div className="invisible h-24">
@@ -66,42 +79,43 @@ function Chat() {
             profilePictureUrl=""
           />
         </div>
-        <Hide condition={close}>
-          {contactListOpen ? (
-            <div>
-              <h2 className="text-white">Contact List</h2>
-              <p className="text-red-400">{`${socket.username} ${socket.userID}`}</p>
-              {status.contactList?.map((user: any) => {
-                if (user.userID !== socket.userID) {
-                  return (
-                    <p className="text-white" key={user.userID}>
-                      <button
-                        type="button"
-                        onClick={() => {
-                          setContact(user);
-                          setContactListOpen(false);
-                        }}
-                      >
-                        {`${user.username} ${user.userID}`}
-                      </button>
-                    </p>
-                  );
-                }
-                return '';
-              })}
-            </div>
-          ) : (
-            <ChatFeed contact={contact} isConnected={status.isConnected} />
-          )}
-        </Hide>
+        <RenderIf conditions={[isConversationView]}>
+          <ChatFeed contact={contact} isConnected={status.isConnected} />
+        </RenderIf>
+        <RenderIf conditions={[isMessageView]}>
+          <div>
+            <h2 className="text-white">Contact List</h2>
+            <p className="text-red-400">{`${socket.username}`}</p>
+            {status.contactList?.map((user: any) => {
+              if (user.userID !== socket.userID) {
+                return (
+                  <p className="text-white" key={user.userID}>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setContact(user);
+                        send('selectContact');
+                      }}
+                    >
+                      {`${user.username}`}
+                    </button>
+                  </p>
+                );
+              }
+              return '';
+            })}
+          </div>
+        </RenderIf>
       </div>
-
-      <Hide condition={close}>
+      <RenderIf conditions={[isConversationView, isChanConversationView]}>
         <SendMessageInput
-          receiverId={contact ? contact.userID : ''}
+          receiverID={contact ? contact.userID : ''}
           isConnected={status.isConnected}
         />
-      </Hide>
+      </RenderIf>
+      <RenderIf conditions={[isMessageView, isChannelView, isSearchView]}>
+        <MenuSelector />
+      </RenderIf>
     </div>
   );
 }

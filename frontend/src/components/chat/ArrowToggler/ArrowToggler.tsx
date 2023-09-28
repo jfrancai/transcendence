@@ -30,9 +30,9 @@ function ArrowToggler({ up = false, onClick }: ArrowTogglerProps) {
       className="flex flex-col items-center justify-center gap-3 rounded-full border-2 border-solid border-pong-blue-100 bg-transparent p-1"
     >
       {toggle ? (
-        <IoIosArrowDown className="text-white" />
-      ) : (
         <IoIosArrowUp className="text-white" />
+      ) : (
+        <IoIosArrowDown className="text-white" />
       )}
     </button>
   );

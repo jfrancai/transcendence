@@ -1,8 +1,7 @@
 import { useEffect, useState } from 'react';
-import { Contact, PrivateMessage } from './useStatus';
+import { Contact, Message } from './useStatus';
 import { ChatInfo } from './ChatInfo.interfaces';
 import { formatTimeMessage } from '../functions/parsing';
-import socket from '../../services/socket';
 
 export function useMessages(
   contact: Contact | undefined,
@@ -13,16 +12,12 @@ export function useMessages(
   useEffect(() => {
     if (contact !== undefined && contact.messages !== undefined) {
       const formatedMessages: any = [];
-      contact.messages.map((message: PrivateMessage) => {
-        const username =
-          message.senderId === contact.userID
-            ? contact.username
-            : socket.username;
+      contact.messages.map((message: Message) => {
         formatedMessages.push({
-          id: message.id,
+          id: message.messageID,
           message: message.content,
           time: formatTimeMessage(message.createdAt),
-          username,
+          username: message.sender,
           level: 42,
           profilePictureUrl: 'starwatcher.jpg'
         });

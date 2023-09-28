@@ -4,7 +4,7 @@ import { BsQuestionCircle } from 'react-icons/bs';
 
 interface CategoryProps {
   type: 'chat' | 'home' | 'leader' | 'support';
-  onClick: () => any;
+  onClick?: () => any;
 }
 
 const iconStyle = 'w-8 h-8 text-pong-blue-100';

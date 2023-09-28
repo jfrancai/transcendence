@@ -1,6 +1,6 @@
 import { useEffect } from 'react';
 import jwt_decode from 'jwt-decode';
-import socket from '../../services/socket';
+import socket from '../../../services/socket';
 import ArrowToggler from '../ArrowToggler/ArrowToggler';
 import Category from '../Category/Category';
 import Status from '../Status/Status';
@@ -10,7 +10,7 @@ interface ChatHeaderProps {
   isConnected: boolean;
   handleClick: {
     toggleArrow: () => any;
-    openContactList: () => any;
+    changeView: () => any;
   };
 }
 
@@ -43,7 +43,7 @@ function ChatHeader({ className, isConnected, handleClick }: ChatHeaderProps) {
       className={`${className} flex w-[336px] items-center justify-center rounded-3xl rounded-t-3xl shadow-pong shadow-pong-blue-100`}
     >
       <div className="gp-y-1 flex flex-wrap content-center items-center justify-center gap-x-24 gap-y-2 rounded-3xl py-5">
-        <Category onClick={handleClick.openContactList} type="chat" />
+        <Category onClick={handleClick.changeView} type="chat" />
         <ArrowToggler onClick={handleClick.toggleArrow} />
         <Status
           position="start"

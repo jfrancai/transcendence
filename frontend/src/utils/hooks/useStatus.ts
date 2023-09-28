@@ -1,21 +1,25 @@
-import { Dispatch, SetStateAction, useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import socket from '../../services/socket';
 
-export interface PrivateMessage {
+export interface Message {
+  messageID: string;
   content: string;
-  senderId: string;
-  receiverId: string;
+  sender: string;
+  senderID: string;
+  receiver: string;
+  receiverID: string;
   createdAt: Date;
-  id: string;
 }
 
-function isPrivateMessage(data: any): data is PrivateMessage {
+function isPrivateMessage(data: any): data is Message {
   return (
     data.content !== undefined &&
-    data.senderId !== undefined &&
-    data.receiverId !== undefined &&
+    data.sender !== undefined &&
+    data.senderID !== undefined &&
+    data.receiverID !== undefined &&
+    data.receiver !== undefined &&
     data.createdAt !== undefined &&
-    data.id !== undefined
+    data.messageID !== undefined
   );
 }
 
@@ -30,7 +34,7 @@ function isSession(data: any): data is Session {
 export interface Contact {
   username: string;
   userID: string;
-  messages: PrivateMessage[];
+  messages: Message[];
   connected: boolean;
 }
 
@@ -55,7 +59,7 @@ function isContactList(data: any): data is ContactList {
 export interface Status {
   isConnected: boolean;
   contactList: Contact[];
-  privateMessage: PrivateMessage | undefined;
+  privateMessage: Message | undefined;
 }
 
 export function useStatus(): Status {
@@ -96,20 +100,20 @@ export function useStatus(): Status {
 
     socket.on('connect', onConnect);
     socket.on('disconnect', onDisconnect);
-    socket.on('private message', onPrivateMessage);
+    socket.on('privateMessage', onPrivateMessage);
     socket.on('session', onSession);
     socket.on('users', onUsers);
-    socket.on('user connected', onUserConnected);
-    socket.on('user disconnected', onUserDisconnected);
+    socket.on('userConnected', onUserConnected);
+    socket.on('userDisconnected', onUserDisconnected);
 
     return () => {
       socket.off('connect', onConnect);
       socket.off('disconnect', onDisconnect);
-      socket.off('private message', onPrivateMessage);
+      socket.off('privateMessage', onPrivateMessage);
       socket.off('session', onSession);
       socket.off('users', onUsers);
-      socket.off('user connected', onUserConnected);
-      socket.off('user disconnected', onUserDisconnected);
+      socket.off('userConnected', onUserConnected);
+      socket.off('userDisconnected', onUserDisconnected);
       setStatus(defaultStatus);
     };
   }, [defaultStatus]);

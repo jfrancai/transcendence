@@ -1,13 +1,13 @@
 import { FaTelegramPlane } from 'react-icons/fa';
 import { useState } from 'react';
-import socket from '../../services/socket';
+import socket from '../../../services/socket';
 
 interface SendMessageInputProps {
-  receiverId: string;
+  receiverID: string;
   isConnected: boolean;
 }
 
-function SendMessageInput({ receiverId, isConnected }: SendMessageInputProps) {
+function SendMessageInput({ receiverID, isConnected }: SendMessageInputProps) {
   const [message, setMessage] = useState('');
   // const [isLoading, setIsLoading] = useState(false);
 
@@ -17,9 +17,9 @@ function SendMessageInput({ receiverId, isConnected }: SendMessageInputProps) {
       // setIsLoading(true);
       const data = {
         content: message,
-        receiverId
+        receiverID
       };
-      socket.timeout(5000).emit('private message', data, () => {
+      socket.timeout(5000).emit('privateMessage', data, () => {
         // setIsLoading(false);
       });
     }

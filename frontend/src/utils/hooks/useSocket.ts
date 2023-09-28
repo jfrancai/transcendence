@@ -12,8 +12,8 @@ export interface PrivateMessage {
 function isPrivateMessage(data: any): data is PrivateMessage {
   return (
     data.content !== undefined &&
-    data.senderId !== undefined &&
-    data.receiverId !== undefined &&
+    data.sender !== undefined &&
+    data.receiver !== undefined &&
     data.createdAt !== undefined &&
     data.id !== undefined
   );

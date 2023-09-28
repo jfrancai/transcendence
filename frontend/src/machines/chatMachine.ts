@@ -1,6 +1,6 @@
 import { createMachine } from 'xstate';
 
-export const machine = createMachine(
+export const chatMachine = createMachine(
   {
     context: {
       '': ''
@@ -9,39 +9,19 @@ export const machine = createMachine(
     initial: 'closed',
     states: {
       closed: {
-        description: 'The channel component is closed.',
+        description: 'The channel component is closed',
         on: {
           OPEN: {
-            target: '#chatMachine.opened.HistoryView'
+            target: '#chatMachine.opened.History State'
           }
         }
       },
       opened: {
-        description: 'The channel component is opened.',
+        description: 'The channel component is open',
         initial: 'messageView',
         states: {
           messageView: {
             description: 'The chat component displays the contact view.',
-            initial: 'defaultView',
-            states: {
-              defaultView: {
-                on: {
-                  clickOnPrivateMessage: {
-                    target: 'conversationView'
-                  },
-                  clickOnChannel: {
-                    target: 'conversationView'
-                  }
-                }
-              },
-              conversationView: {
-                on: {
-                  clickOnHeader: {
-                    target: 'defaultView'
-                  }
-                }
-              }
-            },
             on: {
               clickOnNotification: {
                 target: 'notificationView'
@@ -49,11 +29,11 @@ export const machine = createMachine(
               clickOnSearch: {
                 target: 'searchView'
               },
-              clickOnProfile: {
-                target: 'profileView'
+              selectContact: {
+                target: 'conversationView'
               },
-              clickOnContact: {
-                target: 'contactView'
+              clickOnChannel: {
+                target: 'channelView'
               }
             }
           },
@@ -63,14 +43,11 @@ export const machine = createMachine(
               clickOnSearch: {
                 target: 'searchView'
               },
-              clickOnProfile: {
-                target: 'profileView'
+              clickOnChannel: {
+                target: 'channelView'
               },
               clickOnMessage: {
                 target: 'messageView'
-              },
-              clickOnContact: {
-                target: 'contactView'
               }
             }
           },
@@ -80,35 +57,22 @@ export const machine = createMachine(
               clickOnNotification: {
                 target: 'notificationView'
               },
-              clickOnProfile: {
-                target: 'profileView'
+              clickOnChannel: {
+                target: 'channelView'
               },
               clickOnMessage: {
                 target: 'messageView'
-              },
-              clickOnContact: {
-                target: 'contactView'
               }
             }
           },
-          profileView: {
-            description: 'The chat component displays the profile view.',
+          conversationView: {
             on: {
-              clickOnNotification: {
-                target: 'notificationView'
-              },
-              clickOnSearch: {
-                target: 'searchView'
-              },
-              clickOnMessage: {
+              selectHeader: {
                 target: 'messageView'
-              },
-              clickOnContact: {
-                target: 'contactView'
               }
             }
           },
-          contactView: {
+          channelView: {
             description: 'The chat component displays the contact view.',
             on: {
               clickOnNotification: {
@@ -117,15 +81,22 @@ export const machine = createMachine(
               clickOnSearch: {
                 target: 'searchView'
               },
-              clickOnProfile: {
-                target: 'profileView'
-              },
               clickOnMessage: {
                 target: 'messageView'
+              },
+              selectChannel: {
+                target: 'channeConversationView'
               }
             }
           },
-          HistoryView: {
+          channeConversationView: {
+            on: {
+              selectHeader: {
+                target: 'channelView'
+              }
+            }
+          },
+          'History State': {
             history: 'shallow',
             type: 'history'
           }
@@ -141,14 +112,14 @@ export const machine = createMachine(
       events: {} as
         | { type: 'OPEN' }
         | { type: 'CLOSE' }
+        | { type: 'selectHeader' }
         | { type: 'clickOnSearch' }
-        | { type: 'clickOnMessage' }
-        | { type: 'clickOnProfile' }
-        | { type: 'clickOnNotification' }
-        | { type: 'clickOnPrivateMessage' }
+        | { type: 'selectChannel' }
+        | { type: 'selectContact' }
         | { type: 'clickOnChannel' }
-        | { type: 'clickOnHeader' }
-        | { type: 'clickOnContact' }
+        | { type: 'clickOnMessage' }
+        | { type: 'clickOnNotification' },
+      context: {} as { '': string }
     },
     predictableActionArguments: true,
     preserveActionOrder: true
