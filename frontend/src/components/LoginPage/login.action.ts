@@ -1,5 +1,5 @@
 import { redirect } from 'react-router-dom';
-import axios, { AxiosResponse } from 'axios';
+import axios, { AxiosResponse, AxiosRequestConfig } from 'axios';
 import { CONST_BACKEND_URL } from '@constant';
 
 export async function action(props: { request: Request }) {
@@ -11,7 +11,7 @@ export async function action(props: { request: Request }) {
     password: tmp.password.toString()
   };
 
-  const config = {
+  const config: AxiosRequestConfig = {
     withCredentials: true,
     headers: { 'Content-Type': 'application/json' }
   };

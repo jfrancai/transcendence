@@ -31,6 +31,10 @@ export default defineConfig({
       {
         find: '@img',
         replacement: path.resolve(__dirname, 'src/utils/images.ts')
+      },
+      {
+        find: '@login',
+        replacement: path.resolve(__dirname, 'src/components/LoginPage')
       }
     ]
   }

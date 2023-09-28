@@ -1,18 +1,19 @@
 import ReactDOM from 'react-dom/client';
 import { createBrowserRouter, RouterProvider } from 'react-router-dom';
-import { action as loginTwoAuthAction } from './components/LoginPage/loginTwoAuth.action';
-import { action as createAction } from './components/LoginPage/create.action';
-import { action as loginAction } from './components/LoginPage/login.action';
-import { loader as twoAuthLoader } from './components/LoginPage/twoAuth.loader';
-import HomePage from './components/LoginPage/HomePage';
-import LoginForm from './components/LoginPage/LoginForm';
-import CreateForm from './components/LoginPage/CreateForm';
-import LoginTwoAuthForm from './components/LoginPage/LoginTwoAuthForm';
-import ErrorPage from './components/LoginPage/ErrorPage';
-import ErrorValidation from './components/LoginPage/ErrorValidation';
-import ValidationTwoAuth from './components/LoginPage/ValidationTwoAuth';
-import UploadImg from './components/LoginPage/UploadImg';
+import { action as loginTwoAuthAction } from '@login/loginTwoAuth.action';
+import { action as createAction } from '@login/create.action';
+import { action as loginAction } from '@login/login.action';
+import { loader as twoAuthLoader } from '@login/twoAuth.loader';
+import HomePage from '@login/HomePage';
+import LoginForm from '@login/LoginForm';
+import CreateForm from '@login/CreateForm';
+import LoginTwoAuthForm from '@login/LoginTwoAuthForm';
+import ErrorPage from '@login/ErrorPage';
+import ErrorValidation from '@login/ErrorValidation';
+import ValidationTwoAuth from '@login/ValidationTwoAuth';
+import UploadImg from '@login/UploadImg';
 import Pong from './components/Pong/Pong';
+import Profile from './components/Profile/Profile';
 import './index.css';
 
 const router = createBrowserRouter([
@@ -58,6 +59,10 @@ const router = createBrowserRouter([
   {
     path: '/pong',
     element: <Pong />
+  },
+  {
+    path: '/profile',
+    element: <Profile />
   }
 ]);
 

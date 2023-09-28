@@ -23,7 +23,8 @@
     "types": ["node"],
     "paths": {
       "@constant": ["./src/utils/constants"],
-      "@img": ["./src/utils/images"]
+      "@img": ["./src/utils/images"],
+      "@login/*": ["./src/components/LoginPage/*"]
     }
   },
   "include": ["src"],
