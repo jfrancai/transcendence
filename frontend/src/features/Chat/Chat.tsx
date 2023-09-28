@@ -69,6 +69,7 @@ function Chat() {
         <ChatHeader
           className={`absolute z-30 ${isChatClosed ? '' : 'backdrop-blur'}`}
           isConnected={status.isConnected}
+          isChatClosed={isChatClosed}
           handleClick={{
             toggleArrow: toggleChat,
             changeView: () => send({ type: 'selectHeader' })

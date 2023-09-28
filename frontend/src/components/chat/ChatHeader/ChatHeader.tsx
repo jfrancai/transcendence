@@ -8,6 +8,7 @@ import Status from '../Status/Status';
 interface ChatHeaderProps {
   className?: string;
   isConnected: boolean;
+  isChatClosed: boolean;
   handleClick: {
     toggleArrow: () => any;
     changeView: () => any;
@@ -21,7 +22,12 @@ interface DecodedToken {
   exp: string;
 }
 
-function ChatHeader({ className, isConnected, handleClick }: ChatHeaderProps) {
+function ChatHeader({
+  className,
+  isConnected,
+  isChatClosed,
+  handleClick
+}: ChatHeaderProps) {
   const connect = () => {
     const jwt = localStorage.getItem('jwt');
     if (jwt) {
@@ -44,7 +50,7 @@ function ChatHeader({ className, isConnected, handleClick }: ChatHeaderProps) {
     >
       <div className="gp-y-1 flex flex-wrap content-center items-center justify-center gap-x-24 gap-y-2 rounded-3xl py-5">
         <Category onClick={handleClick.changeView} type="chat" />
-        <ArrowToggler onClick={handleClick.toggleArrow} />
+        <ArrowToggler up={isChatClosed} onClick={handleClick.toggleArrow} />
         <Status
           position="start"
           severity={isConnected ? 'ok' : 'err'}
