@@ -17,10 +17,14 @@ function Chat() {
   const status = useStatus();
   const [contact, setContact] = useContact(status);
   const [state, send] = useMachine(chatMachine);
+
   const isChatClosed = state.matches('closed');
+
   const isMessageView = state.matches({ opened: 'messageView' });
   const isChannelView = state.matches({ opened: 'channelView' });
   const isSearchView = state.matches({ opened: 'searchView' });
+  const isNotificationView = state.matches({ opened: 'notificationView' });
+
   const isConversationView = state.matches({ opened: 'conversationView' });
   const isChanConversationView = state.matches({
     opened: 'channelConversationView'
@@ -79,10 +83,10 @@ function Chat() {
             profilePictureUrl=""
           />
         </div>
-        <RenderIf conditions={[isConversationView]}>
+        <RenderIf some={[isConversationView]}>
           <ChatFeed contact={contact} isConnected={status.isConnected} />
         </RenderIf>
-        <RenderIf conditions={[isMessageView]}>
+        <RenderIf some={[isMessageView]}>
           <div>
             <h2 className="text-white">Contact List</h2>
             <p className="text-red-400">{`${socket.username}`}</p>
@@ -106,15 +110,35 @@ function Chat() {
             })}
           </div>
         </RenderIf>
+        <RenderIf some={[isChannelView]}>
+          <p className="text-white">Channel view</p>
+        </RenderIf>
+        <RenderIf some={[isSearchView]}>
+          <p className="text-white">searchView</p>
+        </RenderIf>
+        <RenderIf some={[isNotificationView]}>
+          <p className="text-white">notificationView</p>
+        </RenderIf>
       </div>
-      <RenderIf conditions={[isConversationView, isChanConversationView]}>
+      <RenderIf some={[isConversationView, isChanConversationView]}>
         <SendMessageInput
           receiverID={contact ? contact.userID : ''}
           isConnected={status.isConnected}
         />
       </RenderIf>
-      <RenderIf conditions={[isMessageView, isChannelView, isSearchView]}>
-        <MenuSelector />
+      <RenderIf
+        some={[isMessageView, isChannelView, isSearchView, isNotificationView]}
+      >
+        <MenuSelector
+          isMessageView={isMessageView}
+          isChannelView={isChannelView}
+          isSearchView={isSearchView}
+          isNotificationView={isNotificationView}
+          toggleMessageView={() => send('clickOnMessage')}
+          toggleChannelView={() => send('clickOnChannel')}
+          toggleNotificationView={() => send('clickOnNotification')}
+          toggleSearchView={() => send('clickOnSearch')}
+        />
       </RenderIf>
     </div>
   );
