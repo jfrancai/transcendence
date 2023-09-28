@@ -102,7 +102,7 @@ export default function Pong() {
       }
     }
 
-    //ligne de touche du haut
+    // ligne de touche du haut
     function drawUpperLine() {
       if (context) {
         context.beginPath();
@@ -156,9 +156,9 @@ export default function Pong() {
 
     // fonction pour ajuster l'angle de la balle selon ou touche la raquette
     function adjustBallAngle(paddleY, paddleHeight) {
-      let relativeIntersectY = ball.y - (paddleY + paddleHeight / 2);
-      let normalizedIntersectY = relativeIntersectY / (paddleHeight / 2);
-      let bounceAngle = normalizedIntersectY * (45 * (Math.PI / 180));
+      const relativeIntersectY = ball.y - (paddleY + paddleHeight / 2);
+      const normalizedIntersectY = relativeIntersectY / (paddleHeight / 2);
+      const bounceAngle = normalizedIntersectY * (45 * (Math.PI / 180));
 
       ball.dy = 4 * Math.sin(bounceAngle);
     }
