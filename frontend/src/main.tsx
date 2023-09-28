@@ -4,7 +4,6 @@ import { action as loginTwoAuthAction } from './components/LoginPage/loginTwoAut
 import { action as createAction } from './components/LoginPage/create.action';
 import { action as loginAction } from './components/LoginPage/login.action';
 import { loader as twoAuthLoader } from './components/LoginPage/twoAuth.loader';
-import { loader as loginLoader } from './components/LoginPage/login.loader';
 import HomePage from './components/LoginPage/HomePage';
 import LoginForm from './components/LoginPage/LoginForm';
 import CreateForm from './components/LoginPage/CreateForm';
@@ -38,8 +37,7 @@ const router = createBrowserRouter([
     path: '/login',
     element: <LoginForm />,
     errorElement: <LoginForm />,
-    action: loginAction,
-    loader: loginLoader
+    action: loginAction
   },
   {
     path: '/2fa-validation',
