@@ -25,8 +25,8 @@ export function ContactListFeed({
     <div>
       {online.length ? (
         <>
-          <p className="font-bold text-pong-blue-100">
-            {`Online - ${online.length}`}
+          <p className="pl-2 font-semibold text-pong-blue-100">
+            {`ONLINE — ${online.length}`}
           </p>
           {online.map((user) => (
             <ContactCard
@@ -41,8 +41,8 @@ export function ContactListFeed({
       ) : null}
       {offline.length ? (
         <>
-          <p className="mt-3 font-bold text-pong-blue-100">
-            {`Offline - ${offline.length}`}
+          <p className="mt-3 pl-2 font-bold text-pong-blue-100">
+            {`OFFLINE — ${offline.length}`}
           </p>
           {offline.map((user) => (
             <ContactCard
