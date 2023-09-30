@@ -41,30 +41,9 @@ function ProfilePicture({ size = 'xl', level, url }: ProfilePictureProps) {
   return (
     <div
       style={{ backgroundImage: `url(${url})` }}
-      className={`cursor-pointer ${style[size].div} w-flex-shrink-0 relative flex items-end justify-center rounded-full border-solid border-pong-purple bg-cover bg-no-repeat`}
+      className={`min-w-fit cursor-pointer ${style[size].div} w-flex-shrink-0 relative flex items-end justify-center rounded-full border-solid border-pong-purple bg-cover bg-no-repeat`}
     >
-      {level ? (
-        <div className={`absolute ${style[size].position}`}>
-          <div
-            className={`flex ${style[size].dimension} items-center justify-center`}
-          >
-            <div className={`relative ${style[size].dimension}`}>
-              <div
-                className={`-rotate-30 absolute ${style[size].dimension} origin-center transform bg-pong-purple`}
-                style={{
-                  clipPath:
-                    'polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%)'
-                }}
-              />
-            </div>
-            <div
-              className={`absolute z-10 flex ${style[size].dimension} items-center justify-center bg-none`}
-            >
-              <span className={`${style[size].text} text-white`}>{level}</span>
-            </div>
-          </div>
-        </div>
-      ) : null}
+      {level ? <div className={`absolute ${style[size].position}`} /> : null}
     </div>
   );
 }

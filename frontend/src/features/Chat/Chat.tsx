@@ -10,6 +10,7 @@ import { Contact, useStatus } from '../../utils/hooks/useStatus';
 import { useContact } from '../../utils/hooks/useContact';
 import { chatMachine } from '../../machines/chatMachine';
 import MenuSelector from '../../components/chat/MenuSelector/MenuSelector';
+import { ContactListFeed } from '../../components/chat/ContactListFeed.tsx/ContactListFeed';
 
 const chat = new Map<string, Contact>();
 
@@ -88,28 +89,12 @@ function Chat() {
           <ChatFeed contact={contact} isConnected={status.isConnected} />
         </RenderIf>
         <RenderIf some={[isMessageView]}>
-          <div>
-            <h2 className="text-white">Contact List</h2>
-            <p className="text-red-400">{`${socket.username}`}</p>
-            {status.contactList?.map((user: any) => {
-              if (user.userID !== socket.userID) {
-                return (
-                  <p className="text-white" key={user.userID}>
-                    <button
-                      type="button"
-                      onClick={() => {
-                        setContact(user);
-                        send('selectContact');
-                      }}
-                    >
-                      {`${user.username}`}
-                    </button>
-                  </p>
-                );
-              }
-              return '';
-            })}
-          </div>
+          <ContactListFeed
+            contactList={status.contactList}
+            toggleConversationView={() => send('selectContact')}
+            setContact={setContact}
+            socketID={socket.userID}
+          />
         </RenderIf>
         <RenderIf some={[isChannelView]}>
           <p className="text-white">Channel view</p>

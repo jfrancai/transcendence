@@ -28,9 +28,7 @@ function ChatMessage({
       onClick={() => setClicked(!clicked)}
       role="presentation"
     >
-      <div className="min-w-fit">
-        <ProfilePicture size="xs" url={profilePictureUrl} level={level} />
-      </div>
+      <ProfilePicture size="xs" url={profilePictureUrl} level={level} />
       <div className="w-1 flex-grow cursor-pointer break-words px-2">
         <div className="flex items-center justify-between">
           <p className="text-sm font-bold text-pong-blue-100">{username}</p>
