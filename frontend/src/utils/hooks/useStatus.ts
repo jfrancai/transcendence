@@ -23,17 +23,22 @@ function isPrivateMessage(data: any): data is Message {
   );
 }
 
-export interface Session {
-  userID: string;
-}
-
 function isSession(data: any): data is Session {
   return data.userID !== undefined;
 }
 
-export interface Contact {
-  username: string;
+function isUserConnected(data: any): data is User {
+  return data.username !== undefined && isSession(data);
+}
+
+export interface Session {
   userID: string;
+}
+export interface User extends Session {
+  username: string;
+}
+
+export interface Contact extends User {
   messages: Message[];
   connected: boolean;
 }
@@ -95,8 +100,32 @@ export function useStatus(): Status {
         setStatus((s) => ({ ...s, contactList }));
       }
     };
-    const onUserDisconnected = () => {};
-    const onUserConnected = () => {};
+    const onUserDisconnected = (data: any) => {
+      if (isUserConnected(data)) {
+        setStatus((s) => ({
+          ...s,
+          contactList: s.contactList.map((c) => {
+            if (c.userID === data.userID) {
+              return { ...c, connected: false };
+            }
+            return c;
+          })
+        }));
+      }
+    };
+    const onUserConnected = (data: any) => {
+      if (isUserConnected(data)) {
+        setStatus((s) => ({
+          ...s,
+          contactList: s.contactList.map((c) => {
+            if (c.userID === data.userID) {
+              return { ...c, connected: true };
+            }
+            return c;
+          })
+        }));
+      }
+    };
 
     socket.on('connect', onConnect);
     socket.on('disconnect', onDisconnect);

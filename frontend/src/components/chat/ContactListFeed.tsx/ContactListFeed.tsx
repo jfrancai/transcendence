@@ -5,40 +5,56 @@ interface ContactListProps {
   contactList: Contact[];
   toggleConversationView: () => any;
   setContact: (p: any) => any;
-  socketID: string;
 }
 
 export function ContactListFeed({
   contactList,
   setContact,
-  toggleConversationView,
-  socketID
+  toggleConversationView
 }: ContactListProps) {
+  const online: Contact[] = [];
+  const offline: Contact[] = [];
+  contactList.forEach((user) => {
+    if (user.connected === true) {
+      online.push(user);
+    } else {
+      offline.push(user);
+    }
+  });
   return (
     <div>
-      {contactList
-        ?.filter((user) => user.userID !== socketID)
-        .map((user, index: number) => {
-          if (index % 2) {
-            return (
-              <ContactCard
-                username={user.username}
-                userID={user.userID}
-                toggleConversationView={toggleConversationView}
-                setContact={() => setContact(user)}
-              />
-            );
-          }
-          return (
+      {online.length ? (
+        <>
+          <p className="font-bold text-pong-blue-100">
+            {`Online - ${online.length}`}
+          </p>
+          {online.map((user) => (
             <ContactCard
+              key={user.userID}
               username={user.username}
               userID={user.userID}
               toggleConversationView={toggleConversationView}
               setContact={() => setContact(user)}
-              noBgColor
             />
-          );
-        })}
+          ))}
+        </>
+      ) : null}
+      {offline.length ? (
+        <>
+          <p className="mt-3 font-bold text-pong-blue-100">
+            {`Offline - ${offline.length}`}
+          </p>
+          {offline.map((user) => (
+            <ContactCard
+              key={user.userID}
+              username={user.username}
+              userID={user.userID}
+              toggleConversationView={toggleConversationView}
+              setContact={() => setContact(user)}
+            />
+          ))}
+        </>
+      ) : null}
     </div>
   );
 }

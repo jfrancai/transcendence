@@ -49,6 +49,8 @@ function Chat() {
     }
   }, [status.privateMessage]);
 
+  useEffect(() => {}, [status.user]);
+
   useEffect(() => {
     if (status.privateMessage) {
       const { senderID, receiverID } = status.privateMessage;
@@ -90,10 +92,11 @@ function Chat() {
         </RenderIf>
         <RenderIf some={[isMessageView]}>
           <ContactListFeed
-            contactList={status.contactList}
+            contactList={status.contactList.filter(
+              (user) => user.userID !== socket.userID
+            )}
             toggleConversationView={() => send('selectContact')}
             setContact={setContact}
-            socketID={socket.userID}
           />
         </RenderIf>
         <RenderIf some={[isChannelView]}>
