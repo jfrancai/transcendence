@@ -19,7 +19,7 @@ export function ContactCard({
   url
 }: ContactCardProps) {
   return (
-    <div>
+    <>
       <div
         className={`mx-2 my-1 flex flex-shrink-0 cursor-pointer items-center justify-between ${
           noBgColor ? 'bg-pong-blue-400' : ''
@@ -40,6 +40,6 @@ export function ContactCard({
         <BiMessageDetail className="h-6 w-6 text-pong-blue-100 " />
       </div>
       <hr className="border-pong-blue-700" />
-    </div>
+    </>
   );
 }

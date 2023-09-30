@@ -10,7 +10,7 @@ import { useContact } from '../../utils/hooks/useContact';
 import { chatMachine } from '../../machines/chatMachine';
 import MenuSelector from '../../components/chat/MenuSelector/MenuSelector';
 import { ContactListFeed } from '../../components/chat/ContactListFeed.tsx/ContactListFeed';
-import { ContactCard } from '../../components/chat/ContactCard/ContactCard';
+import { Scrollable } from '../../components/chat/Scrollable/Scrollable';
 
 const chat = new Map<string, Contact>();
 
@@ -74,49 +74,37 @@ function Chat() {
         }}
       />
       <RenderIf some={[isConversationView]}>
-        <div
-          className={`hide-scrollbar shrink-0 flex-col-reverse items-center justify-end overflow-y-scroll ${
-            isChatClosed ? '' : 'h-[758px] max-h-[90vh]'
-          }`}
-        >
-          <ChatFeed contact={contact} isConnected={status.isConnected} />
-        </div>
+        <ChatFeed contact={contact} isConnected={status.isConnected} />
       </RenderIf>
       <RenderIf some={[isMessageView]}>
-        <div
-          className={`hide-scrollbar shrink-0 flex-col-reverse items-center justify-end overflow-y-scroll ${
-            isChatClosed ? '' : 'h-[758px] max-h-[90vh]'
-          }`}
-        >
-          <ContactListFeed
-            contactList={status.contactList.filter(
-              (user) => user.userID !== socket.userID
-            )}
-            toggleConversationView={() => send('selectContact')}
-            setContact={setContact}
-          />
-        </div>
+        <ContactListFeed
+          contactList={status.contactList.filter(
+            (user) => user.userID !== socket.userID
+          )}
+          toggleConversationView={() => send('selectContact')}
+          setContact={setContact}
+          isChatClosed={isChatClosed}
+        />
       </RenderIf>
       <RenderIf some={[isChannelView]}>
-        <div className="flex flex-shrink flex-row">
-          <div
-            className={`hide-scrollbar shrink-0 flex-col-reverse items-center justify-end overflow-y-scroll ${
-              isChatClosed ? '' : 'h-[758px] max-h-[90vh]'
-            }`}
-          >
-            <div className="flex text-white">toto</div>
-          </div>
-          <div
-            className={`hide-scrollbar shrink-0 flex-col-reverse items-center justify-end overflow-y-scroll ${
-              isChatClosed ? '' : 'h-[758px] max-h-[90vh]'
-            }`}
-          >
+        <div className="flex flex-row">
+          <Scrollable>
+            <div className="mt-24">
+              <div className="flex text-white">toto</div>
+              <div className="flex text-white">toto</div>
+              <div className="flex text-white">toto</div>
+              <div className="flex text-white">toto</div>
+              <div className="flex text-white">toto</div>
+            </div>
+          </Scrollable>
+          <div className="w-full">
             <ContactListFeed
               contactList={status.contactList.filter(
                 (user) => user.userID !== socket.userID
               )}
               toggleConversationView={() => send('selectContact')}
               setContact={setContact}
+              isChatClosed={isChatClosed}
             />
           </div>
         </div>

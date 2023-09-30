@@ -18,7 +18,7 @@ export const chatMachine = createMachine(
       },
       opened: {
         description: 'The channel component is open',
-        initial: 'channelView',
+        initial: 'messageView',
         states: {
           messageView: {
             description: 'The chat component displays the contact view.',
