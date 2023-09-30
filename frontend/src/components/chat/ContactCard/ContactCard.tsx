@@ -7,6 +7,7 @@ interface ContactCardProps {
   noBgColor?: boolean;
   userID: string;
   username: string;
+  url: string;
 }
 
 export function ContactCard({
@@ -14,12 +15,13 @@ export function ContactCard({
   toggleConversationView,
   userID,
   username,
-  noBgColor
+  noBgColor,
+  url
 }: ContactCardProps) {
   return (
     <div>
       <div
-        className={`mx-2 my-1 flex w-80 flex-shrink-0 cursor-pointer items-center justify-between ${
+        className={`mx-2 my-1 flex flex-shrink-0 cursor-pointer items-center justify-between ${
           noBgColor ? 'bg-pong-blue-400' : ''
         } p-3 text-left`}
         role="presentation"
@@ -30,7 +32,7 @@ export function ContactCard({
         }}
       >
         <div className="flex items-center justify-center gap-3">
-          <ProfilePicture size="xs" url="starwatcher.jpg" level={42} />
+          <ProfilePicture size="xs" url={url} level={42} />
           <p className="semibold max-w-[200px] break-all text-base text-pong-white">
             {username}
           </p>

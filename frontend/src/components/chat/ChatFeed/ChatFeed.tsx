@@ -13,7 +13,7 @@ function ChatFeed({ contact, isConnected }: ChatFeedProps) {
   const messageEndRef = useScroll(messages);
 
   return (
-    <div>
+    <div className="mt-24">
       {messages.map((chat, index: number) => {
         if (index % 2) {
           return (

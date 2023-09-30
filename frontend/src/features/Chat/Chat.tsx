@@ -3,7 +3,6 @@ import { useEffect } from 'react';
 import socket from '../../services/socket';
 import ChatFeed from '../../components/chat/ChatFeed/ChatFeed';
 import ChatHeader from '../../components/chat/ChatHeader/ChatHeader';
-import ChatMessage from '../../components/chat/ChatMessage/ChatMessage';
 import RenderIf from '../../components/chat/RenderIf/RenderIf';
 import SendMessageInput from '../../components/chat/SendMessageInput/SendMessageInput';
 import { Contact, useStatus } from '../../utils/hooks/useStatus';
@@ -11,6 +10,7 @@ import { useContact } from '../../utils/hooks/useContact';
 import { chatMachine } from '../../machines/chatMachine';
 import MenuSelector from '../../components/chat/MenuSelector/MenuSelector';
 import { ContactListFeed } from '../../components/chat/ContactListFeed.tsx/ContactListFeed';
+import { ContactCard } from '../../components/chat/ContactCard/ContactCard';
 
 const chat = new Map<string, Contact>();
 
@@ -49,8 +49,6 @@ function Chat() {
     }
   }, [status.privateMessage]);
 
-  useEffect(() => {}, [status.user]);
-
   useEffect(() => {
     if (status.privateMessage) {
       const { senderID, receiverID } = status.privateMessage;
@@ -63,34 +61,33 @@ function Chat() {
   }, [status.privateMessage, contact?.userID, setContact]);
 
   return (
-    <div className="absolute bottom-2 right-2 w-fit overflow-hidden rounded-3xl">
-      <div
-        className={`hide-scrollbar ${
-          isChatClosed ? '' : 'h-[758px] max-h-[90vh]'
-        } w-fit shrink-0 flex-col-reverse items-center justify-end overflow-y-scroll rounded-t-3xl bg-pong-blue-300`}
-      >
-        <ChatHeader
-          className={`absolute z-30 ${isChatClosed ? '' : 'backdrop-blur'}`}
-          isConnected={status.isConnected}
-          isChatClosed={isChatClosed}
-          handleClick={{
-            toggleArrow: toggleChat,
-            changeView: () => send({ type: 'selectHeader' })
-          }}
-        />
-        <div className="invisible h-24">
-          <ChatMessage
-            message=""
-            time=""
-            username=""
-            level={0}
-            profilePictureUrl=""
-          />
-        </div>
-        <RenderIf some={[isConversationView]}>
+    <div className="absolute bottom-2 right-2 z-30 w-fit overflow-hidden rounded-3xl bg-pong-blue-300">
+      <ChatHeader
+        className={`z-40 ${
+          isChatClosed ? 'static bg-pong-blue-300' : ' absolute backdrop-blur'
+        }`}
+        isConnected={status.isConnected}
+        isChatClosed={isChatClosed}
+        handleClick={{
+          toggleArrow: toggleChat,
+          changeView: () => send({ type: 'selectHeader' })
+        }}
+      />
+      <RenderIf some={[isConversationView]}>
+        <div
+          className={`hide-scrollbar shrink-0 flex-col-reverse items-center justify-end overflow-y-scroll ${
+            isChatClosed ? '' : 'h-[758px] max-h-[90vh]'
+          }`}
+        >
           <ChatFeed contact={contact} isConnected={status.isConnected} />
-        </RenderIf>
-        <RenderIf some={[isMessageView]}>
+        </div>
+      </RenderIf>
+      <RenderIf some={[isMessageView]}>
+        <div
+          className={`hide-scrollbar shrink-0 flex-col-reverse items-center justify-end overflow-y-scroll ${
+            isChatClosed ? '' : 'h-[758px] max-h-[90vh]'
+          }`}
+        >
           <ContactListFeed
             contactList={status.contactList.filter(
               (user) => user.userID !== socket.userID
@@ -98,17 +95,39 @@ function Chat() {
             toggleConversationView={() => send('selectContact')}
             setContact={setContact}
           />
-        </RenderIf>
-        <RenderIf some={[isChannelView]}>
-          <p className="text-white">Channel view</p>
-        </RenderIf>
-        <RenderIf some={[isSearchView]}>
-          <p className="text-white">searchView</p>
-        </RenderIf>
-        <RenderIf some={[isNotificationView]}>
-          <p className="text-white">notificationView</p>
-        </RenderIf>
-      </div>
+        </div>
+      </RenderIf>
+      <RenderIf some={[isChannelView]}>
+        <div className="flex flex-shrink flex-row">
+          <div
+            className={`hide-scrollbar shrink-0 flex-col-reverse items-center justify-end overflow-y-scroll ${
+              isChatClosed ? '' : 'h-[758px] max-h-[90vh]'
+            }`}
+          >
+            <div className="flex text-white">toto</div>
+          </div>
+          <div
+            className={`hide-scrollbar shrink-0 flex-col-reverse items-center justify-end overflow-y-scroll ${
+              isChatClosed ? '' : 'h-[758px] max-h-[90vh]'
+            }`}
+          >
+            <ContactListFeed
+              contactList={status.contactList.filter(
+                (user) => user.userID !== socket.userID
+              )}
+              toggleConversationView={() => send('selectContact')}
+              setContact={setContact}
+            />
+          </div>
+        </div>
+      </RenderIf>
+      <RenderIf some={[isSearchView]}>
+        <p className="text-white">searchView</p>
+      </RenderIf>
+      <RenderIf some={[isNotificationView]}>
+        <p className="text-white">notificationView</p>
+      </RenderIf>
+
       <RenderIf some={[isConversationView, isChanConversationView]}>
         <SendMessageInput
           receiverID={contact ? contact.userID : ''}

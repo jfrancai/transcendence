@@ -22,7 +22,7 @@ export function ContactListFeed({
     }
   });
   return (
-    <div>
+    <div className="mt-24">
       {online.length ? (
         <>
           <p className="pl-2 font-semibold text-pong-blue-100">
@@ -35,6 +35,7 @@ export function ContactListFeed({
               userID={user.userID}
               toggleConversationView={toggleConversationView}
               setContact={() => setContact(user)}
+              url="starwatcher.jpg"
             />
           ))}
         </>
@@ -51,6 +52,7 @@ export function ContactListFeed({
               userID={user.userID}
               toggleConversationView={toggleConversationView}
               setContact={() => setContact(user)}
+              url="starwatcher.jpg"
             />
           ))}
         </>
