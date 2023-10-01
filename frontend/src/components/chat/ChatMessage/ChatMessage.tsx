@@ -7,7 +7,6 @@ interface ChatMessageProps {
   message: string;
   time: string;
   username: string;
-  level: number;
   profilePictureUrl: string;
   noBgColor?: boolean;
 }
@@ -16,7 +15,6 @@ function ChatMessage({
   message,
   time,
   username,
-  level,
   profilePictureUrl,
   noBgColor
 }: ChatMessageProps) {
@@ -28,7 +26,7 @@ function ChatMessage({
       onClick={() => setClicked(!clicked)}
       role="presentation"
     >
-      <ProfilePicture size="xs" url={profilePictureUrl} level={level} />
+      <ProfilePicture size="xs" url={profilePictureUrl} />
       <div className="w-1 flex-grow cursor-pointer break-words px-2">
         <div className="flex items-center justify-between">
           <p className="text-sm font-bold text-pong-blue-100">{username}</p>

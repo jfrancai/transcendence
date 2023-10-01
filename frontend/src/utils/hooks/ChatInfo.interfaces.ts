@@ -3,7 +3,6 @@ export interface ChatInfo {
   time: string;
   message: string;
   profilePictureUrl: string;
-  level: number;
   id: string;
 }
 

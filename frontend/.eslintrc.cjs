@@ -34,9 +34,19 @@ module.exports = {
     'react/react-in-jsx-scope': 'off',
     'react/jsx-uses-react': 'off',
     'comma-dangle': 'off',
-    'operator-linebreak': ['error', 'after'],
+    'operator-linebreak': [
+      'error',
+      'after',
+      {
+        overrides: {
+          ':': 'before',
+          '?': 'before'
+        }
+      }
+    ],
     '@typescript-eslint/comma-dangle': 'off',
     'import/no-extraneous-dependencies': ['error', { devDependencies: true }],
-    'import/prefer-default-export': 'off'
+    'import/prefer-default-export': 'off',
+    'object-curly-newline': 'off'
   }
 };

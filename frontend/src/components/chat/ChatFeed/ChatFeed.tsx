@@ -15,7 +15,7 @@ function ChatFeed({ contact, isConnected }: ChatFeedProps) {
 
   return (
     <Scrollable>
-      <div className="mt-24">
+      <div className="mt-28">
         {messages.map((chat, index: number) => {
           if (index % 2) {
             return (
@@ -24,7 +24,6 @@ function ChatFeed({ contact, isConnected }: ChatFeedProps) {
                 message={chat.message}
                 time={chat.time}
                 username={chat.username}
-                level={chat.level}
                 profilePictureUrl={chat.profilePictureUrl}
                 noBgColor
               />
@@ -36,7 +35,6 @@ function ChatFeed({ contact, isConnected }: ChatFeedProps) {
               message={chat.message}
               time={chat.time}
               username={chat.username}
-              level={chat.level}
               profilePictureUrl={chat.profilePictureUrl}
             />
           );

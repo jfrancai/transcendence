@@ -32,7 +32,7 @@ export function ContactCard({
         }}
       >
         <div className="flex items-center justify-center gap-3">
-          <ProfilePicture size="xs" url={url} level={42} />
+          <ProfilePicture size="xs" url={url} />
           <p className="semibold max-w-[200px] break-all text-base text-pong-white">
             {username}
           </p>

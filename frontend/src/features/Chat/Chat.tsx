@@ -11,6 +11,7 @@ import { chatMachine } from '../../machines/chatMachine';
 import MenuSelector from '../../components/chat/MenuSelector/MenuSelector';
 import { ContactListFeed } from '../../components/chat/ContactListFeed.tsx/ContactListFeed';
 import { Scrollable } from '../../components/chat/Scrollable/Scrollable';
+import ProfilePicture from '../../components/chat/ProfilePicture/ProfilePicture';
 
 const chat = new Map<string, Contact>();
 
@@ -60,12 +61,13 @@ function Chat() {
     }
   }, [status.privateMessage, contact?.userID, setContact]);
 
+  const chatHeaderStyle = isChatClosed
+    ? 'static bg-pong-blue-300'
+    : ' absolute backdrop-blur';
   return (
     <div className="absolute bottom-2 right-2 z-30 w-fit overflow-hidden rounded-3xl bg-pong-blue-300">
       <ChatHeader
-        className={`z-40 ${
-          isChatClosed ? 'static bg-pong-blue-300' : ' absolute backdrop-blur'
-        }`}
+        className={`z-40 ${chatHeaderStyle}`}
         isConnected={status.isConnected}
         isChatClosed={isChatClosed}
         handleClick={{
@@ -89,12 +91,24 @@ function Chat() {
       <RenderIf some={[isChannelView]}>
         <div className="flex flex-row">
           <Scrollable>
-            <div className="mt-24">
-              <div className="flex text-white">toto</div>
-              <div className="flex text-white">toto</div>
-              <div className="flex text-white">toto</div>
-              <div className="flex text-white">toto</div>
-              <div className="flex text-white">toto</div>
+            <div className="mt-28 flex w-14 flex-col items-center justify-center gap-2 bg-pong-blue-700">
+              <ProfilePicture size="s" url="starwatcher.jpg" />
+              <ProfilePicture size="s" url="starwatcher.jpg" />
+              <ProfilePicture size="s" url="starwatcher.jpg" />
+              <ProfilePicture size="s" url="starwatcher.jpg" />
+              <ProfilePicture size="s" url="starwatcher.jpg" />
+              <ProfilePicture size="s" url="starwatcher.jpg" />
+              <ProfilePicture size="s" url="starwatcher.jpg" />
+              <ProfilePicture size="s" url="starwatcher.jpg" />
+              <ProfilePicture size="s" url="starwatcher.jpg" />
+              <ProfilePicture size="s" url="starwatcher.jpg" />
+              <ProfilePicture size="s" url="starwatcher.jpg" />
+              <ProfilePicture size="s" url="starwatcher.jpg" />
+              <ProfilePicture size="s" url="starwatcher.jpg" />
+              <ProfilePicture size="s" url="starwatcher.jpg" />
+              <ProfilePicture size="s" url="starwatcher.jpg" />
+              <ProfilePicture size="s" url="starwatcher.jpg" />
+              <ProfilePicture size="s" url="starwatcher.jpg" />
             </div>
           </Scrollable>
           <div className="w-full">

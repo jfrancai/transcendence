@@ -26,7 +26,7 @@ export function ContactListFeed({
   });
   return (
     <Scrollable>
-      <div className={`mt-24 ${isChatClosed ? '' : 'h-[758px] max-h-[90vh]'}`}>
+      <div className={`mt-28 ${isChatClosed ? '' : 'h-[758px] max-h-[90vh]'}`}>
         {online.length ? (
           <>
             <p className="pl-2 font-semibold text-pong-blue-100">

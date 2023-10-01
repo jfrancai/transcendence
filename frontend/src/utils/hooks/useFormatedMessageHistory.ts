@@ -15,7 +15,6 @@ export function useMessageHistory(contact: Contact | undefined) {
             message: message.content,
             time: formatTimeMessage(message.createdAt),
             username: contact.username,
-            level: 42,
             profilePictureUrl: 'starwatcher.jpg'
           }
         ];

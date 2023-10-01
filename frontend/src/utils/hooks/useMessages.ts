@@ -18,7 +18,6 @@ export function useMessages(
           message: message.content,
           time: formatTimeMessage(message.createdAt),
           username: message.sender,
-          level: 42,
           profilePictureUrl: 'starwatcher.jpg'
         });
         return message;
