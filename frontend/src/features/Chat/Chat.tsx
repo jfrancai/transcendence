@@ -12,6 +12,7 @@ import MenuSelector from '../../components/chat/MenuSelector/MenuSelector';
 import { ContactListFeed } from '../../components/chat/ContactListFeed.tsx/ContactListFeed';
 import { Scrollable } from '../../components/chat/Scrollable/Scrollable';
 import ProfilePicture from '../../components/chat/ProfilePicture/ProfilePicture';
+import { AiOutlinePlusCircle } from 'react-icons/ai';
 
 const chat = new Map<string, Contact>();
 
@@ -91,24 +92,22 @@ function Chat() {
       <RenderIf some={[isChannelView]}>
         <div className="flex flex-row">
           <Scrollable>
-            <div className="mt-28 flex w-14 flex-col items-center justify-center gap-2 bg-pong-blue-700">
-              <ProfilePicture size="s" url="starwatcher.jpg" />
-              <ProfilePicture size="s" url="starwatcher.jpg" />
-              <ProfilePicture size="s" url="starwatcher.jpg" />
-              <ProfilePicture size="s" url="starwatcher.jpg" />
-              <ProfilePicture size="s" url="starwatcher.jpg" />
-              <ProfilePicture size="s" url="starwatcher.jpg" />
-              <ProfilePicture size="s" url="starwatcher.jpg" />
-              <ProfilePicture size="s" url="starwatcher.jpg" />
-              <ProfilePicture size="s" url="starwatcher.jpg" />
-              <ProfilePicture size="s" url="starwatcher.jpg" />
-              <ProfilePicture size="s" url="starwatcher.jpg" />
-              <ProfilePicture size="s" url="starwatcher.jpg" />
-              <ProfilePicture size="s" url="starwatcher.jpg" />
-              <ProfilePicture size="s" url="starwatcher.jpg" />
-              <ProfilePicture size="s" url="starwatcher.jpg" />
-              <ProfilePicture size="s" url="starwatcher.jpg" />
-              <ProfilePicture size="s" url="starwatcher.jpg" />
+            <div className="mt-28 w-16 rounded-2xl bg-pong-blue-500 pt-2">
+              <Scrollable>
+                <div className="flex flex-col items-center justify-center gap-3">
+                  <ProfilePicture size="s" url="starwatcher.jpg" />
+                  <ProfilePicture size="s" url="starwatcher.jpg" />
+                  <ProfilePicture size="s" url="starwatcher.jpg" />
+                  <ProfilePicture size="s" url="starwatcher.jpg" />
+                  <ProfilePicture size="s" url="starwatcher.jpg" />
+                  <ProfilePicture size="s" url="starwatcher.jpg" />
+                  <div className="">
+                    <button type="button">
+                      <AiOutlinePlusCircle className="h-[50px] w-[50px] rounded-2xl text-pong-blue-100 hover:bg-pong-purple hover:text-pong-blue-500" />
+                    </button>
+                  </div>
+                </div>
+              </Scrollable>
             </div>
           </Scrollable>
           <div className="w-full">

@@ -86,6 +86,25 @@ export const chatMachine = createMachine(
               },
               selectChannel: {
                 target: 'channeConversationView'
+              },
+              createChannel: {
+                target: 'createChannelView'
+              }
+            }
+          },
+          createChannelView: {
+            on: {
+              clickOnSearch: {
+                target: 'searchView'
+              },
+              clickOnChannel: {
+                target: 'channelView'
+              },
+              clickOnMessage: {
+                target: 'messageView'
+              },
+              selectChannel: {
+                target: 'channeConversationView'
               }
             }
           },
@@ -115,6 +134,7 @@ export const chatMachine = createMachine(
         | { type: 'selectHeader' }
         | { type: 'clickOnSearch' }
         | { type: 'selectChannel' }
+        | { type: 'createChannel' }
         | { type: 'selectContact' }
         | { type: 'clickOnChannel' }
         | { type: 'clickOnMessage' }
