@@ -34,7 +34,7 @@ function ChatMessage({
         </div>
         {clicked ? (
           <div className="flex justify-center">
-            <ProfileButton className="mt-3" />
+            <ProfileButton className="mt-3" span="See Profile" />
           </div>
         ) : (
           <p className="mt-3 text-base text-pong-white">{message}</p>

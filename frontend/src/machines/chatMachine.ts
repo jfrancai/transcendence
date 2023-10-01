@@ -6,21 +6,26 @@ export const chatMachine = createMachine(
       '': ''
     },
     id: 'chatMachine',
-    initial: 'opened',
+    initial: 'closed',
     states: {
-      closed: {
-        description: 'The channel component is closed',
-        on: {
-          OPEN: {
-            target: '#chatMachine.opened.History State'
-          }
-        }
-      },
       opened: {
         description: 'The channel component is open',
-        initial: 'createChannelView',
+        initial: 'messageView',
         states: {
-          messageView: {
+          createORJoinChannelView: {
+            on: {
+              selectHeader: {
+                target: 'channelView'
+              },
+              createChannel: {
+                target: 'channelNameView'
+              },
+              joinChannel: {
+                target: 'joinChannelView'
+              }
+            }
+          },
+          channelView: {
             description: 'The chat component displays the contact view.',
             on: {
               clickOnNotification: {
@@ -29,10 +34,36 @@ export const chatMachine = createMachine(
               clickOnSearch: {
                 target: 'searchView'
               },
-              selectContact: {
-                target: 'conversationView'
+              clickOnMessage: {
+                target: 'messageView'
               },
-              clickOnChannel: {
+              selectChannel: {
+                target: 'channelConversationView'
+              },
+              addChannel: {
+                target: 'createORJoinChannelView'
+              }
+            }
+          },
+          channelNameView: {
+            on: {
+              inviteChannel: {
+                target: 'inviteChannelView'
+              },
+              selectHeader: {
+                target: 'channelView'
+              },
+              previousAddChannel: {
+                target: 'createORJoinChannelView'
+              }
+            }
+          },
+          joinChannelView: {
+            on: {
+              previousAddChannel: {
+                target: 'createORJoinChannelView'
+              },
+              closeAddChannel: {
                 target: 'channelView'
               }
             }
@@ -65,14 +96,7 @@ export const chatMachine = createMachine(
               }
             }
           },
-          conversationView: {
-            on: {
-              selectHeader: {
-                target: 'messageView'
-              }
-            }
-          },
-          channelView: {
+          messageView: {
             description: 'The chat component displays the contact view.',
             on: {
               clickOnNotification: {
@@ -81,37 +105,38 @@ export const chatMachine = createMachine(
               clickOnSearch: {
                 target: 'searchView'
               },
-              clickOnMessage: {
-                target: 'messageView'
-              },
-              selectChannel: {
-                target: 'channeConversationView'
-              },
-              createChannel: {
-                target: 'createChannelView'
-              }
-            }
-          },
-          createChannelView: {
-            on: {
-              clickOnSearch: {
-                target: 'searchView'
+              selectContact: {
+                target: 'conversationView'
               },
               clickOnChannel: {
                 target: 'channelView'
-              },
-              clickOnMessage: {
-                target: 'messageView'
-              },
-              selectChannel: {
-                target: 'channeConversationView'
               }
             }
           },
-          channeConversationView: {
+          channelConversationView: {
             on: {
               selectHeader: {
                 target: 'channelView'
+              }
+            }
+          },
+          inviteChannelView: {
+            on: {
+              closeAddChannel: {
+                target: 'channelView'
+              },
+              selectHeader: {
+                target: 'channelView'
+              },
+              previousAddChannel: {
+                target: 'channelNameView'
+              }
+            }
+          },
+          conversationView: {
+            on: {
+              selectHeader: {
+                target: 'messageView'
               }
             }
           },
@@ -125,20 +150,33 @@ export const chatMachine = createMachine(
             target: 'closed'
           }
         }
+      },
+      closed: {
+        description: 'The channel component is closed',
+        on: {
+          OPEN: {
+            target: '#chatMachine.opened.History State'
+          }
+        }
       }
     },
     schema: {
       events: {} as
-        | { type: 'OPEN' }
-        | { type: 'CLOSE' }
         | { type: 'selectHeader' }
-        | { type: 'clickOnSearch' }
-        | { type: 'selectChannel' }
         | { type: 'createChannel' }
-        | { type: 'selectContact' }
-        | { type: 'clickOnChannel' }
+        | { type: 'joinChannel' }
+        | { type: 'clickOnNotification' }
+        | { type: 'clickOnSearch' }
         | { type: 'clickOnMessage' }
-        | { type: 'clickOnNotification' },
+        | { type: 'selectChannel' }
+        | { type: 'addChannel' }
+        | { type: 'inviteChannel' }
+        | { type: 'previousAddChannel' }
+        | { type: 'closeAddChannel' }
+        | { type: 'clickOnChannel' }
+        | { type: 'selectContact' }
+        | { type: 'CLOSE' }
+        | { type: 'OPEN' },
       context: {} as { '': string }
     },
     predictableActionArguments: true,

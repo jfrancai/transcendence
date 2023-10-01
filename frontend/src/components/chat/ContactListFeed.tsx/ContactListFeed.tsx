@@ -6,14 +6,12 @@ interface ContactListProps {
   contactList: Contact[];
   toggleConversationView: () => any;
   setContact: (p: any) => any;
-  isChatClosed: boolean;
 }
 
 export function ContactListFeed({
   contactList,
   setContact,
-  toggleConversationView,
-  isChatClosed
+  toggleConversationView
 }: ContactListProps) {
   const online: Contact[] = [];
   const offline: Contact[] = [];
@@ -26,7 +24,7 @@ export function ContactListFeed({
   });
   return (
     <Scrollable>
-      <div className={`mt-28 ${isChatClosed ? '' : 'h-[758px] max-h-[90vh]'}`}>
+      <div className="pt-28">
         {online.length ? (
           <>
             <p className="pl-2 font-semibold text-pong-blue-100">

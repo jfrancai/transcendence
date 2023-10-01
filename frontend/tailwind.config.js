@@ -8,7 +8,17 @@ export default {
       },
       colors: {
         pong: {
-          purple: '#6659FD',
+          purple: {
+            100: '#6659FD',
+            200: '#473ADE',
+            300: '#6659FD',
+            400: '#6659FD',
+            500: '#6659FD',
+            600: '#6659FD',
+            700: '#6659FD',
+            800: '#6659FD',
+            900: '#6659FD'
+          },
           white: '#ECEDFF',
           blue: {
             100: '#6E6FA5',

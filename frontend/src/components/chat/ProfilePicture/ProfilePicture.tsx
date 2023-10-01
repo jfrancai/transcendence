@@ -15,7 +15,7 @@ function ProfilePicture({ size = 'xl', url }: ProfilePictureProps) {
   return (
     <div
       style={{ backgroundImage: `url(${url})` }}
-      className={`min-w-fit ${style[size]} w-flex-shrink-0 relative flex items-end justify-center rounded-full border-solid border-pong-purple bg-cover bg-no-repeat`}
+      className={`min-w-fit ${style[size]} w-flex-shrink-0 relative flex items-end justify-center rounded-full border-solid border-pong-purple-100 bg-cover bg-no-repeat`}
     />
   );
 }

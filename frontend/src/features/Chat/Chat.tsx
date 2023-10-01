@@ -1,3 +1,4 @@
+import { AiOutlinePlusCircle, AiOutlineCloudUpload } from 'react-icons/ai';
 import { useMachine } from '@xstate/react';
 import { useEffect, useState } from 'react';
 import socket from '../../services/socket';
@@ -12,7 +13,72 @@ import MenuSelector from '../../components/chat/MenuSelector/MenuSelector';
 import { ContactListFeed } from '../../components/chat/ContactListFeed.tsx/ContactListFeed';
 import { Scrollable } from '../../components/chat/Scrollable/Scrollable';
 import ProfilePicture from '../../components/chat/ProfilePicture/ProfilePicture';
-import { AiOutlinePlusCircle } from 'react-icons/ai';
+import SecondaryButton from '../../components/chat/ProfileButton/ProfileButton';
+
+export function SelectChannelType() {
+  const [active, setActive] = useState(0);
+  return (
+    <div className="mt-1 flex gap-3">
+      <SecondaryButton
+        onClick={() => setActive(0)}
+        disabled={active !== 0}
+        span="Public"
+      />
+      <SecondaryButton
+        onClick={() => setActive(1)}
+        disabled={active !== 1}
+        span="Private"
+      />
+      <SecondaryButton
+        onClick={() => setActive(2)}
+        disabled={active !== 2}
+        span="Protected"
+      />
+    </div>
+  );
+}
+
+export function CreateChannelView() {
+  const [channelName, setChannelName] = useState('');
+  return (
+    <div className="flex w-full flex-col items-center justify-center gap-10 pt-28">
+      <p className="text-2xl font-bold text-pong-white">Create your Channel</p>
+      <div className="flex flex-col w-full px-5 ">
+        <p className="block text-sm font-bold text-pong-white">
+          CHANNEL PICTURE
+        </p>
+        <label htmlFor="UploadChannelImage" className="rounded text-[50px] flex justify-center mt-2 border border-dashed border-pong-white">
+          <input id="UploadChannelImage" type="file" className="hidden" />
+          <AiOutlineCloudUpload className="bg-pong-blue-500 rounded-full p-1 text-pong-blue-100 my-4 cursor-pointer" />
+        </label>
+      </div>
+      <div className="flex flex-col w-full px-5">
+        <label htmlFor="ChannelName">
+          <p className="block text-sm font-bold text-pong-white">
+            CHANNEL NAME
+          </p>
+          <input
+            type="email"
+            id="ChannelName"
+            className="mt-1 w-full rounded-md border border-pong-blue-100 bg-pong-blue-500 p-1 text-base text-pong-white"
+            defaultValue={`${socket.username}'s channel`}
+            onChange={(e) => setChannelName(e.target.value)}
+          />
+        </label>
+      </div>
+      <div>
+        <p className="block text-sm font-bold text-pong-white">CHANNEL TYPE</p>
+        <SelectChannelType />
+      </div>
+      <button
+        type="button"
+        className="flex rounded-xl bg-pong-purple-100 px-5 py-2 text-pong-white hover:bg-pong-purple-200"
+      >
+        Create Channel
+      </button>
+    </div>
+  );
+}
 
 interface ChannelCarrouselProps {
   toggleCreateChannelView: () => any;
@@ -50,7 +116,6 @@ function Chat() {
   const status = useStatus();
   const [contact, setContact] = useContact(status);
   const [state, send] = useMachine(chatMachine);
-  const [hideMenu, setHideMenu] = useState(true);
 
   const isChatClosed = state.matches('closed');
 
@@ -58,7 +123,9 @@ function Chat() {
   const isChannelView = state.matches({ opened: 'channelView' });
   const isSearchView = state.matches({ opened: 'searchView' });
   const isNotificationView = state.matches({ opened: 'notificationView' });
-  const isCreateChannelView = state.matches({ opened: 'createChannelView' });
+  const isCreateORJoinChannelView = state.matches({
+    opened: 'createORJoinChannelView'
+  });
 
   const isConversationView = state.matches({ opened: 'conversationView' });
   const isChanConversationView = state.matches({
@@ -108,6 +175,7 @@ function Chat() {
           changeView: () => send({ type: 'selectHeader' })
         }}
       />
+
       <RenderIf some={[isConversationView]}>
         <ChatFeed contact={contact} isConnected={status.isConnected} />
       </RenderIf>
@@ -118,28 +186,29 @@ function Chat() {
           )}
           toggleConversationView={() => send('selectContact')}
           setContact={setContact}
-          isChatClosed={isChatClosed}
         />
       </RenderIf>
-      <RenderIf some={[isChannelView, isCreateChannelView]}>
+      <RenderIf some={[isChannelView]}>
         <div className="flex flex-row">
           <ChannelCarrousel
-            toggleCreateChannelView={() => send('createChannel')}
+            toggleCreateChannelView={() => send('addChannel')}
           />
           <div className="w-full">
-            <RenderIf some={[isCreateChannelView]}>coucou</RenderIf>
-            <RenderIf some={[isChannelView]}>
-              <ContactListFeed
-                contactList={status.contactList.filter(
-                  (user) => user.userID !== socket.userID
-                )}
-                toggleConversationView={() => send('selectContact')}
-                setContact={setContact}
-                isChatClosed={isChatClosed}
-              />
-            </RenderIf>
+            <ContactListFeed
+              contactList={status.contactList.filter(
+                (user) => user.userID !== socket.userID
+              )}
+              toggleConversationView={() => send('selectContact')}
+              setContact={setContact}
+            />
           </div>
         </div>
+      </RenderIf>
+      <RenderIf some={[isCreateORJoinChannelView]}>
+        <Scrollable>
+          <CreateChannelView />
+        </Scrollable>
+        <div className="h-14 w-[336px]" />
       </RenderIf>
       <RenderIf some={[isSearchView]}>
         <p className="text-white">searchView</p>
@@ -155,13 +224,7 @@ function Chat() {
         />
       </RenderIf>
       <RenderIf
-        some={[
-          isMessageView,
-          isChannelView,
-          isSearchView,
-          isNotificationView,
-          isCreateChannelView
-        ]}
+        some={[isMessageView, isChannelView, isSearchView, isNotificationView]}
       >
         <MenuSelector
           isMessageView={isMessageView}
