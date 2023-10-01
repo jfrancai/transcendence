@@ -1,5 +1,5 @@
 import { useMachine } from '@xstate/react';
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import socket from '../../services/socket';
 import ChatFeed from '../../components/chat/ChatFeed/ChatFeed';
 import ChatHeader from '../../components/chat/ChatHeader/ChatHeader';
@@ -14,12 +14,43 @@ import { Scrollable } from '../../components/chat/Scrollable/Scrollable';
 import ProfilePicture from '../../components/chat/ProfilePicture/ProfilePicture';
 import { AiOutlinePlusCircle } from 'react-icons/ai';
 
+interface ChannelCarrouselProps {
+  toggleCreateChannelView: () => any;
+}
+
+export function ChannelCarrousel({
+  toggleCreateChannelView
+}: ChannelCarrouselProps) {
+  return (
+    <Scrollable>
+      <div className="mt-28 w-16 rounded-2xl bg-pong-blue-500 pt-2">
+        <Scrollable>
+          <div className="flex flex-col items-center justify-center gap-3">
+            <ProfilePicture size="s" url="starwatcher.jpg" />
+            <ProfilePicture size="s" url="starwatcher.jpg" />
+            <ProfilePicture size="s" url="starwatcher.jpg" />
+            <ProfilePicture size="s" url="starwatcher.jpg" />
+            <ProfilePicture size="s" url="starwatcher.jpg" />
+            <ProfilePicture size="s" url="starwatcher.jpg" />
+            <div className="">
+              <button type="button" onClick={toggleCreateChannelView}>
+                <AiOutlinePlusCircle className="h-[50px] w-[50px] rounded-2xl text-pong-blue-100 hover:bg-pong-blue-100 hover:text-pong-blue-500" />
+              </button>
+            </div>
+          </div>
+        </Scrollable>
+      </div>
+    </Scrollable>
+  );
+}
+
 const chat = new Map<string, Contact>();
 
 function Chat() {
   const status = useStatus();
   const [contact, setContact] = useContact(status);
   const [state, send] = useMachine(chatMachine);
+  const [hideMenu, setHideMenu] = useState(true);
 
   const isChatClosed = state.matches('closed');
 
@@ -27,6 +58,7 @@ function Chat() {
   const isChannelView = state.matches({ opened: 'channelView' });
   const isSearchView = state.matches({ opened: 'searchView' });
   const isNotificationView = state.matches({ opened: 'notificationView' });
+  const isCreateChannelView = state.matches({ opened: 'createChannelView' });
 
   const isConversationView = state.matches({ opened: 'conversationView' });
   const isChanConversationView = state.matches({
@@ -89,36 +121,23 @@ function Chat() {
           isChatClosed={isChatClosed}
         />
       </RenderIf>
-      <RenderIf some={[isChannelView]}>
+      <RenderIf some={[isChannelView, isCreateChannelView]}>
         <div className="flex flex-row">
-          <Scrollable>
-            <div className="mt-28 w-16 rounded-2xl bg-pong-blue-500 pt-2">
-              <Scrollable>
-                <div className="flex flex-col items-center justify-center gap-3">
-                  <ProfilePicture size="s" url="starwatcher.jpg" />
-                  <ProfilePicture size="s" url="starwatcher.jpg" />
-                  <ProfilePicture size="s" url="starwatcher.jpg" />
-                  <ProfilePicture size="s" url="starwatcher.jpg" />
-                  <ProfilePicture size="s" url="starwatcher.jpg" />
-                  <ProfilePicture size="s" url="starwatcher.jpg" />
-                  <div className="">
-                    <button type="button">
-                      <AiOutlinePlusCircle className="h-[50px] w-[50px] rounded-2xl text-pong-blue-100 hover:bg-pong-purple hover:text-pong-blue-500" />
-                    </button>
-                  </div>
-                </div>
-              </Scrollable>
-            </div>
-          </Scrollable>
+          <ChannelCarrousel
+            toggleCreateChannelView={() => send('createChannel')}
+          />
           <div className="w-full">
-            <ContactListFeed
-              contactList={status.contactList.filter(
-                (user) => user.userID !== socket.userID
-              )}
-              toggleConversationView={() => send('selectContact')}
-              setContact={setContact}
-              isChatClosed={isChatClosed}
-            />
+            <RenderIf some={[isCreateChannelView]}>coucou</RenderIf>
+            <RenderIf some={[isChannelView]}>
+              <ContactListFeed
+                contactList={status.contactList.filter(
+                  (user) => user.userID !== socket.userID
+                )}
+                toggleConversationView={() => send('selectContact')}
+                setContact={setContact}
+                isChatClosed={isChatClosed}
+              />
+            </RenderIf>
           </div>
         </div>
       </RenderIf>
@@ -136,7 +155,13 @@ function Chat() {
         />
       </RenderIf>
       <RenderIf
-        some={[isMessageView, isChannelView, isSearchView, isNotificationView]}
+        some={[
+          isMessageView,
+          isChannelView,
+          isSearchView,
+          isNotificationView,
+          isCreateChannelView
+        ]}
       >
         <MenuSelector
           isMessageView={isMessageView}
