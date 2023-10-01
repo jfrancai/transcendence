@@ -14,7 +14,8 @@ export default {
         'green-login': '#00BABC'
       },
       backgroundImage: {
-        default: "url('./images/background.png')"
+        default: "url('./images/background.png')",
+        'profile-default': "url('./images/background_profile.png')"
       }
     }
   },
