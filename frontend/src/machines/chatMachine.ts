@@ -10,7 +10,7 @@ export const chatMachine = createMachine(
     states: {
       opened: {
         description: 'The channel component is open',
-        initial: 'channelNameView',
+        initial: 'messageView',
         states: {
           createORJoinChannelView: {
             on: {

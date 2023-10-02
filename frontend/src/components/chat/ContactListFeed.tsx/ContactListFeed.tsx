@@ -1,7 +1,9 @@
+import { useEffect } from 'react';
 import { ContactList } from '../../../utils/hooks/useStatus.interfaces';
 import { useUsers } from '../../../utils/hooks/useUsers';
 import { ContactCard } from '../ContactCard/ContactCard';
 import { Scrollable } from '../Scrollable/Scrollable';
+import { useSocketContext } from '../../../contexts/socket';
 
 interface ContactListProps {
   toggleConversationView: () => any;
@@ -12,7 +14,12 @@ export function ContactListFeed({
   setContact,
   toggleConversationView
 }: ContactListProps) {
+  const { socket } = useSocketContext();
   const contactList = useUsers();
+
+  useEffect(() => {
+    socket.emit('users');
+  }, [socket]);
 
   const online: ContactList = [];
   const offline: ContactList = [];

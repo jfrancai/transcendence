@@ -1,20 +1,25 @@
 import { Dispatch, SetStateAction, useEffect, useState } from 'react';
-import { Contact, Status } from './useStatus';
+import { Contact } from './useStatus.interfaces';
+import { useConnected } from './useConnected';
+import { useUsers } from './useUsers';
 
-export function useContact(
-  status: Status
-): [Contact | undefined, Dispatch<SetStateAction<Contact | undefined>>] {
+export function useContact(): [
+  Contact | undefined,
+  Dispatch<SetStateAction<Contact | undefined>>
+] {
+  const isConnected = useConnected();
+  const contactList = useUsers();
   const [contact, setContact] = useState<Contact | undefined>();
 
   useEffect(() => {
-    if (status.isConnected) {
-      status.contactList.forEach((c: Contact) => {
+    if (isConnected) {
+      contactList.forEach((c: Contact) => {
         if (c.userID === contact?.userID) {
           setContact(c);
         }
       });
     }
-  }, [status.contactList, status.isConnected, contact?.userID]);
+  }, [contactList, isConnected, contact?.userID]);
 
   return [contact, setContact];
 }

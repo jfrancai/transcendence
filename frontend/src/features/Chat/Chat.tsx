@@ -1,5 +1,4 @@
 import { useMachine } from '@xstate/react';
-import { useEffect } from 'react';
 import ChatFeed from '../../components/chat/ChatFeed/ChatFeed';
 import ChatHeader from '../../components/chat/ChatHeader/ChatHeader';
 import RenderIf from '../../components/chat/RenderIf/RenderIf';
@@ -14,12 +13,15 @@ import { PrimaryButton } from '../../components/PrimaryButton/PrimaryButton';
 import { ChannelCarrousel } from '../../components/chat/ChannelCarrousel/ChannelCarrousel';
 import { useSocketContext } from '../../contexts/socket';
 import { Contact } from '../../utils/hooks/useStatus.interfaces';
+import { useSession } from '../../utils/hooks/useSession';
 
 const chat = new Map<string, Contact>();
 
 function Chat() {
   const { socket } = useSocketContext();
-  const [contact, setContact] = useContact(status);
+  const session = useSession();
+  socket.userID = session.userID;
+  const [contact, setContact] = useContact();
   const [state, send] = useMachine(chatMachine);
 
   const isChatClosed = state.matches('closed');
@@ -40,31 +42,33 @@ function Chat() {
     opened: 'channelConversationView'
   });
 
-  useEffect(() => {
-    status.contactList.forEach((c: Contact) => {
-      chat.set(c.userID, c);
-    });
-  }, [status.contactList]);
-
-  useEffect(() => {
-    if (status.privateMessage) {
-      const { senderID, receiverID } = status.privateMessage;
-      const other = senderID === socket.userID ? receiverID : senderID;
-      const messages = chat.get(other)?.messages;
-      messages?.push(status.privateMessage);
-    }
-  }, [status.privateMessage, socket.userID]);
-
-  useEffect(() => {
-    if (status.privateMessage) {
-      const { senderID, receiverID } = status.privateMessage;
-      const other = senderID === socket.userID ? receiverID : senderID;
-      const messages = chat.get(other)?.messages;
-      if (senderID === contact?.userID || receiverID === contact?.userID) {
-        setContact((c: any) => ({ ...c, messages }));
+  /*
+    useEffect(() => {
+      status.contactList.forEach((c: Contact) => {
+        chat.set(c.userID, c);
+      });
+    }, [status.contactList]);
+  
+    useEffect(() => {
+      if (status.privateMessage) {
+        const { senderID, receiverID } = status.privateMessage;
+        const other = senderID === socket.userID ? receiverID : senderID;
+        const messages = chat.get(other)?.messages;
+        messages?.push(status.privateMessage);
       }
-    }
-  }, [status.privateMessage, contact?.userID, setContact, socket.userID]);
+    }, [status.privateMessage, socket.userID]);
+  
+    useEffect(() => {
+      if (status.privateMessage) {
+        const { senderID, receiverID } = status.privateMessage;
+        const other = senderID === socket.userID ? receiverID : senderID;
+        const messages = chat.get(other)?.messages;
+        if (senderID === contact?.userID || receiverID === contact?.userID) {
+          setContact((c: any) => ({ ...c, messages }));
+        }
+      }
+    }, [status.privateMessage, contact?.userID, setContact, socket.userID]);
+    */
 
   const chatHeaderStyle = isChatClosed
     ? 'static bg-pong-blue-300'
@@ -85,9 +89,6 @@ function Chat() {
       </RenderIf>
       <RenderIf some={[isMessageView]}>
         <ContactListFeed
-          contactList={status.contactList.filter(
-            (user) => user.userID !== socket.userID
-          )}
           toggleConversationView={() => send('selectContact')}
           setContact={setContact}
         />
@@ -99,9 +100,6 @@ function Chat() {
           />
           <div className="w-full">
             <ContactListFeed
-              contactList={status.contactList.filter(
-                (user) => user.userID !== socket.userID
-              )}
               toggleConversationView={() => send('selectContact')}
               setContact={setContact}
             />
@@ -139,10 +137,7 @@ function Chat() {
       </RenderIf>
 
       <RenderIf some={[isConversationView, isChanConversationView]}>
-        <SendMessageInput
-          receiverID={contact ? contact.userID : ''}
-          isConnected={status.isConnected}
-        />
+        <SendMessageInput receiverID={contact ? contact.userID : ''} />
       </RenderIf>
       <RenderIf
         some={[isMessageView, isChannelView, isSearchView, isNotificationView]}
