@@ -14,6 +14,7 @@ import { ContactListFeed } from '../../components/chat/ContactListFeed.tsx/Conta
 import { Scrollable } from '../../components/chat/Scrollable/Scrollable';
 import ProfilePicture from '../../components/chat/ProfilePicture/ProfilePicture';
 import { CreateChannelView } from '../../components/chat/CreateChannelView/CreateChannelView';
+import { PrimaryButton } from '../../components/PrimaryButton/PrimaryButton';
 
 interface ChannelCarrouselProps {
   toggleCreateChannelView: () => any;
@@ -58,17 +59,18 @@ function Chat() {
   const isChannelView = state.matches({ opened: 'channelView' });
   const isSearchView = state.matches({ opened: 'searchView' });
   const isNotificationView = state.matches({ opened: 'notificationView' });
+  const isChannelNameView = state.matches({ opened: 'channelNameView' });
   const isCreateORJoinChannelView = state.matches({
     opened: 'createORJoinChannelView'
+  });
+  const isInviteChannelView = state.matches({
+    opened: 'inviteChannelView'
   });
 
   const isConversationView = state.matches({ opened: 'conversationView' });
   const isChanConversationView = state.matches({
     opened: 'channelConversationView'
   });
-  const toggleChat = () => {
-    send(isChatClosed ? 'OPEN' : 'CLOSE');
-  };
 
   useEffect(() => {
     status.contactList.forEach((c: Contact) => {
@@ -106,7 +108,7 @@ function Chat() {
         isConnected={status.isConnected}
         isChatClosed={isChatClosed}
         handleClick={{
-          toggleArrow: toggleChat,
+          toggleArrow: () => send(isChatClosed ? 'OPEN' : 'CLOSE'),
           changeView: () => send({ type: 'selectHeader' })
         }}
       />
@@ -141,10 +143,27 @@ function Chat() {
       </RenderIf>
       <RenderIf some={[isCreateORJoinChannelView]}>
         <Scrollable>
-          <CreateChannelView />
+          <div className="flex w-full flex-col items-center justify-center gap-10 pt-28">
+            <p className="text-2xl font-bold text-pong-white">
+              Create your Channel
+            </p>
+
+            <PrimaryButton onClick={() => send('createChannel')}>
+              Create my own channel
+            </PrimaryButton>
+          </div>
         </Scrollable>
         <div className="h-14 w-[336px]" />
       </RenderIf>
+      <RenderIf some={[isChannelNameView]}>
+        <Scrollable>
+          <CreateChannelView
+            toggleInviteChannel={() => send('inviteChannel')}
+          />
+        </Scrollable>
+        <div className="h-14 w-[336px]" />
+      </RenderIf>
+      <RenderIf some={[isInviteChannelView]}>coucou</RenderIf>
       <RenderIf some={[isSearchView]}>
         <p className="text-white">searchView</p>
       </RenderIf>
