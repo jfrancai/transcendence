@@ -1,3 +1,4 @@
+import { useEffect } from 'react';
 import { useMachine } from '@xstate/react';
 import ChatFeed from '../../components/chat/ChatFeed/ChatFeed';
 import ChatHeader from '../../components/chat/ChatHeader/ChatHeader';
@@ -12,17 +13,22 @@ import { CreateChannelView } from '../../components/chat/CreateChannelView/Creat
 import { PrimaryButton } from '../../components/PrimaryButton/PrimaryButton';
 import { ChannelCarrousel } from '../../components/chat/ChannelCarrousel/ChannelCarrousel';
 import { useSocketContext } from '../../contexts/socket';
-import { Contact } from '../../utils/hooks/useStatus.interfaces';
 import { useSession } from '../../utils/hooks/useSession';
 
-const chat = new Map<string, Contact>();
+// const chat = new Map<string, Contact>();
 
 function Chat() {
   const { socket } = useSocketContext();
-  const session = useSession();
-  socket.userID = session.userID;
   const [contact, setContact] = useContact();
   const [state, send] = useMachine(chatMachine);
+
+  useSession((data) => {
+    socket.userID = data.userID;
+  });
+
+  useEffect(() => {
+    socket.emit('session');
+  }, [socket]);
 
   const isChatClosed = state.matches('closed');
   const isMessageView = state.matches({ opened: 'messageView' });
@@ -48,7 +54,6 @@ function Chat() {
         chat.set(c.userID, c);
       });
     }, [status.contactList]);
-  
     useEffect(() => {
       if (status.privateMessage) {
         const { senderID, receiverID } = status.privateMessage;
@@ -57,7 +62,6 @@ function Chat() {
         messages?.push(status.privateMessage);
       }
     }, [status.privateMessage, socket.userID]);
-  
     useEffect(() => {
       if (status.privateMessage) {
         const { senderID, receiverID } = status.privateMessage;

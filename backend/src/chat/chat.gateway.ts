@@ -165,11 +165,6 @@ export default class ChatGateway
       });
     }
 
-    socket.emit('session', {
-      userID: socket.user.id,
-      channels: pubChan
-    });
-
     socket.broadcast.emit('userConnected', {
       userID: socket.user.id,
       username: socket.user.username
@@ -190,6 +185,13 @@ export default class ChatGateway
         username: socket.user.username
       });
     }
+  }
+
+  @SubscribeMessage('session')
+  async handleSession(@ConnectedSocket() socket: ChatSocket) {
+    socket.emit('session', {
+      userID: socket.user.id
+    });
   }
 
   @SubscribeMessage('users')

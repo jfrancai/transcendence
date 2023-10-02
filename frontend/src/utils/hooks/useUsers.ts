@@ -8,8 +8,7 @@ export function useUsers(): ContactList {
 
   useEffect(() => {
     const onUsers = (data: ContactList) => {
-      const list = data.filter((d) => d.userID !== socket.userID);
-      setContactList(list);
+      setContactList(data);
     };
     const onUserDisconnected = (data: User) => {
       setContactList((list) => {
@@ -43,7 +42,7 @@ export function useUsers(): ContactList {
       socket.off('userConnected', onUserConnected);
       socket.off('userDisconnected', onUserDisconnected);
     };
-  });
+  }, [socket]);
 
-  return contactList;
+  return contactList.filter((d) => d.userID !== socket.userID);
 }

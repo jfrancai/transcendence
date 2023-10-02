@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import jwt_decode from 'jwt-decode';
 import ArrowToggler from '../ArrowToggler/ArrowToggler';
 import Category from '../Category/Category';
@@ -38,8 +38,6 @@ function ChatHeader({ className, isChatClosed, handleClick }: ChatHeaderProps) {
     }
   };
   const disconnect = () => socket.disconnect();
-
-  useEffect(connect, [connect]);
 
   return (
     <div
