@@ -1,9 +1,12 @@
+import { SocketContextProvider } from './contexts/socket';
 import Chat from './features/Chat/Chat';
 
 function App() {
   return (
     <div>
-      <Chat />
+      <SocketContextProvider>
+        <Chat />
+      </SocketContextProvider>
     </div>
   );
 }

@@ -1,11 +1,9 @@
 import { useMachine } from '@xstate/react';
 import { useEffect } from 'react';
-import socket from '../../services/socket';
 import ChatFeed from '../../components/chat/ChatFeed/ChatFeed';
 import ChatHeader from '../../components/chat/ChatHeader/ChatHeader';
 import RenderIf from '../../components/chat/RenderIf/RenderIf';
 import SendMessageInput from '../../components/chat/SendMessageInput/SendMessageInput';
-import { Contact, useStatus } from '../../utils/hooks/useStatus';
 import { useContact } from '../../utils/hooks/useContact';
 import { chatMachine } from '../../machines/chatMachine';
 import MenuSelector from '../../components/chat/MenuSelector/MenuSelector';
@@ -14,16 +12,17 @@ import { Scrollable } from '../../components/chat/Scrollable/Scrollable';
 import { CreateChannelView } from '../../components/chat/CreateChannelView/CreateChannelView';
 import { PrimaryButton } from '../../components/PrimaryButton/PrimaryButton';
 import { ChannelCarrousel } from '../../components/chat/ChannelCarrousel/ChannelCarrousel';
+import { useSocketContext } from '../../contexts/socket';
+import { Contact } from '../../utils/hooks/useStatus.interfaces';
 
 const chat = new Map<string, Contact>();
 
 function Chat() {
-  const status = useStatus();
+  const { socket, status } = useSocketContext();
   const [contact, setContact] = useContact(status);
   const [state, send] = useMachine(chatMachine);
 
   const isChatClosed = state.matches('closed');
-
   const isMessageView = state.matches({ opened: 'messageView' });
   const isChannelView = state.matches({ opened: 'channelView' });
   const isSearchView = state.matches({ opened: 'searchView' });
@@ -54,7 +53,7 @@ function Chat() {
       const messages = chat.get(other)?.messages;
       messages?.push(status.privateMessage);
     }
-  }, [status.privateMessage]);
+  }, [status.privateMessage, socket.userID]);
 
   useEffect(() => {
     if (status.privateMessage) {
@@ -65,7 +64,7 @@ function Chat() {
         setContact((c: any) => ({ ...c, messages }));
       }
     }
-  }, [status.privateMessage, contact?.userID, setContact]);
+  }, [status.privateMessage, contact?.userID, setContact, socket.userID]);
 
   const chatHeaderStyle = isChatClosed
     ? 'static bg-pong-blue-300'

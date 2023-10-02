@@ -1,6 +1,6 @@
 import { FaTelegramPlane } from 'react-icons/fa';
 import { useState } from 'react';
-import socket from '../../../services/socket';
+import { useSocketContext } from '../../../contexts/socket';
 
 interface SendMessageInputProps {
   receiverID: string;
@@ -9,6 +9,7 @@ interface SendMessageInputProps {
 
 function SendMessageInput({ receiverID, isConnected }: SendMessageInputProps) {
   const [message, setMessage] = useState('');
+  const { socket } = useSocketContext();
   // const [isLoading, setIsLoading] = useState(false);
 
   const handleSubmit = (event: any) => {

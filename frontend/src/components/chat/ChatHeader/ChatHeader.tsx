@@ -1,9 +1,9 @@
 import { useEffect } from 'react';
 import jwt_decode from 'jwt-decode';
-import socket from '../../../services/socket';
 import ArrowToggler from '../ArrowToggler/ArrowToggler';
 import Category from '../Category/Category';
 import Status from '../Status/Status';
+import { useSocketContext } from '../../../contexts/socket';
 
 interface ChatHeaderProps {
   className?: string;
@@ -28,6 +28,7 @@ function ChatHeader({
   isChatClosed,
   handleClick
 }: ChatHeaderProps) {
+  const { socket } = useSocketContext();
   const connect = () => {
     const jwt = localStorage.getItem('jwt');
     if (jwt) {
@@ -41,9 +42,7 @@ function ChatHeader({
   };
   const disconnect = () => socket.disconnect();
 
-  useEffect(() => {
-    connect();
-  }, []);
+  useEffect(connect, [connect]);
   return (
     <div
       className={`${className} flex w-[336px] items-center justify-center rounded-3xl`}

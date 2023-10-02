@@ -1,9 +1,9 @@
 import { useState } from 'react';
 import { AiOutlineCloudUpload } from 'react-icons/ai';
 import { SelectChannelType } from '../SelectChannelType/SelectChannelType';
-import socket from '../../../services/socket';
 import { PrimaryButton } from '../../PrimaryButton/PrimaryButton';
 import RenderIf from '../RenderIf/RenderIf';
+import { useSocketContext } from '../../../contexts/socket';
 
 interface SectionTitleProps {
   title: string;
@@ -28,6 +28,7 @@ interface CreateChannelViewProps {
 export function CreateChannelView({
   toggleInviteChannel
 }: CreateChannelViewProps) {
+  const { socket } = useSocketContext();
   const [chanName, setChanName] = useState(`${socket.username}'s channel`);
   const [type, setType] = useState<'PASSWORD' | 'PUBLIC' | 'PRIVATE'>('PUBLIC');
   const [password, setPassword] = useState<string | undefined>(undefined);
