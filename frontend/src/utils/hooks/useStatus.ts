@@ -1,6 +1,13 @@
 import { useEffect, useMemo, useState } from 'react';
 import socket from '../../services/socket';
 
+export interface Channel {
+  chanID: string;
+  chanName: string;
+  chanType: string;
+  chanCreatedAt: Date;
+}
+
 export interface Message {
   messageID: string;
   content: string;

@@ -29,12 +29,16 @@ export function CreateChannelView({
   toggleInviteChannel
 }: CreateChannelViewProps) {
   const [chanName, setChanName] = useState(`${socket.username}'s channel`);
-  const [chanType, setChanType] = useState('public');
-  const [chanPwd, setChanPwd] = useState<string | undefined>(undefined);
+  const [type, setType] = useState<'PASSWORD' | 'PUBLIC' | 'PRIVATE'>('PUBLIC');
+  const [password, setPassword] = useState<string | undefined>(undefined);
 
   const handleCreateChannel = () => {
     toggleInviteChannel();
-    console.log('hello');
+    socket.emit('channelCreate', {
+      chanName,
+      type,
+      password
+    });
   };
   return (
     <div className="flex w-full max-w-[336px] flex-col items-center justify-center gap-10 pt-28">
@@ -66,24 +70,24 @@ export function CreateChannelView({
 
       <Section>
         <SectionTitle title="CHANNEL TYPE" />
-        <SelectChannelType active={chanType} setActive={setChanType} />
-        <RenderIf some={[chanType === 'public']}>
+        <SelectChannelType active={type} setActive={setType} />
+        <RenderIf some={[type === 'PUBLIC']}>
           <p className="mt-3 break-words text-sm text-pong-blue-100">
             * Every user of the server can join your channel.
           </p>
         </RenderIf>
-        <RenderIf some={[chanType === 'private']}>
+        <RenderIf some={[type === 'PRIVATE']}>
           <p className="mt-3 break-words text-sm text-pong-blue-100">
             * Only users that were invited to your channel can join it.
           </p>
         </RenderIf>
-        <RenderIf some={[chanType === 'protected']}>
+        <RenderIf some={[type === 'PASSWORD']}>
           <p className="mt-3 break-words text-sm text-pong-blue-100">
             * Only users that knows the password can join your channel.
           </p>
         </RenderIf>
       </Section>
-      <RenderIf some={[chanType === 'protected']}>
+      <RenderIf some={[type === 'PASSWORD']}>
         <Section>
           <SectionTitle title="password" />
           <label htmlFor="ChannelPassword">
@@ -91,8 +95,8 @@ export function CreateChannelView({
               type="password"
               id="ChannelPassword"
               className="w-full rounded-md border border-pong-blue-100 bg-pong-blue-500 p-1 text-base text-pong-white"
-              value={chanPwd}
-              onChange={(e) => setChanPwd(e.target.value)}
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
             />
           </label>
         </Section>

@@ -12,18 +12,18 @@ export function SelectChannelType({
   return (
     <div className="flex gap-2">
       <SecondaryButton
-        onClick={() => setActive('public')}
-        disabled={active !== 'public'}
+        onClick={() => setActive('PUBLIC')}
+        disabled={active !== 'PUBLIC'}
         span="Public"
       />
       <SecondaryButton
-        onClick={() => setActive('private')}
-        disabled={active !== 'private'}
+        onClick={() => setActive('PRIVATE')}
+        disabled={active !== 'PRIVATE'}
         span="Private"
       />
       <SecondaryButton
-        onClick={() => setActive('protected')}
-        disabled={active !== 'protected'}
+        onClick={() => setActive('PASSWORD')}
+        disabled={active !== 'PASSWORD'}
         span="Protected"
       />
     </div>
