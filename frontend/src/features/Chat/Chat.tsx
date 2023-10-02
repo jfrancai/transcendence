@@ -43,16 +43,19 @@ export function CreateChannelView() {
   return (
     <div className="flex w-full flex-col items-center justify-center gap-10 pt-28">
       <p className="text-2xl font-bold text-pong-white">Create your Channel</p>
-      <div className="flex flex-col w-full px-5 ">
+      <div className="flex w-full flex-col px-5 ">
         <p className="block text-sm font-bold text-pong-white">
           CHANNEL PICTURE
         </p>
-        <label htmlFor="UploadChannelImage" className="rounded text-[50px] flex justify-center mt-2 border border-dashed border-pong-white">
+        <label
+          htmlFor="UploadChannelImage"
+          className="mt-2 flex justify-center rounded border border-dashed border-pong-white text-[50px]"
+        >
           <input id="UploadChannelImage" type="file" className="hidden" />
-          <AiOutlineCloudUpload className="bg-pong-blue-500 rounded-full p-1 text-pong-blue-100 my-4 cursor-pointer" />
+          <AiOutlineCloudUpload className="my-4 cursor-pointer rounded-full bg-pong-blue-500 p-1 text-pong-blue-100" />
         </label>
       </div>
-      <div className="flex flex-col w-full px-5">
+      <div className="flex w-full flex-col px-5">
         <label htmlFor="ChannelName">
           <p className="block text-sm font-bold text-pong-white">
             CHANNEL NAME
