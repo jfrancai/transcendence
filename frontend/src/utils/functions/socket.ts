@@ -8,3 +8,9 @@ export const socket = io(URL, {
   autoConnect: false,
   transports: ['websocket', 'polling']
 }) as PongSocket;
+
+socket.onAny((event, ...args) => {
+  /* eslint-disable */
+  console.log(event, args);
+  /* eslint-enable */
+});

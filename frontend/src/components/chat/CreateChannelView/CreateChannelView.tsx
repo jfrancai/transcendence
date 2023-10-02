@@ -28,7 +28,7 @@ interface CreateChannelViewProps {
 export function CreateChannelView({
   toggleInviteChannel
 }: CreateChannelViewProps) {
-  const { socket } = useSocketContext();
+  const { status, socket } = useSocketContext();
   const [chanName, setChanName] = useState(`${socket.username}'s channel`);
   const [type, setType] = useState<'PASSWORD' | 'PUBLIC' | 'PRIVATE'>('PUBLIC');
   const [password, setPassword] = useState<string | undefined>(undefined);

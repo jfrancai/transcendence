@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useState } from 'react';
 import {
+  Channel,
   ContactList,
   Message,
   Session,
@@ -19,11 +20,6 @@ export function useStatus(): Status {
   );
   const [status, setStatus] = useState<Status>(defaultStatus);
   useEffect(() => {
-    socket.onAny((event, ...args) => {
-      /* eslint-disable */
-      console.log(event, args);
-      /* eslint-enable */
-    });
     const onConnect = () => {
       /* eslint-disable */
       console.log('connected');

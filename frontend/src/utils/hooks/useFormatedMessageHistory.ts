@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
-import { Contact } from './useStatus';
 import { formatTimeMessage } from '../functions/parsing';
+import { Contact } from './useStatus.interfaces';
 
 export function useMessageHistory(contact: Contact | undefined) {
   const [messageHistory, setMessageHistory] = useState<any>([]);

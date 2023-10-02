@@ -1,10 +1,8 @@
 import React, { useContext, useMemo } from 'react';
-import { PongSocket, Status } from '../utils/hooks/useStatus.interfaces';
-import { useStatus } from '../utils/hooks/useStatus';
+import { PongSocket } from '../utils/hooks/useStatus.interfaces';
 import { socket } from '../utils/functions/socket';
 
 const SocketContext = React.createContext<{
-  status: Status;
   socket: PongSocket;
 } | null>(null);
 
@@ -15,8 +13,7 @@ interface SocketContextProviderProps {
 export function SocketContextProvider({
   children
 }: SocketContextProviderProps) {
-  const status = useStatus();
-  const socketProviderValue = useMemo(() => ({ status, socket }), [status]);
+  const socketProviderValue = useMemo(() => ({ socket }), []);
   return (
     <SocketContext.Provider value={socketProviderValue}>
       {children}

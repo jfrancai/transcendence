@@ -43,6 +43,7 @@ function ChatHeader({
   const disconnect = () => socket.disconnect();
 
   useEffect(connect, [connect]);
+
   return (
     <div
       className={`${className} flex w-[336px] items-center justify-center rounded-3xl`}
