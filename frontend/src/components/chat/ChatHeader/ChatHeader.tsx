@@ -1,13 +1,13 @@
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import jwt_decode from 'jwt-decode';
 import ArrowToggler from '../ArrowToggler/ArrowToggler';
 import Category from '../Category/Category';
 import Status from '../Status/Status';
 import { useSocketContext } from '../../../contexts/socket';
+import { useConnected } from '../../../utils/hooks/useConnected';
 
 interface ChatHeaderProps {
   className?: string;
-  isConnected: boolean;
   isChatClosed: boolean;
   handleClick: {
     toggleArrow: () => any;
@@ -22,13 +22,10 @@ interface DecodedToken {
   exp: string;
 }
 
-function ChatHeader({
-  className,
-  isConnected,
-  isChatClosed,
-  handleClick
-}: ChatHeaderProps) {
+function ChatHeader({ className, isChatClosed, handleClick }: ChatHeaderProps) {
   const { socket } = useSocketContext();
+  const isConnected = useConnected();
+
   const connect = () => {
     const jwt = localStorage.getItem('jwt');
     if (jwt) {

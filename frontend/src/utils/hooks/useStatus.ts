@@ -20,20 +20,6 @@ export function useStatus(): Status {
   );
   const [status, setStatus] = useState<Status>(defaultStatus);
   useEffect(() => {
-    const onConnect = () => {
-      /* eslint-disable */
-      console.log('connected');
-      /* eslint-enable */
-      setStatus((s) => ({ ...s, isConnected: true }));
-    };
-
-    const onDisconnect = () => {
-      /* eslint-disable */
-      console.log('disconnected');
-      /* eslint-enable */
-      setStatus((s) => ({ ...s, isConnected: false }));
-    };
-
     const onPrivateMessage = (data: Message) => {
       setStatus((s) => ({
         ...s,
@@ -74,8 +60,6 @@ export function useStatus(): Status {
       }));
     };
 
-    socket.on('connect', onConnect);
-    socket.on('disconnect', onDisconnect);
     socket.on('privateMessage', onPrivateMessage);
     socket.on('session', onSession);
     socket.on('users', onUsers);
@@ -83,8 +67,6 @@ export function useStatus(): Status {
     socket.on('userDisconnected', onUserDisconnected);
 
     return () => {
-      socket.off('connect', onConnect);
-      socket.off('disconnect', onDisconnect);
       socket.off('privateMessage', onPrivateMessage);
       socket.off('session', onSession);
       socket.off('users', onUsers);
