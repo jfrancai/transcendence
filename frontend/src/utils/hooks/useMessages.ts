@@ -1,13 +1,12 @@
 import { useEffect, useState } from 'react';
-import { Contact, Message } from './useStatus';
 import { ChatInfo } from './ChatInfo.interfaces';
 import { formatTimeMessage } from '../functions/parsing';
+import { useConnected } from './useConnected';
+import { Contact, Message } from './useStatus.interfaces';
 
-export function useMessages(
-  contact: Contact | undefined,
-  isConnected: boolean
-): ChatInfo[] {
+export function useMessages(contact: Contact | undefined): ChatInfo[] {
   const [messages, setMessages] = useState<ChatInfo[]>([]);
+  const isConnected = useConnected();
 
   useEffect(() => {
     if (contact !== undefined && contact.messages !== undefined) {

@@ -153,19 +153,6 @@ export default class ChatGateway
       }
     });
 
-    const publicUsers: PublicChatUser[] = [];
-    if (privateUsers) {
-      privateUsers!.forEach((user) => {
-        publicUsers.push({
-          userID: user.id as string,
-          connected: user.connectedChat,
-          username: user.username!,
-          messages: messagesPerUser.get(user.id as string) || []
-        });
-      });
-    }
-    socket.emit('users', publicUsers);
-
     const pubChan: { chanID: string; chanName: string }[] = [];
     const { channels } = socket.user;
     if (channels) {
@@ -203,6 +190,22 @@ export default class ChatGateway
         username: socket.user.username
       });
     }
+  }
+
+  @SubscribeMessage('users')
+  async handleUsers(@ConnectedSocket() socket: ChatSocket) {
+    const privateUsers = await this.usersService.getAllUsers();
+    const publicUsers: PublicChatUser[] = [];
+    if (privateUsers) {
+      privateUsers!.forEach((user) => {
+        publicUsers.push({
+          userID: user.id as string,
+          connected: user.connectedChat,
+          username: user.username!
+        });
+      });
+    }
+    socket.emit('users', publicUsers);
   }
 
   @SubscribeMessage('privateMessage')

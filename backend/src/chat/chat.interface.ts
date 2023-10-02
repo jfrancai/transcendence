@@ -11,7 +11,6 @@ export interface PublicChatUser {
   userID: string;
   connected: boolean;
   username: string;
-  messages: PublicMessage[];
 }
 
 export interface PublicMessage {

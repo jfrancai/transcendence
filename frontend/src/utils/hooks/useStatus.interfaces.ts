@@ -25,7 +25,6 @@ export interface User extends Session {
 }
 
 export interface Contact extends User {
-  messages: Message[];
   connected: boolean;
 }
 

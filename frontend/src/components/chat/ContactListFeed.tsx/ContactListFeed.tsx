@@ -1,20 +1,22 @@
-import { Contact } from '../../../utils/hooks/useStatus';
+import { ContactList } from '../../../utils/hooks/useStatus.interfaces';
+import { useUsers } from '../../../utils/hooks/useUsers';
 import { ContactCard } from '../ContactCard/ContactCard';
 import { Scrollable } from '../Scrollable/Scrollable';
 
 interface ContactListProps {
-  contactList: Contact[];
   toggleConversationView: () => any;
   setContact: (p: any) => any;
 }
 
 export function ContactListFeed({
-  contactList,
   setContact,
   toggleConversationView
 }: ContactListProps) {
-  const online: Contact[] = [];
-  const offline: Contact[] = [];
+  const contactList = useUsers();
+
+  const online: ContactList = [];
+  const offline: ContactList = [];
+
   contactList.forEach((user) => {
     if (user.connected === true) {
       online.push(user);

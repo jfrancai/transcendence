@@ -1,6 +1,5 @@
 import { useEffect, useMemo, useState } from 'react';
 import {
-  Channel,
   ContactList,
   Message,
   Session,
@@ -31,11 +30,6 @@ export function useStatus(): Status {
       socket.userID = data.userID;
     };
 
-    const onUsers = (data: ContactList) => {
-      const contactList = data.filter((d) => d.userID !== socket.userID);
-      setStatus((s) => ({ ...s, contactList }));
-    };
-
     const onUserDisconnected = (data: User) => {
       setStatus((s) => ({
         ...s,
@@ -62,14 +56,12 @@ export function useStatus(): Status {
 
     socket.on('privateMessage', onPrivateMessage);
     socket.on('session', onSession);
-    socket.on('users', onUsers);
     socket.on('userConnected', onUserConnected);
     socket.on('userDisconnected', onUserDisconnected);
 
     return () => {
       socket.off('privateMessage', onPrivateMessage);
       socket.off('session', onSession);
-      socket.off('users', onUsers);
       socket.off('userConnected', onUserConnected);
       socket.off('userDisconnected', onUserDisconnected);
       setStatus(defaultStatus);

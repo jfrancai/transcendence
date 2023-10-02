@@ -18,7 +18,7 @@ import { Contact } from '../../utils/hooks/useStatus.interfaces';
 const chat = new Map<string, Contact>();
 
 function Chat() {
-  const { socket, status } = useSocketContext();
+  const { socket } = useSocketContext();
   const [contact, setContact] = useContact(status);
   const [state, send] = useMachine(chatMachine);
 
@@ -73,7 +73,6 @@ function Chat() {
     <div className="absolute bottom-2 right-2 z-30 w-fit overflow-hidden rounded-3xl bg-pong-blue-300">
       <ChatHeader
         className={`z-40 ${chatHeaderStyle}`}
-        isConnected={status.isConnected}
         isChatClosed={isChatClosed}
         handleClick={{
           toggleArrow: () => send(isChatClosed ? 'OPEN' : 'CLOSE'),
@@ -82,7 +81,7 @@ function Chat() {
       />
 
       <RenderIf some={[isConversationView]}>
-        <ChatFeed contact={contact} isConnected={status.isConnected} />
+        <ChatFeed contact={contact} />
       </RenderIf>
       <RenderIf some={[isMessageView]}>
         <ContactListFeed

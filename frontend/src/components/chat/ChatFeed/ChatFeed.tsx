@@ -1,16 +1,15 @@
 import ChatMessage from '../ChatMessage/ChatMessage';
-import { Contact } from '../../../utils/hooks/useStatus';
 import { useMessages } from '../../../utils/hooks/useMessages';
 import { useScroll } from '../../../utils/hooks/useScroll';
 import { Scrollable } from '../Scrollable/Scrollable';
+import { Contact } from '../../../utils/hooks/useStatus.interfaces';
 
 interface ChatFeedProps {
   contact: Contact | undefined;
-  isConnected: boolean;
 }
 
-function ChatFeed({ contact, isConnected }: ChatFeedProps) {
-  const messages = useMessages(contact, isConnected);
+function ChatFeed({ contact }: ChatFeedProps) {
+  const messages = useMessages(contact);
   const messageEndRef = useScroll(messages);
 
   return (
