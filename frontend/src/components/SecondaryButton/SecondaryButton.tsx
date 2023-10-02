@@ -1,6 +1,6 @@
 import { useState } from 'react';
 
-interface ProfileButtonProps {
+interface SecondaryButtonProps {
   className?: string;
   span: string;
   disabled?: boolean;
@@ -19,7 +19,7 @@ function SecondaryButton({
   span,
   disabled,
   onClick
-}: ProfileButtonProps) {
+}: SecondaryButtonProps) {
   const [style, setStyle] = useState<string>(styles.default);
 
   const handleMouseDown = () => {

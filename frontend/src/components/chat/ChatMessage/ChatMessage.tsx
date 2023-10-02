@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import ProfilePicture from '../ProfilePicture/ProfilePicture';
-import ProfileButton from '../ProfileButton/ProfileButton';
+import SecondaryButton from '../../SecondaryButton/SecondaryButton';
 
 /* Change the date type format */
 interface ChatMessageProps {
@@ -34,7 +34,7 @@ function ChatMessage({
         </div>
         {clicked ? (
           <div className="flex justify-center">
-            <ProfileButton className="mt-3" span="See Profile" />
+            <SecondaryButton className="mt-3" span="See Profile" />
           </div>
         ) : (
           <p className="mt-3 text-base text-pong-white">{message}</p>

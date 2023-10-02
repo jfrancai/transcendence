@@ -1,6 +1,6 @@
-import { AiOutlinePlusCircle, AiOutlineCloudUpload } from 'react-icons/ai';
+import { AiOutlinePlusCircle } from 'react-icons/ai';
 import { useMachine } from '@xstate/react';
-import { useEffect, useState } from 'react';
+import { useEffect } from 'react';
 import socket from '../../services/socket';
 import ChatFeed from '../../components/chat/ChatFeed/ChatFeed';
 import ChatHeader from '../../components/chat/ChatHeader/ChatHeader';
@@ -13,75 +13,7 @@ import MenuSelector from '../../components/chat/MenuSelector/MenuSelector';
 import { ContactListFeed } from '../../components/chat/ContactListFeed.tsx/ContactListFeed';
 import { Scrollable } from '../../components/chat/Scrollable/Scrollable';
 import ProfilePicture from '../../components/chat/ProfilePicture/ProfilePicture';
-import SecondaryButton from '../../components/chat/ProfileButton/ProfileButton';
-
-export function SelectChannelType() {
-  const [active, setActive] = useState(0);
-  return (
-    <div className="mt-1 flex gap-3">
-      <SecondaryButton
-        onClick={() => setActive(0)}
-        disabled={active !== 0}
-        span="Public"
-      />
-      <SecondaryButton
-        onClick={() => setActive(1)}
-        disabled={active !== 1}
-        span="Private"
-      />
-      <SecondaryButton
-        onClick={() => setActive(2)}
-        disabled={active !== 2}
-        span="Protected"
-      />
-    </div>
-  );
-}
-
-export function CreateChannelView() {
-  const [channelName, setChannelName] = useState('');
-  return (
-    <div className="flex w-full flex-col items-center justify-center gap-10 pt-28">
-      <p className="text-2xl font-bold text-pong-white">Create your Channel</p>
-      <div className="flex w-full flex-col px-5 ">
-        <p className="block text-sm font-bold text-pong-white">
-          CHANNEL PICTURE
-        </p>
-        <label
-          htmlFor="UploadChannelImage"
-          className="mt-2 flex justify-center rounded border border-dashed border-pong-white text-[50px]"
-        >
-          <input id="UploadChannelImage" type="file" className="hidden" />
-          <AiOutlineCloudUpload className="my-4 cursor-pointer rounded-full bg-pong-blue-500 p-1 text-pong-blue-100" />
-        </label>
-      </div>
-      <div className="flex w-full flex-col px-5">
-        <label htmlFor="ChannelName">
-          <p className="block text-sm font-bold text-pong-white">
-            CHANNEL NAME
-          </p>
-          <input
-            type="email"
-            id="ChannelName"
-            className="mt-1 w-full rounded-md border border-pong-blue-100 bg-pong-blue-500 p-1 text-base text-pong-white"
-            defaultValue={`${socket.username}'s channel`}
-            onChange={(e) => setChannelName(e.target.value)}
-          />
-        </label>
-      </div>
-      <div>
-        <p className="block text-sm font-bold text-pong-white">CHANNEL TYPE</p>
-        <SelectChannelType />
-      </div>
-      <button
-        type="button"
-        className="flex rounded-xl bg-pong-purple-100 px-5 py-2 text-pong-white hover:bg-pong-purple-200"
-      >
-        Create Channel
-      </button>
-    </div>
-  );
-}
+import { CreateChannelView } from '../../components/chat/CreateChannelView/CreateChannelView';
 
 interface ChannelCarrouselProps {
   toggleCreateChannelView: () => any;
