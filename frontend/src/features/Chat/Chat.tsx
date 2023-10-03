@@ -15,8 +15,6 @@ import { ChannelCarrousel } from '../../components/chat/ChannelCarrousel/Channel
 import { useSocketContext } from '../../contexts/socket';
 import { useSession } from '../../utils/hooks/useSession';
 
-// const chat = new Map<string, Contact>();
-
 function Chat() {
   const { socket } = useSocketContext();
   const [contact, setContact] = useContact();
@@ -47,32 +45,6 @@ function Chat() {
   const isChanConversationView = state.matches({
     opened: 'channelConversationView'
   });
-
-  /*
-    useEffect(() => {
-      status.contactList.forEach((c: Contact) => {
-        chat.set(c.userID, c);
-      });
-    }, [status.contactList]);
-    useEffect(() => {
-      if (status.privateMessage) {
-        const { senderID, receiverID } = status.privateMessage;
-        const other = senderID === socket.userID ? receiverID : senderID;
-        const messages = chat.get(other)?.messages;
-        messages?.push(status.privateMessage);
-      }
-    }, [status.privateMessage, socket.userID]);
-    useEffect(() => {
-      if (status.privateMessage) {
-        const { senderID, receiverID } = status.privateMessage;
-        const other = senderID === socket.userID ? receiverID : senderID;
-        const messages = chat.get(other)?.messages;
-        if (senderID === contact?.userID || receiverID === contact?.userID) {
-          setContact((c: any) => ({ ...c, messages }));
-        }
-      }
-    }, [status.privateMessage, contact?.userID, setContact, socket.userID]);
-    */
 
   const chatHeaderStyle = isChatClosed
     ? 'static bg-pong-blue-300'

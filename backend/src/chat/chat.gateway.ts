@@ -118,56 +118,6 @@ export default class ChatGateway
 
     socket.join(socket.user.id!);
 
-    /*
-    const messagesPerUser = new Map<string, PublicMessage[]>();
-    const messages = await this.messageService.getMessageByUserId(
-      socket.user.id!
-    );
-    const privateUsers = await this.usersService.getAllUsers();
-
-    const mapUserIdUsername = new Map<string, string>();
-    if (privateUsers) {
-      privateUsers.forEach((user) => {
-        mapUserIdUsername.set(user.id as string, user.username);
-      });
-    }
-
-    messages!.forEach((message) => {
-      const otherUser =
-        socket.user.id === message.senderID
-          ? message.receiverID
-          : message.senderID;
-      const sender = mapUserIdUsername.get(message.senderID);
-      const receiver = mapUserIdUsername.get(message.receiverID);
-      const publicMessage: PublicMessage = {
-        content: message.content,
-        sender: sender!,
-        senderID: message.senderID,
-        receiver: receiver!,
-        receiverID: message.receiverID,
-        messageID: message.id,
-        createdAt: message.createdAt
-      };
-      if (messagesPerUser.has(otherUser as string)) {
-        messagesPerUser.get(otherUser as string)?.push(publicMessage);
-      } else {
-        messagesPerUser.set(otherUser as string, [publicMessage]);
-      }
-    });
-
-    const pubChan: { chanID: string; chanName: string }[] = [];
-    const { channels } = socket.user;
-    if (channels) {
-      channels.forEach((channel) => {
-        pubChan.push({
-          chanID: channel.id!,
-          chanName: channel.chanName!
-        });
-        socket.join(channel.id!);
-      });
-    }
-    */
-
     socket.broadcast.emit('userConnected', {
       userID: socket.user.id,
       username: socket.user.username
