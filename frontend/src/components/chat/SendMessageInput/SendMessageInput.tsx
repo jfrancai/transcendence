@@ -1,7 +1,6 @@
 import { FaTelegramPlane } from 'react-icons/fa';
 import { useState } from 'react';
 import { useSocketContext } from '../../../contexts/socket';
-import { useConnected } from '../../../utils/hooks/useConnected';
 
 interface SendMessageInputProps {
   receiverID: string;
@@ -10,14 +9,13 @@ interface SendMessageInputProps {
 function SendMessageInput({ receiverID }: SendMessageInputProps) {
   const [message, setMessage] = useState('');
   const { socket } = useSocketContext();
-  const isConnected = useConnected();
 
   const handleSubmit = (event: any) => {
     event.preventDefault();
-    if (message.length !== 0 && isConnected) {
+    if (message.length !== 0) {
       const data = {
         content: message,
-        receiverID
+        userID: receiverID
       };
       socket.timeout(5000).emit('privateMessage', data, () => {});
     }

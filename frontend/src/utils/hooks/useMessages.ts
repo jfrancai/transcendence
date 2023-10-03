@@ -10,6 +10,16 @@ export function useMessages(): ChatInfo[] {
   const isConnected = useConnected();
 
   useEffect(() => {
+    const onPrivateMessage = (message: Message) => {
+      const formatedMessage = {
+        id: message.messageID,
+        message: message.content,
+        time: formatTimeMessage(message.createdAt),
+        username: message.sender,
+        profilePictureUrl: 'starwatcher.jpg'
+      };
+      setMsg((m) => m.concat(formatedMessage));
+    };
     const onMessages = (messages: Message[]) => {
       const formatedMessages: any = [];
       messages.map((message: Message) => {
@@ -26,8 +36,10 @@ export function useMessages(): ChatInfo[] {
     };
 
     socket.on('messages', onMessages);
+    socket.on('privateMessage', onPrivateMessage);
     return () => {
       socket.off('messages', onMessages);
+      socket.off('privateMessage', onPrivateMessage);
     };
   }, [isConnected]);
 
