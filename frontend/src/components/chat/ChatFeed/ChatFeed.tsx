@@ -1,16 +1,25 @@
+import { useEffect } from 'react';
 import ChatMessage from '../ChatMessage/ChatMessage';
 import { useMessages } from '../../../utils/hooks/useMessages';
 import { useScroll } from '../../../utils/hooks/useScroll';
 import { Scrollable } from '../Scrollable/Scrollable';
-import { Contact } from '../../../utils/hooks/useStatus.interfaces';
+import { socket } from '../../../utils/functions/socket';
 
 interface ChatFeedProps {
-  contact: Contact | undefined;
+  userID: string | undefined;
 }
 
-function ChatFeed({ contact }: ChatFeedProps) {
-  const messages = useMessages(contact);
+function ChatFeed({ userID }: ChatFeedProps) {
+  const messages = useMessages();
   const messageEndRef = useScroll(messages);
+
+  useEffect(() => {
+    if (userID) {
+      socket.emit('messages', {
+        userID
+      });
+    }
+  }, [userID]);
 
   return (
     <Scrollable>

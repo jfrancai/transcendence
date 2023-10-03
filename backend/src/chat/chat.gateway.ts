@@ -44,6 +44,7 @@ import { ChannelUsersDto } from './dto/channel-users.dto';
 import { EmptyChannel } from './decorators/empty-channel';
 import { ChanRestrictService } from '../database/service/chan-restrict.service';
 import { ChannelRestrictDto } from './dto/channel-restrict.dto';
+import { UserDto } from './dto/user.dto';
 
 // WebSocketGateways are instantiated from the SocketIoAdapter (inside src/adapters)
 // inside this IoAdapter there is authentification process with JWT
@@ -117,6 +118,7 @@ export default class ChatGateway
 
     socket.join(socket.user.id!);
 
+    /*
     const messagesPerUser = new Map<string, PublicMessage[]>();
     const messages = await this.messageService.getMessageByUserId(
       socket.user.id!
@@ -164,6 +166,7 @@ export default class ChatGateway
         socket.join(channel.id!);
       });
     }
+    */
 
     socket.broadcast.emit('userConnected', {
       userID: socket.user.id,
@@ -194,6 +197,35 @@ export default class ChatGateway
     });
   }
 
+  @SubscribeMessage('messages')
+  async handleMessages(
+    @MessageBody(new ValidationPipe()) userDto: UserDto,
+    @ConnectedSocket() socket: ChatSocket
+  ) {
+    const { userID } = userDto;
+    const senderID = socket.user.id!;
+
+    const allMessagesForUserId = await this.messageService.getMessageByUserId(
+      senderID
+    );
+    const sender = await this.usersService.getUserById(senderID);
+    const receiver = await this.usersService.getUserById(userID);
+    if (allMessagesForUserId) {
+      const messages: PublicMessage[] = allMessagesForUserId
+        .filter((m) => m.senderID === userID || m.receiverID === userID)
+        .map((m) => ({
+          messageID: m.id,
+          content: m.content,
+          sender: sender!.username,
+          senderID: m.senderID,
+          receiver: receiver!.username,
+          receiverID: m.receiverID,
+          createdAt: m.createdAt
+        }));
+      socket.emit('messages', messages);
+    }
+  }
+
   @SubscribeMessage('users')
   async handleUsers(@ConnectedSocket() socket: ChatSocket) {
     const privateUsers = await this.usersService.getAllUsers();
@@ -215,18 +247,18 @@ export default class ChatGateway
     @MessageBody(new ValidationPipe()) messageDto: PrivateMessageDto,
     @ConnectedSocket() socket: ChatSocket
   ) {
-    const { receiverID, content } = messageDto;
+    const { userID, content } = messageDto;
     const senderID = socket.user.id!;
     this.logger.log(
-      `Incoming private message from ${senderID} to ${receiverID} with content: ${content}`
+      `Incoming private message from ${senderID} to ${userID} with content: ${content}`
     );
     const message = await this.messageService.createMessage({
       content,
       senderID,
-      receiverID
+      receiverID: userID
     });
     const sender = await this.usersService.getUserById(senderID);
-    const receiver = await this.usersService.getUserById(receiverID);
+    const receiver = await this.usersService.getUserById(userID);
     if (message) {
       const publicMessage: PublicMessage = {
         content: message.content,
@@ -239,7 +271,7 @@ export default class ChatGateway
       };
 
       this.io
-        .to(receiverID)
+        .to(userID)
         .to(socket.user.id!)
         .emit('privateMessage', publicMessage);
     }

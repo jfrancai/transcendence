@@ -2,16 +2,17 @@ import { useEffect, useState } from 'react';
 import { ChatInfo } from './ChatInfo.interfaces';
 import { formatTimeMessage } from '../functions/parsing';
 import { useConnected } from './useConnected';
-import { Contact, Message } from './useStatus.interfaces';
+import { Message } from './useStatus.interfaces';
+import { socket } from '../functions/socket';
 
-export function useMessages(contact: Contact | undefined): ChatInfo[] {
-  const [messages, setMessages] = useState<ChatInfo[]>([]);
+export function useMessages(): ChatInfo[] {
+  const [msg, setMsg] = useState<ChatInfo[]>([]);
   const isConnected = useConnected();
 
   useEffect(() => {
-    if (contact !== undefined && contact.messages !== undefined) {
+    const onMessages = (messages: Message[]) => {
       const formatedMessages: any = [];
-      contact.messages.map((message: Message) => {
+      messages.map((message: Message) => {
         formatedMessages.push({
           id: message.messageID,
           message: message.content,
@@ -21,12 +22,16 @@ export function useMessages(contact: Contact | undefined): ChatInfo[] {
         });
         return message;
       });
-      setMessages(formatedMessages);
-    }
-    return () => setMessages([]);
-  }, [contact, isConnected]);
+      setMsg(formatedMessages);
+    };
 
-  return messages;
+    socket.on('messages', onMessages);
+    return () => {
+      socket.off('messages', onMessages);
+    };
+  }, [isConnected]);
+
+  return msg;
 }
 
 export default {};

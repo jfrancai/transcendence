@@ -89,7 +89,7 @@ function Chat() {
       />
 
       <RenderIf some={[isConversationView]}>
-        <ChatFeed contact={contact} />
+        <ChatFeed userID={contact?.userID} />
       </RenderIf>
       <RenderIf some={[isMessageView]}>
         <ContactListFeed

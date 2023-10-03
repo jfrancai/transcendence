@@ -1,12 +1,8 @@
-import { IsNotEmpty, IsString, IsUUID } from 'class-validator';
+import { IsNotEmpty, IsString } from 'class-validator';
+import { UserDto } from './user.dto';
 
-export class PrivateMessageDto {
+export class PrivateMessageDto extends UserDto {
   @IsNotEmpty()
   @IsString()
   readonly content: string;
-
-  @IsNotEmpty()
-  @IsString()
-  @IsUUID('4')
-  readonly receiverID: string;
 }
