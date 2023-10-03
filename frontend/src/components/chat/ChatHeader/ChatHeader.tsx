@@ -1,10 +1,12 @@
-import { useCallback, useEffect, useState } from 'react';
-import jwt_decode from 'jwt-decode';
+import { useEffect } from 'react';
 import ArrowToggler from '../ArrowToggler/ArrowToggler';
 import Category from '../Category/Category';
 import Status from '../Status/Status';
-import { useSocketContext } from '../../../contexts/socket';
 import { useConnected } from '../../../utils/hooks/useConnected';
+import {
+  connectSocket,
+  disconnectSocket
+} from '../../../utils/functions/socket';
 
 interface ChatHeaderProps {
   className?: string;
@@ -15,29 +17,12 @@ interface ChatHeaderProps {
   };
 }
 
-interface DecodedToken {
-  username: string;
-  email: string;
-  iat: string;
-  exp: string;
-}
-
 function ChatHeader({ className, isChatClosed, handleClick }: ChatHeaderProps) {
-  const { socket } = useSocketContext();
   const isConnected = useConnected();
 
-  const connect = () => {
-    const jwt = localStorage.getItem('jwt');
-    if (jwt) {
-      const decodedToken: DecodedToken = jwt_decode(jwt!);
-      socket.auth = {
-        token: jwt
-      };
-      socket.username = decodedToken.username;
-      socket.connect();
-    }
-  };
-  const disconnect = () => socket.disconnect();
+  useEffect(() => {
+    connectSocket();
+  }, []);
 
   return (
     <div
@@ -50,7 +35,7 @@ function ChatHeader({ className, isChatClosed, handleClick }: ChatHeaderProps) {
           position="start"
           severity={isConnected ? 'ok' : 'err'}
           message={isConnected ? 'Connected' : 'Disconnected'}
-          onClick={isConnected ? disconnect : connect}
+          onClick={isConnected ? disconnectSocket : connectSocket}
         />
       </div>
     </div>
