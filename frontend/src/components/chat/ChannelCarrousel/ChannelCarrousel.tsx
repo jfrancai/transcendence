@@ -38,15 +38,16 @@ export function ChannelCarrouselCard({
 
 interface ChannelCarrouselProps {
   toggleCreateChannelView: () => any;
-  setChanName: (arg: string | undefined) => any;
+  setChanID: (arg: string) => any;
+  chanID: string;
 }
 
 export function ChannelCarrousel({
   toggleCreateChannelView,
-  setChanName
+  setChanID,
+  chanID
 }: ChannelCarrouselProps) {
   const { socket } = useSocketContext();
-  const [selected, setSelected] = useState('');
   const channels = useChannels();
 
   useEffect(() => {
@@ -55,10 +56,9 @@ export function ChannelCarrousel({
 
   useEffect(() => {
     if (channels.length) {
-      setChanName(channels[0].chanName);
-      setSelected(channels[0].chanID);
+      setChanID(channels[0].chanID);
     }
-  }, [channels, setSelected, setChanName]);
+  }, [channels, setChanID]);
 
   return (
     <Scrollable>
@@ -69,10 +69,9 @@ export function ChannelCarrousel({
               <ChannelCarrouselCard
                 key={c.chanID}
                 onClick={() => {
-                  setChanName(c.chanName);
-                  setSelected(c.chanID);
+                  setChanID(c.chanID);
                 }}
-                select={selected === c.chanID}
+                select={chanID === c.chanID}
                 chanName={c.chanName}
               />
             ))}

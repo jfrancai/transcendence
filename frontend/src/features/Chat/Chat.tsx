@@ -1,22 +1,17 @@
-import { useEffect, useState } from 'react';
+import { useEffect } from 'react';
 import { useMachine } from '@xstate/react';
 import ChatHeader from '../../components/chat/ChatHeader/ChatHeader';
 import RenderIf from '../../components/chat/RenderIf/RenderIf';
 import { chatMachine } from '../../machines/chatMachine';
 import MenuSelector from '../../components/chat/MenuSelector/MenuSelector';
-import { Scrollable } from '../../components/chat/Scrollable/Scrollable';
-import { CreateChannelView } from '../../components/chat/CreateChannelView/CreateChannelView';
-import { PrimaryButton } from '../../components/PrimaryButton/PrimaryButton';
-import { ChannelCarrousel } from '../../components/chat/ChannelCarrousel/ChannelCarrousel';
 import { useSocketContext } from '../../contexts/socket';
 import { useSession } from '../../utils/hooks/useSession';
 import { PrivateMessage } from '../../components/chat/PrivateMessage/PrivateMessage';
-import { ChannelListFeed } from '../../components/chat/ChannelListFeed.tsx/ChannelListFeed';
+import { Channel } from '../../components/chat/Channel/Channel';
 
 function Chat() {
   const { socket } = useSocketContext();
   const [state, send] = useMachine(chatMachine);
-  const [chanName, setChanName] = useState<string | undefined>(undefined);
 
   useSession((data) => {
     socket.userID = data.userID;
@@ -63,40 +58,15 @@ function Chat() {
         isConversationView={isConversationView}
         isMessageView={isMessageView}
       />
-      <RenderIf some={[isChannelView]}>
-        <div className="flex flex-row">
-          <ChannelCarrousel
-            toggleCreateChannelView={() => send('addChannel')}
-            setChanName={setChanName}
-          />
-          <ChannelListFeed
-            toggleConversationView={() => send('selectContact')}
-            chanName={chanName}
-          />
-        </div>
-      </RenderIf>
-      <RenderIf some={[isCreateORJoinChannelView]}>
-        <Scrollable>
-          <div className="flex w-full flex-col items-center justify-center gap-10 pt-28">
-            <p className="text-2xl font-bold text-pong-white">
-              Create your Channel
-            </p>
-
-            <PrimaryButton onClick={() => send('createChannel')}>
-              Create my own channel
-            </PrimaryButton>
-          </div>
-        </Scrollable>
-        <div className="h-14 w-[336px]" />
-      </RenderIf>
-      <RenderIf some={[isChannelNameView]}>
-        <Scrollable>
-          <CreateChannelView
-            toggleInviteChannel={() => send('inviteChannel')}
-          />
-        </Scrollable>
-        <div className="h-14 w-[336px]" />
-      </RenderIf>
+      <Channel
+        toggleConversationView={() => send('selectContact')}
+        toggleInviteChannel={() => send('inviteChannel')}
+        toggleCreateChannelView={() => send('addChannel')}
+        createChannel={() => send('createChannel')}
+        isCreateORJoinChannelView={isCreateORJoinChannelView}
+        isChannelView={isChannelView}
+        isChannelNameView={isChannelNameView}
+      />
       <RenderIf some={[isInviteChannelView]}>coucou</RenderIf>
       <RenderIf some={[isSearchView]}>
         <p className="text-white">searchView</p>

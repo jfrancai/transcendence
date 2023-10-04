@@ -11,11 +11,11 @@ import { useChanInfo } from '../../../utils/hooks/useChannelInfo';
 
 interface ContactListProps {
   toggleConversationView: () => any;
-  chanName: string | undefined;
+  chanID: string;
 }
 
 export function ChannelListFeed({
-  chanName,
+  chanID,
   toggleConversationView
 }: ContactListProps) {
   const { socket } = useSocketContext();
@@ -23,11 +23,11 @@ export function ChannelListFeed({
   const channel = useChanInfo();
 
   useEffect(() => {
-    if (chanName) {
-      socket.emit('channelMembers', { chanName });
-      socket.emit('channelInfo', { chanName });
+    if (chanID) {
+      socket.emit('channelMembers', { chanID });
+      socket.emit('channelInfo', { chanID });
     }
-  }, [socket, chanName]);
+  }, [socket, chanID]);
 
   const admins: ContactList = [];
   const online: ContactList = [];
