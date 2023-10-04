@@ -12,11 +12,19 @@ const style = Object.freeze({
   xl: 'h-[155px] w-[155px] border-[5px]'
 });
 
-function ProfilePicture({ size = 'xl', url, select = true }: ProfilePictureProps) {
+function ProfilePicture({
+  size = 'xl',
+  url,
+  select = false
+}: ProfilePictureProps) {
   return (
     <div
       style={{ backgroundImage: `url(${url})` }}
-      className={`min-w-fit ${style[size]} w-flex-shrink-0 relative flex items-end justify-center rounded-full ${select ? 'border-solid border-pong-purple-100' : 'border-none'} bg-cover bg-no-repeat`}
+      className={`min-w-fit ${
+        style[size]
+      } w-flex-shrink-0 relative flex items-end justify-center rounded-full ${
+        select ? 'border-solid border-pong-purple-100' : 'border-none'
+      } bg-cover bg-no-repeat`}
     />
   );
 }

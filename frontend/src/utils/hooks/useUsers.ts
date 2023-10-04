@@ -21,7 +21,7 @@ export function useUsers(): ContactList {
           }
           return c;
         });
-        return newList.filter((d) => d.userID !== socket.userID);
+        return newList;
       });
     };
 
@@ -33,7 +33,7 @@ export function useUsers(): ContactList {
           }
           return c;
         });
-        return newList.filter((d) => d.userID !== socket.userID);
+        return newList;
       });
     };
 

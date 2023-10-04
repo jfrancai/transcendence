@@ -56,33 +56,35 @@ export function ChannelListFeed({
     />
   );
   return (
-    <Scrollable>
-      <div className="pt-28 flex flex-col gap-3">
-        {admins.length ? (
-          <div>
-            <p className="pl-2 font-semibold text-pong-blue-100">
-              {`ADMINS — ${admins.length}`}
-            </p>
-            {admins.map(displayCard)}
-          </div>
-        ) : null}
-        {online.length ? (
-          <div>
-            <p className="pl-2 font-semibold text-pong-blue-100">
-              {`ONLINE — ${online.length}`}
-            </p>
-            {online.map(displayCard)}
-          </div>
-        ) : null}
-        {offline.length ? (
-          <div>
-            <p className="pl-2 font-bold text-pong-blue-100">
-              {`OFFLINE — ${offline.length}`}
-            </p>
-            {offline.map(displayCard)}
-          </div>
-        ) : null}
-      </div>
-    </Scrollable>
+    <div className="w-full">
+      <Scrollable>
+        <div className="flex flex-col gap-3 pt-28">
+          {admins.length ? (
+            <div>
+              <p className="pl-2 font-semibold text-pong-blue-100">
+                {`ADMINS — ${admins.length}`}
+              </p>
+              {admins.map(displayCard)}
+            </div>
+          ) : null}
+          {online.length ? (
+            <div>
+              <p className="pl-2 font-semibold text-pong-blue-100">
+                {`ONLINE — ${online.length}`}
+              </p>
+              {online.map(displayCard)}
+            </div>
+          ) : null}
+          {offline.length ? (
+            <div>
+              <p className="pl-2 font-bold text-pong-blue-100">
+                {`OFFLINE — ${offline.length}`}
+              </p>
+              {offline.map(displayCard)}
+            </div>
+          ) : null}
+        </div>
+      </Scrollable>
+    </div>
   );
 }

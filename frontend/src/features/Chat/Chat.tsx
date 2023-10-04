@@ -69,12 +69,10 @@ function Chat() {
             toggleCreateChannelView={() => send('addChannel')}
             setChanName={setChanName}
           />
-          <div className="w-full">
-            <ChannelListFeed
-              toggleConversationView={() => send('selectContact')}
-              chanName={chanName}
-            />
-          </div>
+          <ChannelListFeed
+            toggleConversationView={() => send('selectContact')}
+            chanName={chanName}
+          />
         </div>
       </RenderIf>
       <RenderIf some={[isCreateORJoinChannelView]}>

@@ -27,13 +27,15 @@ export function ContactListFeed({
   const online: ContactList = [];
   const offline: ContactList = [];
 
-  contactList.forEach((user) => {
-    if (user.connected === true) {
-      online.push(user);
-    } else {
-      offline.push(user);
-    }
-  });
+  contactList
+    .filter((d) => d.userID !== socket.userID)
+    .forEach((user) => {
+      if (user.connected === true) {
+        online.push(user);
+      } else {
+        offline.push(user);
+      }
+    });
   const displayCard = (user: Contact) => (
     <ContactCard
       key={user.userID}

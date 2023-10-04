@@ -5,6 +5,37 @@ import { Scrollable } from '../Scrollable/Scrollable';
 import { useChannels } from '../../../utils/hooks/useChannels';
 import { useSocketContext } from '../../../contexts/socket';
 
+interface ChannelCarrouselCardProps {
+  onClick: () => any;
+  select: boolean;
+  chanName: string;
+}
+
+export function ChannelCarrouselCard({
+  onClick,
+  select,
+  chanName
+}: ChannelCarrouselCardProps) {
+  const [isHovering, setIsHovering] = useState(false);
+  return (
+    <div>
+      <button
+        type="button"
+        onClick={onClick}
+        onMouseEnter={() => setIsHovering(true)}
+        onMouseLeave={() => setIsHovering(false)}
+      >
+        <ProfilePicture select={select} size="s" url="starwatcher.jpg" />
+      </button>
+      {isHovering && (
+        <div className="absolute left-16 z-50 mt-[-55px] rounded border border-pong-blue-100 bg-pong-blue-500 p-2 text-pong-white">
+          {chanName}
+        </div>
+      )}
+    </div>
+  );
+}
+
 interface ChannelCarrouselProps {
   toggleCreateChannelView: () => any;
   setChanName: (arg: string | undefined) => any;
@@ -22,26 +53,28 @@ export function ChannelCarrousel({
     socket.emit('channels');
   }, [socket]);
 
+  useEffect(() => {
+    if (channels.length) {
+      setChanName(channels[0].chanName);
+      setSelected(channels[0].chanID);
+    }
+  }, [channels, setSelected, setChanName]);
+
   return (
     <Scrollable>
       <div className="mt-28 w-16 rounded-2xl bg-pong-blue-500 pt-2">
         <Scrollable>
-          <div className="flex flex-col items-center justify-center gap-3">
+          <div className="flex flex-col items-center justify-center gap-1">
             {channels.map((c) => (
-              <button
+              <ChannelCarrouselCard
                 key={c.chanID}
-                type="button"
                 onClick={() => {
                   setChanName(c.chanName);
                   setSelected(c.chanID);
                 }}
-              >
-                <ProfilePicture
-                  select={selected === c.chanID}
-                  size="s"
-                  url="starwatcher.jpg"
-                />
-              </button>
+                select={selected === c.chanID}
+                chanName={c.chanName}
+              />
             ))}
             <div className="">
               <button type="button" onClick={toggleCreateChannelView}>
