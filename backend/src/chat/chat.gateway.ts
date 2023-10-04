@@ -457,6 +457,7 @@ export default class ChatGateway
     }
   }
 
+  @Roles(['member', 'admin', 'creator'])
   @SubscribeMessage('channelInfo')
   async handleChannelInfo(
     @MessageBody(new ValidationPipe()) channelNameDto: ChannelNameDto,
