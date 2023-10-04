@@ -142,9 +142,13 @@ export default class ChatGateway
 
   @SubscribeMessage('session')
   async handleSession(@ConnectedSocket() socket: ChatSocket) {
-    socket.emit('session', {
-      userID: socket.user.id
-    });
+    const senderID = socket.user.id!;
+    const user = await this.usersService.getUserById(senderID);
+    if (user) {
+      socket.emit('session', {
+        userID: user.id
+      });
+    }
   }
 
   @SubscribeMessage('messages')

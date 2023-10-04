@@ -1,10 +1,9 @@
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { useMachine } from '@xstate/react';
 import ChatFeed from '../../components/chat/ChatFeed/ChatFeed';
 import ChatHeader from '../../components/chat/ChatHeader/ChatHeader';
 import RenderIf from '../../components/chat/RenderIf/RenderIf';
 import SendMessageInput from '../../components/chat/SendMessageInput/SendMessageInput';
-import { useContact } from '../../utils/hooks/useContact';
 import { chatMachine } from '../../machines/chatMachine';
 import MenuSelector from '../../components/chat/MenuSelector/MenuSelector';
 import { ContactListFeed } from '../../components/chat/ContactListFeed.tsx/ContactListFeed';
@@ -15,9 +14,38 @@ import { ChannelCarrousel } from '../../components/chat/ChannelCarrousel/Channel
 import { useSocketContext } from '../../contexts/socket';
 import { useSession } from '../../utils/hooks/useSession';
 
+interface PrivateMessageProps {
+  isMessageView: boolean;
+  isConversationView: boolean;
+  toggleConversationView: () => any;
+}
+
+export function PrivateMessage({
+  isMessageView,
+  isConversationView,
+  toggleConversationView
+}: PrivateMessageProps) {
+  const [userID, setUserID] = useState<string>('');
+
+  return (
+    <>
+      <RenderIf some={[isConversationView]}>
+        <ChatFeed userID={userID} />
+      </RenderIf>
+      <RenderIf some={[isMessageView]}>
+        <ContactListFeed
+          setUserID={setUserID}
+          toggleConversationView={toggleConversationView}
+        />
+      </RenderIf>
+      <RenderIf some={[isConversationView]}>
+        <SendMessageInput receiverID={userID} />
+      </RenderIf>
+    </>
+  );
+}
 function Chat() {
   const { socket } = useSocketContext();
-  const [contact, setContact] = useContact();
   const [state, send] = useMachine(chatMachine);
 
   useSession((data) => {
@@ -60,26 +88,17 @@ function Chat() {
         }}
       />
 
-      <RenderIf some={[isConversationView]}>
-        <ChatFeed userID={contact?.userID} />
-      </RenderIf>
-      <RenderIf some={[isMessageView]}>
-        <ContactListFeed
-          toggleConversationView={() => send('selectContact')}
-          setContact={setContact}
-        />
-      </RenderIf>
+      <PrivateMessage
+        toggleConversationView={() => send('selectContact')}
+        isConversationView={isConversationView}
+        isMessageView={isMessageView}
+      />
       <RenderIf some={[isChannelView]}>
         <div className="flex flex-row">
           <ChannelCarrousel
             toggleCreateChannelView={() => send('addChannel')}
           />
-          <div className="w-full">
-            <ContactListFeed
-              toggleConversationView={() => send('selectContact')}
-              setContact={setContact}
-            />
-          </div>
+          <div className="w-full" />
         </div>
       </RenderIf>
       <RenderIf some={[isCreateORJoinChannelView]}>
@@ -112,9 +131,6 @@ function Chat() {
         <p className="text-white">notificationView</p>
       </RenderIf>
 
-      <RenderIf some={[isConversationView, isChanConversationView]}>
-        <SendMessageInput receiverID={contact ? contact.userID : ''} />
-      </RenderIf>
       <RenderIf
         some={[isMessageView, isChannelView, isSearchView, isNotificationView]}
       >

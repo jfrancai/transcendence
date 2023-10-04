@@ -2,8 +2,7 @@ import { BiMessageDetail } from 'react-icons/bi';
 import ProfilePicture from '../ProfilePicture/ProfilePicture';
 
 interface ContactCardProps {
-  setContact: () => any;
-  toggleConversationView: () => any;
+  onClick: () => any;
   noBgColor?: boolean;
   userID: string;
   username: string;
@@ -11,8 +10,7 @@ interface ContactCardProps {
 }
 
 export function ContactCard({
-  setContact,
-  toggleConversationView,
+  onClick,
   userID,
   username,
   noBgColor,
@@ -26,10 +24,7 @@ export function ContactCard({
         } p-3 text-left`}
         role="presentation"
         key={userID}
-        onClick={() => {
-          setContact();
-          toggleConversationView();
-        }}
+        onClick={onClick}
       >
         <div className="flex items-center justify-center gap-3">
           <ProfilePicture size="xs" url={url} />

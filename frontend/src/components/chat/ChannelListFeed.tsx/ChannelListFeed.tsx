@@ -1,8 +1,5 @@
 import { useEffect } from 'react';
-import {
-  Contact,
-  ContactList
-} from '../../../utils/hooks/useStatus.interfaces';
+import { ContactList } from '../../../utils/hooks/useStatus.interfaces';
 import { useUsers } from '../../../utils/hooks/useUsers';
 import { ContactCard } from '../ContactCard/ContactCard';
 import { Scrollable } from '../Scrollable/Scrollable';
@@ -10,11 +7,11 @@ import { useSocketContext } from '../../../contexts/socket';
 
 interface ContactListProps {
   toggleConversationView: () => any;
-  setUserID: (p: any) => any;
+  setContact: (p: any) => any;
 }
 
 export function ContactListFeed({
-  setUserID,
+  setContact,
   toggleConversationView
 }: ContactListProps) {
   const { socket } = useSocketContext();
@@ -34,18 +31,6 @@ export function ContactListFeed({
       offline.push(user);
     }
   });
-  const displayCard = (user: Contact) => (
-    <ContactCard
-      key={user.userID}
-      username={user.username}
-      userID={user.userID}
-      onClick={() => {
-        setUserID(user.userID);
-        toggleConversationView();
-      }}
-      url="starwatcher.jpg"
-    />
-  );
   return (
     <Scrollable>
       <div className="pt-28">
@@ -54,7 +39,16 @@ export function ContactListFeed({
             <p className="pl-2 font-semibold text-pong-blue-100">
               {`ONLINE — ${online.length}`}
             </p>
-            {online.map(displayCard)}
+            {online.map((user) => (
+              <ContactCard
+                key={user.userID}
+                username={user.username}
+                userID={user.userID}
+                toggleConversationView={toggleConversationView}
+                setUserID={() => setContact(user)}
+                url="starwatcher.jpg"
+              />
+            ))}
           </>
         ) : null}
         {offline.length ? (
@@ -62,7 +56,16 @@ export function ContactListFeed({
             <p className="mt-3 pl-2 font-bold text-pong-blue-100">
               {`OFFLINE — ${offline.length}`}
             </p>
-            {offline.map(displayCard)}
+            {offline.map((user) => (
+              <ContactCard
+                key={user.userID}
+                username={user.username}
+                userID={user.userID}
+                toggleConversationView={toggleConversationView}
+                setUserID={() => setContact(user)}
+                url="starwatcher.jpg"
+              />
+            ))}
           </>
         ) : null}
       </div>
