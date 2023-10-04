@@ -49,6 +49,22 @@ export class UsersService {
     }
   }
 
+  async getUserByIdWithChan(id: string) {
+    try {
+      return await this.prisma.users.findUnique({
+        where: {
+          id
+        },
+        include: {
+          channels: true
+        }
+      });
+    } catch (e: any) {
+      this.logger.warn(e);
+      return null;
+    }
+  }
+
   async getUser(user: Partial<IUsers>) {
     try {
       if (user.username !== undefined && user.email !== undefined) {

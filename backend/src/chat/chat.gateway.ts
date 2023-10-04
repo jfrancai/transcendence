@@ -192,6 +192,25 @@ export default class ChatGateway
     socket.emit('users', publicUsers);
   }
 
+  @SubscribeMessage('channels')
+  async handleChannels(@ConnectedSocket() socket: ChatSocket) {
+    const senderID = socket.user.id!;
+    const privateUsers = await this.usersService.getUserByIdWithChan(senderID);
+    const privateChannels = privateUsers?.channels;
+    if (privateChannels) {
+      const publicChannels: PublicChannel[] = [];
+      privateChannels.forEach((c) => {
+        publicChannels.push({
+          chanID: c.id,
+          chanName: c.chanName,
+          chanType: c.type,
+          chanCreatedAt: c.createdAt
+        });
+      });
+      socket.emit('channels', publicChannels);
+    }
+  }
+
   @SubscribeMessage('privateMessage')
   async handlePrivateMessage(
     @MessageBody(new ValidationPipe()) messageDto: PrivateMessageDto,
