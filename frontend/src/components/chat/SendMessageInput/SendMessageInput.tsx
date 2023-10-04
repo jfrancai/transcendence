@@ -6,7 +6,7 @@ interface SendMessageInputProps {
   receiverID: string;
 }
 
-function SendMessageInput({ receiverID }: SendMessageInputProps) {
+export function SendMessageInput({ receiverID }: SendMessageInputProps) {
   const [message, setMessage] = useState('');
   const { socket } = useSocketContext();
 
@@ -17,7 +17,7 @@ function SendMessageInput({ receiverID }: SendMessageInputProps) {
         content: message,
         userID: receiverID
       };
-      socket.timeout(5000).emit('privateMessage', data, () => {});
+      socket.emit('privateMessage', data);
     }
     setMessage('');
   };
@@ -25,7 +25,7 @@ function SendMessageInput({ receiverID }: SendMessageInputProps) {
   return (
     <form
       onSubmit={handleSubmit}
-      className="flex h-14 w-[336px] flex-shrink-0 items-center justify-between gap-y-24 bg-pong-blue-400 px-5"
+      className="flex h-14 w-full flex-shrink-0 items-center justify-between gap-y-24 bg-pong-blue-400 px-5"
       autoComplete="off"
     >
       <input
@@ -43,5 +43,3 @@ function SendMessageInput({ receiverID }: SendMessageInputProps) {
     </form>
   );
 }
-
-export default SendMessageInput;

@@ -38,12 +38,16 @@ export function ChannelCarrouselCard({
 
 interface ChannelCarrouselProps {
   toggleCreateChannelView: () => any;
+  toggleChannelSettings: () => any;
+  toggleChannelView: () => any;
   setChanID: (arg: string) => any;
   chanID: string;
 }
 
 export function ChannelCarrousel({
   toggleCreateChannelView,
+  toggleChannelSettings,
+  toggleChannelView,
   setChanID,
   chanID
 }: ChannelCarrouselProps) {
@@ -69,7 +73,12 @@ export function ChannelCarrousel({
               <ChannelCarrouselCard
                 key={c.chanID}
                 onClick={() => {
-                  setChanID(c.chanID);
+                  if (chanID !== c.chanID) {
+                    setChanID(c.chanID);
+                    toggleChannelView();
+                  } else {
+                    toggleChannelSettings();
+                  }
                 }}
                 select={chanID === c.chanID}
                 chanName={c.chanName}

@@ -1,8 +1,8 @@
 import { useState } from 'react';
 import RenderIf from '../RenderIf/RenderIf';
 import ChatFeed from '../ChatFeed/ChatFeed';
-import SendMessageInput from '../SendMessageInput/SendMessageInput';
 import { ContactListFeed } from '../ContactListFeed.tsx/ContactListFeed';
+import { SendMessageInput } from '../SendMessageInput/SendMessageInput';
 
 interface PrivateMessageProps {
   isMessageView: boolean;

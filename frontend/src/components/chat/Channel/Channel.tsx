@@ -7,39 +7,49 @@ import RenderIf from '../RenderIf/RenderIf';
 import { Scrollable } from '../Scrollable/Scrollable';
 
 interface ChannelProps {
+  toggleChannelView: () => any;
   toggleCreateChannelView: () => any;
   toggleInviteChannel: () => any;
+  toggleChannelSettings: () => any;
   toggleConversationView: () => any;
   createChannel: () => any;
   isChannelView: boolean;
   isCreateORJoinChannelView: boolean;
+  isChannelSettings: boolean;
   isChannelNameView: boolean;
 }
 export function Channel({
+  toggleChannelView,
   toggleCreateChannelView,
   toggleInviteChannel,
+  toggleChannelSettings,
   toggleConversationView,
   createChannel,
   isChannelView,
+  isChannelSettings,
   isCreateORJoinChannelView,
   isChannelNameView
 }: ChannelProps) {
   const [chanID, setChanID] = useState<string>('');
   return (
     <>
-      <RenderIf some={[isChannelView]}>
-        <div className="flex flex-row">
+      <div className="flex flex-row">
+        <RenderIf some={[isChannelView, isChannelSettings]}>
           <ChannelCarrousel
             toggleCreateChannelView={toggleCreateChannelView}
+            toggleChannelSettings={toggleChannelSettings}
+            toggleChannelView={toggleChannelView}
             setChanID={setChanID}
             chanID={chanID}
           />
+        </RenderIf>
+        <RenderIf some={[isChannelSettings]}>
           <ChannelListFeed
             toggleConversationView={toggleConversationView}
             chanID={chanID}
           />
-        </div>
-      </RenderIf>
+        </RenderIf>
+      </div>
       <RenderIf some={[isCreateORJoinChannelView]}>
         <Scrollable>
           <div className="flex w-full flex-col items-center justify-center gap-10 pt-28">

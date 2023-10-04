@@ -27,6 +27,7 @@ function Chat() {
   const isSearchView = state.matches({ opened: 'searchView' });
   const isNotificationView = state.matches({ opened: 'notificationView' });
   const isChannelNameView = state.matches({ opened: 'channelNameView' });
+  const isChannelSettings = state.matches({ opened: 'channelSettings' });
   const isCreateORJoinChannelView = state.matches({
     opened: 'createORJoinChannelView'
   });
@@ -43,7 +44,7 @@ function Chat() {
     ? 'static bg-pong-blue-300'
     : ' absolute backdrop-blur';
   return (
-    <div className="absolute bottom-2 right-2 z-30 w-fit overflow-hidden rounded-3xl bg-pong-blue-300">
+    <div className="absolute bottom-2 right-2 z-30 w-[336px] overflow-hidden rounded-3xl bg-pong-blue-300">
       <ChatHeader
         className={`z-40 ${chatHeaderStyle}`}
         isChatClosed={isChatClosed}
@@ -59,12 +60,15 @@ function Chat() {
         isMessageView={isMessageView}
       />
       <Channel
+        toggleChannelView={() => send('clickOnChannel')}
         toggleConversationView={() => send('selectContact')}
         toggleInviteChannel={() => send('inviteChannel')}
+        toggleChannelSettings={() => send('selectChannel')}
         toggleCreateChannelView={() => send('addChannel')}
         createChannel={() => send('createChannel')}
         isCreateORJoinChannelView={isCreateORJoinChannelView}
         isChannelView={isChannelView}
+        isChannelSettings={isChannelSettings}
         isChannelNameView={isChannelNameView}
       />
       <RenderIf some={[isInviteChannelView]}>coucou</RenderIf>
@@ -76,7 +80,13 @@ function Chat() {
       </RenderIf>
 
       <RenderIf
-        some={[isMessageView, isChannelView, isSearchView, isNotificationView]}
+        some={[
+          isMessageView,
+          isChannelView,
+          isSearchView,
+          isNotificationView,
+          isChannelSettings
+        ]}
       >
         <MenuSelector
           isMessageView={isMessageView}
