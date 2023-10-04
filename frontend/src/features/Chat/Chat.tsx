@@ -1,49 +1,17 @@
-import { useEffect, useState } from 'react';
+import { useEffect } from 'react';
 import { useMachine } from '@xstate/react';
-import ChatFeed from '../../components/chat/ChatFeed/ChatFeed';
 import ChatHeader from '../../components/chat/ChatHeader/ChatHeader';
 import RenderIf from '../../components/chat/RenderIf/RenderIf';
-import SendMessageInput from '../../components/chat/SendMessageInput/SendMessageInput';
 import { chatMachine } from '../../machines/chatMachine';
 import MenuSelector from '../../components/chat/MenuSelector/MenuSelector';
-import { ContactListFeed } from '../../components/chat/ContactListFeed.tsx/ContactListFeed';
 import { Scrollable } from '../../components/chat/Scrollable/Scrollable';
 import { CreateChannelView } from '../../components/chat/CreateChannelView/CreateChannelView';
 import { PrimaryButton } from '../../components/PrimaryButton/PrimaryButton';
 import { ChannelCarrousel } from '../../components/chat/ChannelCarrousel/ChannelCarrousel';
 import { useSocketContext } from '../../contexts/socket';
 import { useSession } from '../../utils/hooks/useSession';
+import { PrivateMessage } from '../../components/chat/PrivateMessage/PrivateMessage';
 
-interface PrivateMessageProps {
-  isMessageView: boolean;
-  isConversationView: boolean;
-  toggleConversationView: () => any;
-}
-
-export function PrivateMessage({
-  isMessageView,
-  isConversationView,
-  toggleConversationView
-}: PrivateMessageProps) {
-  const [userID, setUserID] = useState<string>('');
-
-  return (
-    <>
-      <RenderIf some={[isConversationView]}>
-        <ChatFeed userID={userID} />
-      </RenderIf>
-      <RenderIf some={[isMessageView]}>
-        <ContactListFeed
-          setUserID={setUserID}
-          toggleConversationView={toggleConversationView}
-        />
-      </RenderIf>
-      <RenderIf some={[isConversationView]}>
-        <SendMessageInput receiverID={userID} />
-      </RenderIf>
-    </>
-  );
-}
 function Chat() {
   const { socket } = useSocketContext();
   const [state, send] = useMachine(chatMachine);
