@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { AiOutlineCloudUpload } from 'react-icons/ai';
 import { SelectChannelType } from '../SelectChannelType/SelectChannelType';
 import { PrimaryButton } from '../../PrimaryButton/PrimaryButton';
@@ -28,19 +28,30 @@ interface CreateChannelViewProps {
 export function CreateChannelView({
   toggleInviteChannel
 }: CreateChannelViewProps) {
-  const { status, socket } = useSocketContext();
+  const { socket } = useSocketContext();
   const [chanName, setChanName] = useState(`${socket.username}'s channel`);
   const [type, setType] = useState<'PASSWORD' | 'PUBLIC' | 'PRIVATE'>('PUBLIC');
   const [password, setPassword] = useState<string | undefined>(undefined);
+  const [error, setError] = useState<string | undefined>(undefined);
 
   const handleCreateChannel = () => {
-    toggleInviteChannel();
     socket.emit('channelCreate', {
       chanName,
       type,
       password
     });
   };
+
+  useEffect(() => {
+    const onError = (err: any) => {
+      setError(err.message);
+    };
+    socket.on('channelCreate', toggleInviteChannel);
+    socket.on('error', onError);
+    return () => {
+      socket.off('channelCreate', toggleInviteChannel);
+    };
+  });
   return (
     <div className="flex w-full max-w-[336px] flex-col items-center justify-center gap-10 pt-28">
       <p className="text-2xl font-bold text-pong-white">Create your Channel</p>
@@ -67,6 +78,7 @@ export function CreateChannelView({
             onChange={(e) => setChanName(e.target.value)}
           />
         </label>
+        {error ? <p className="text-red-500">{error}</p> : null}
       </Section>
 
       <Section>

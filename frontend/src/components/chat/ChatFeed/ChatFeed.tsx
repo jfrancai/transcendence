@@ -3,13 +3,14 @@ import ChatMessage from '../ChatMessage/ChatMessage';
 import { useMessages } from '../../../utils/hooks/useMessages';
 import { useScroll } from '../../../utils/hooks/useScroll';
 import { Scrollable } from '../Scrollable/Scrollable';
-import { socket } from '../../../utils/functions/socket';
+import { useSocketContext } from '../../../contexts/socket';
 
 interface ChatFeedProps {
   userID: string | undefined;
 }
 
 function ChatFeed({ userID }: ChatFeedProps) {
+  const { socket } = useSocketContext();
   const messages = useMessages();
   const messageEndRef = useScroll(messages);
 
@@ -19,7 +20,7 @@ function ChatFeed({ userID }: ChatFeedProps) {
         userID
       });
     }
-  }, [userID]);
+  }, [userID, socket]);
 
   return (
     <Scrollable>

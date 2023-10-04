@@ -3,9 +3,10 @@ import { ChatInfo } from './ChatInfo.interfaces';
 import { formatTimeMessage } from '../functions/parsing';
 import { useConnected } from './useConnected';
 import { Message } from './useStatus.interfaces';
-import { socket } from '../functions/socket';
+import { useSocketContext } from '../../contexts/socket';
 
 export function useMessages(): ChatInfo[] {
+  const { socket } = useSocketContext();
   const [msg, setMsg] = useState<ChatInfo[]>([]);
   const isConnected = useConnected();
 
