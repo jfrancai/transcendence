@@ -1,4 +1,4 @@
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { useMachine } from '@xstate/react';
 import ChatHeader from '../../components/chat/ChatHeader/ChatHeader';
 import RenderIf from '../../components/chat/RenderIf/RenderIf';
@@ -11,10 +11,12 @@ import { ChannelCarrousel } from '../../components/chat/ChannelCarrousel/Channel
 import { useSocketContext } from '../../contexts/socket';
 import { useSession } from '../../utils/hooks/useSession';
 import { PrivateMessage } from '../../components/chat/PrivateMessage/PrivateMessage';
+import { ChannelListFeed } from '../../components/chat/ChannelListFeed.tsx/ChannelListFeed';
 
 function Chat() {
   const { socket } = useSocketContext();
   const [state, send] = useMachine(chatMachine);
+  const [chanName, setChanName] = useState<string | undefined>(undefined);
 
   useSession((data) => {
     socket.userID = data.userID;
@@ -65,8 +67,14 @@ function Chat() {
         <div className="flex flex-row">
           <ChannelCarrousel
             toggleCreateChannelView={() => send('addChannel')}
+            setChanName={setChanName}
           />
-          <div className="w-full" />
+          <div className="w-full">
+            <ChannelListFeed
+              toggleConversationView={() => send('selectContact')}
+              chanName={chanName}
+            />
+          </div>
         </div>
       </RenderIf>
       <RenderIf some={[isCreateORJoinChannelView]}>

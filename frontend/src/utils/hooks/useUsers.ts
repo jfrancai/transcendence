@@ -7,8 +7,11 @@ export function useUsers(): ContactList {
   const [contactList, setContactList] = useState<ContactList>([]);
 
   useEffect(() => {
-    const onUsers = (data: ContactList) => {
+    const onChannelMembers = (data: ContactList) => {
       setContactList(data);
+    };
+    const onUsers = (data: ContactList) => {
+      setContactList(data.filter((d) => d.userID !== socket.userID));
     };
     const onUserDisconnected = (data: User) => {
       setContactList((list) => {
@@ -18,7 +21,7 @@ export function useUsers(): ContactList {
           }
           return c;
         });
-        return newList;
+        return newList.filter((d) => d.userID !== socket.userID);
       });
     };
 
@@ -30,19 +33,21 @@ export function useUsers(): ContactList {
           }
           return c;
         });
-        return newList;
+        return newList.filter((d) => d.userID !== socket.userID);
       });
     };
 
     socket.on('users', onUsers);
+    socket.on('channelMembers', onChannelMembers);
     socket.on('userConnected', onUserConnected);
     socket.on('userDisconnected', onUserDisconnected);
     return () => {
       socket.off('users', onUsers);
+      socket.off('channelMembers', onChannelMembers);
       socket.off('userConnected', onUserConnected);
       socket.off('userDisconnected', onUserDisconnected);
     };
   }, [socket]);
 
-  return contactList.filter((d) => d.userID !== socket.userID);
+  return contactList;
 }

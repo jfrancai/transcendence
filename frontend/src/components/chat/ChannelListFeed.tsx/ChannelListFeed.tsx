@@ -7,29 +7,39 @@ import { useUsers } from '../../../utils/hooks/useUsers';
 import { ContactCard } from '../ContactCard/ContactCard';
 import { Scrollable } from '../Scrollable/Scrollable';
 import { useSocketContext } from '../../../contexts/socket';
+import { useChanInfo } from '../../../utils/hooks/useChannelInfo';
 
 interface ContactListProps {
   toggleConversationView: () => any;
-  setChanID: (p: any) => any;
+  chanName: string | undefined;
 }
 
 export function ChannelListFeed({
-  setChanID,
+  chanName,
   toggleConversationView
 }: ContactListProps) {
   const { socket } = useSocketContext();
   const contactList = useUsers();
+  const channel = useChanInfo();
 
   useEffect(() => {
-    socket.emit('users');
-  }, [socket]);
+    if (chanName) {
+      socket.emit('channelMembers', { chanName });
+      socket.emit('channelInfo', { chanName });
+    }
+  }, [socket, chanName]);
 
+  const admins: ContactList = [];
   const online: ContactList = [];
   const offline: ContactList = [];
 
   contactList.forEach((user) => {
-    if (user.connected === true) {
-      online.push(user);
+    if (channel && user.connected === true) {
+      if (channel.chanAdmins.find((a) => a === user.userID)) {
+        admins.push(user);
+      } else {
+        online.push(user);
+      }
     } else {
       offline.push(user);
     }
@@ -40,7 +50,6 @@ export function ChannelListFeed({
       username={user.username}
       userID={user.userID}
       onClick={() => {
-        setChanID(user.userID);
         toggleConversationView();
       }}
       url="starwatcher.jpg"
@@ -48,22 +57,30 @@ export function ChannelListFeed({
   );
   return (
     <Scrollable>
-      <div className="pt-28">
+      <div className="pt-28 flex flex-col gap-3">
+        {admins.length ? (
+          <div>
+            <p className="pl-2 font-semibold text-pong-blue-100">
+              {`ADMINS — ${admins.length}`}
+            </p>
+            {admins.map(displayCard)}
+          </div>
+        ) : null}
         {online.length ? (
-          <>
+          <div>
             <p className="pl-2 font-semibold text-pong-blue-100">
               {`ONLINE — ${online.length}`}
             </p>
             {online.map(displayCard)}
-          </>
+          </div>
         ) : null}
         {offline.length ? (
-          <>
-            <p className="mt-3 pl-2 font-bold text-pong-blue-100">
+          <div>
+            <p className="pl-2 font-bold text-pong-blue-100">
               {`OFFLINE — ${offline.length}`}
             </p>
             {offline.map(displayCard)}
-          </>
+          </div>
         ) : null}
       </div>
     </Scrollable>

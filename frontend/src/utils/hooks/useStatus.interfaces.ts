@@ -3,6 +3,8 @@ import { Socket } from 'socket.io-client';
 export interface Channel {
   chanID: string;
   chanName: string;
+  creatorID: string;
+  chanAdmins: string[];
   chanType: string;
   chanCreatedAt: Date;
 }
