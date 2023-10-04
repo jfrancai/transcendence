@@ -36,8 +36,8 @@ export class RolesGuard implements CanActivate {
       throw new BadRequestException({ message });
     }
 
-    const { chanName } = channelDto;
-    const channel = await this.channelService.getChanWithMembers(chanName);
+    const { chanID } = channelDto;
+    const channel = await this.channelService.getChanByIdWithMembers(chanID);
     if (channel) {
       let socketRole: RolesType;
       if (channel.creatorID === socket.user.id) {

@@ -32,8 +32,8 @@ export class EmptyChannelGuard implements CanActivate {
     if (validationErrors.length > 0) {
       throw new BadRequestException({ message });
     }
-    const { chanName } = channelDto;
-    const channel = await this.channelService.getChanWithMembers(chanName);
+    const { chanID } = channelDto;
+    const channel = await this.channelService.getChanByIdWithMembers(chanID);
     if (channel) {
       if (channel.members.length !== 1) {
         throw new ForbiddenException('Channel not empty');

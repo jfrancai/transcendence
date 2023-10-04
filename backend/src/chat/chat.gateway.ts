@@ -463,13 +463,13 @@ export default class ChatGateway
     @MessageBody(new ValidationPipe()) channelNameDto: ChannelNameDto,
     @ConnectedSocket() socket: ChatSocket
   ) {
-    const { chanName } = channelNameDto;
+    const { chanID } = channelNameDto;
     const senderID = socket.user.id!;
     this.logger.log(
-      `Channel info request for channel ${chanName} by user ${senderID}`
+      `Channel info request for channel ${chanID} by user ${senderID}`
     );
 
-    const channel = await this.channelService.getChanByName(chanName);
+    const channel = await this.channelService.getChanByName(chanID);
     if (channel) {
       const pubChan: PublicChannel = {
         chanID: channel.id,
@@ -547,13 +547,13 @@ export default class ChatGateway
     @MessageBody(new ValidationPipe()) channelNameDto: ChannelNameDto,
     @ConnectedSocket() socket: ChatSocket
   ) {
-    const { chanName } = channelNameDto;
+    const { chanID } = channelNameDto;
     const senderID = socket.user.id!;
     this.logger.log(
-      `Channel members request for channel ${chanName} by user ${senderID}`
+      `Channel members request for channel ${chanID} by user ${senderID}`
     );
 
-    const channel = await this.channelService.getChanWithMembers(chanName);
+    const channel = await this.channelService.getChanByIdWithMembers(chanID);
     if (channel) {
       const { members } = channel;
       const pubMembers: PublicChatUser[] = members.map((m) => ({
