@@ -34,7 +34,9 @@ export interface PublicChannelMessage {
 
 export interface PublicChannel {
   chanID: string;
+  creatorID: string;
   chanName: string;
   chanType: string;
+  chanAdmins: string[];
   chanCreatedAt: Date;
 }

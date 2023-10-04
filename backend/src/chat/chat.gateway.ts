@@ -187,7 +187,7 @@ export default class ChatGateway
     if (privateUsers) {
       privateUsers!.forEach((user) => {
         publicUsers.push({
-          userID: user.id as string,
+          userID: user.id,
           connected: user.connectedChat,
           username: user.username!
         });
@@ -206,6 +206,8 @@ export default class ChatGateway
       privateChannels.forEach((c) => {
         publicChannels.push({
           chanID: c.id,
+          chanAdmins: c.admins,
+          creatorID: c.creatorID,
           chanName: c.chanName,
           chanType: c.type,
           chanCreatedAt: c.createdAt
@@ -276,6 +278,8 @@ export default class ChatGateway
     const channel = await this.channelService.createChannel(privChan);
     const pubChan: PublicChannel = {
       chanID: channel.id,
+      chanAdmins: channel.admins,
+      creatorID: channel.creatorID,
       chanName: channel.chanName,
       chanType: channel.type,
       chanCreatedAt: channel.createdAt
@@ -300,6 +304,8 @@ export default class ChatGateway
       socket.leave(deletedChan.id);
       const pubChan: PublicChannel = {
         chanID: deletedChan.id,
+        chanAdmins: deletedChan.admins,
+        creatorID: deletedChan.creatorID,
         chanName: deletedChan.chanName,
         chanType: deletedChan.type,
         chanCreatedAt: deletedChan.createdAt
@@ -334,6 +340,8 @@ export default class ChatGateway
     if (channel) {
       const pubChannel: PublicChannel = {
         chanID: channel.id,
+        chanAdmins: channel.admins,
+        creatorID: channel.creatorID,
         chanName: channel.chanName,
         chanType: channel.type,
         chanCreatedAt: channel.createdAt
@@ -464,8 +472,10 @@ export default class ChatGateway
     if (channel) {
       const pubChan: PublicChannel = {
         chanID: channel.id,
+        creatorID: channel.id,
         chanName: channel.chanName,
         chanType: channel.type,
+        chanAdmins: channel.admins,
         chanCreatedAt: channel.createdAt
       };
       this.io.to(senderID).emit('channelInfo', pubChan);
@@ -500,6 +510,8 @@ export default class ChatGateway
       if (privChan) {
         const pubChan: PublicChannel = {
           chanID: privChan.id,
+          creatorID: privChan.creatorID,
+          chanAdmins: privChan.admins,
           chanName: privChan.chanName,
           chanType: privChan.type,
           chanCreatedAt: privChan.createdAt
@@ -543,7 +555,12 @@ export default class ChatGateway
     const channel = await this.channelService.getChanWithMembers(chanName);
     if (channel) {
       const { members } = channel;
-      this.io.to(senderID).emit('channelMembers', members);
+      const pubMembers: PublicChatUser[] = members.map((m) => ({
+        userID: m.id,
+        connected: m.connectedChat,
+        username: m.username!
+      }));
+      this.io.to(senderID).emit('channelMembers', pubMembers);
     }
   }
 
