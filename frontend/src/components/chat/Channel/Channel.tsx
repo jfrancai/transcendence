@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { PrimaryButton } from '../../PrimaryButton/PrimaryButton';
 import { ChannelCarrousel } from '../ChannelCarrousel/ChannelCarrousel';
 import { ChannelListFeed } from '../ChannelListFeed.tsx/ChannelListFeed';
@@ -6,6 +6,7 @@ import { CreateChannelView } from '../CreateChannelView/CreateChannelView';
 import RenderIf from '../RenderIf/RenderIf';
 import { Scrollable } from '../Scrollable/Scrollable';
 import { SendMessageInput } from '../SendMessageInput/SendMessageInput';
+import ChatFeed from '../ChatFeed/ChatFeed';
 
 interface ChannelProps {
   toggleChannelView: () => any;
@@ -30,6 +31,7 @@ export function Channel({
   isChannelNameView
 }: ChannelProps) {
   const [chanID, setChanID] = useState<string>('');
+
   return (
     <>
       <div className="flex flex-row">
@@ -46,9 +48,12 @@ export function Channel({
           <ChannelListFeed chanID={chanID} />
         </RenderIf>
         <RenderIf some={[isChannelView]}>
-          <SendMessageInput receiverID={chanID} />
+          <ChatFeed userID={chanID} />
         </RenderIf>
       </div>
+      <RenderIf some={[isChannelView]}>
+        <SendMessageInput receiverID={chanID} />
+      </RenderIf>
       <RenderIf some={[isCreateORJoinChannelView]}>
         <Scrollable>
           <div className="flex w-full flex-col items-center justify-center gap-10 pt-28">
