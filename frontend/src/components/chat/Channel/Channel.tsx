@@ -5,6 +5,7 @@ import { ChannelListFeed } from '../ChannelListFeed.tsx/ChannelListFeed';
 import { CreateChannelView } from '../CreateChannelView/CreateChannelView';
 import RenderIf from '../RenderIf/RenderIf';
 import { Scrollable } from '../Scrollable/Scrollable';
+import { SendMessageInput } from '../SendMessageInput/SendMessageInput';
 
 interface ChannelProps {
   toggleChannelView: () => any;
@@ -43,6 +44,9 @@ export function Channel({
         </RenderIf>
         <RenderIf some={[isChannelSettings]}>
           <ChannelListFeed chanID={chanID} />
+        </RenderIf>
+        <RenderIf some={[isChannelView]}>
+          <SendMessageInput receiverID={chanID} />
         </RenderIf>
       </div>
       <RenderIf some={[isCreateORJoinChannelView]}>

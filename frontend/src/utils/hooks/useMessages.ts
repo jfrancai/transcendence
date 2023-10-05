@@ -5,21 +5,23 @@ import { useConnected } from './useConnected';
 import { Message } from './useStatus.interfaces';
 import { useSocketContext } from '../../contexts/socket';
 
-export function useMessages(): ChatInfo[] {
+export function useMessages(targetID: string): ChatInfo[] {
   const { socket } = useSocketContext();
   const [msg, setMsg] = useState<ChatInfo[]>([]);
   const isConnected = useConnected();
 
   useEffect(() => {
     const onPrivateMessage = (message: Message) => {
-      const formatedMessage = {
-        id: message.messageID,
-        message: message.content,
-        time: formatTimeMessage(message.createdAt),
-        username: message.sender,
-        profilePictureUrl: 'starwatcher.jpg'
-      };
-      setMsg((m) => m.concat(formatedMessage));
+      if (targetID === message.senderID || message.senderID === socket.userID) {
+        const formatedMessage = {
+          id: message.messageID,
+          message: message.content,
+          time: formatTimeMessage(message.createdAt),
+          username: message.sender,
+          profilePictureUrl: 'starwatcher.jpg'
+        };
+        setMsg((m) => m.concat(formatedMessage));
+      }
     };
     const onMessages = (messages: Message[]) => {
       const formatedMessages: any = [];
@@ -28,7 +30,10 @@ export function useMessages(): ChatInfo[] {
           id: message.messageID,
           message: message.content,
           time: formatTimeMessage(message.createdAt),
-          username: message.sender,
+          username:
+            socket.userID === message.receiverID
+              ? message.receiver
+              : message.sender,
           profilePictureUrl: 'starwatcher.jpg'
         });
         return message;
@@ -42,7 +47,7 @@ export function useMessages(): ChatInfo[] {
       socket.off('messages', onMessages);
       socket.off('privateMessage', onPrivateMessage);
     };
-  }, [isConnected]);
+  }, [isConnected, socket, targetID]);
 
   return msg;
 }

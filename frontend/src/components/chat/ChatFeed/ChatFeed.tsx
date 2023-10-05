@@ -6,12 +6,12 @@ import { Scrollable } from '../Scrollable/Scrollable';
 import { useSocketContext } from '../../../contexts/socket';
 
 interface ChatFeedProps {
-  userID: string | undefined;
+  userID: string;
 }
 
 function ChatFeed({ userID }: ChatFeedProps) {
   const { socket } = useSocketContext();
-  const messages = useMessages();
+  const messages = useMessages(userID);
   const messageEndRef = useScroll(messages);
 
   useEffect(() => {

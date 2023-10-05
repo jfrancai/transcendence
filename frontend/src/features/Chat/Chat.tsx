@@ -36,9 +36,6 @@ function Chat() {
   });
 
   const isConversationView = state.matches({ opened: 'conversationView' });
-  const isChanConversationView = state.matches({
-    opened: 'channelConversationView'
-  });
 
   const chatHeaderStyle = isChatClosed
     ? 'static bg-pong-blue-300'
@@ -81,7 +78,7 @@ function Chat() {
       <RenderIf
         some={[
           isMessageView,
-          isChannelView,
+          isChannelSettings,
           isSearchView,
           isNotificationView,
           isChannelSettings
