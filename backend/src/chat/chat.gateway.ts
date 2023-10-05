@@ -169,13 +169,10 @@ export default class ChatGateway
       const messages: PublicMessage[] = allMessagesForUserId
         .filter((m) => m.senderID === userID || m.receiverID === userID)
         .map((m) => ({
+          ...m,
           messageID: m.id,
-          content: m.content,
           sender: sender!.username,
-          senderID: m.senderID,
-          receiver: receiver!.username,
-          receiverID: m.receiverID,
-          createdAt: m.createdAt
+          receiver: receiver!.username
         }));
       socket.emit('messages', messages);
     }
@@ -235,7 +232,7 @@ export default class ChatGateway
     });
     const sender = await this.usersService.getUserById(senderID);
     const receiver = await this.usersService.getUserById(userID);
-    if (message) {
+    if (message && message.receiverID) {
       const publicMessage: PublicMessage = {
         content: message.content,
         sender: sender!.username,
@@ -373,7 +370,7 @@ export default class ChatGateway
     const chanMessage = await this.messageService.createChannelMessage({
       content,
       senderID,
-      receiverID: chanID
+      chanID
     });
     const sender = await this.usersService.getUserById(senderID);
     const channel = await this.channelService.getChanById(chanID);
@@ -541,7 +538,21 @@ export default class ChatGateway
     const channel = await this.channelService.getChanByIdWithMessages(chanID);
     if (channel) {
       const { messages } = channel;
-      this.io.to(senderID).emit('channelMessages', messages);
+      const pubMessages: PublicChannelMessage[] = await Promise.all(
+        messages.map(async (m) => {
+          const sender = await this.usersService.getUserById(senderID);
+          return {
+            content: m.content,
+            messageID: m.id,
+            sender: sender!.username,
+            senderID: sender!.id,
+            chanName: channel.chanName,
+            chanID: channel.id,
+            createdAt: m.createdAt
+          };
+        })
+      );
+      this.io.to(senderID).emit('channelMessages', pubMessages);
     }
   }
 

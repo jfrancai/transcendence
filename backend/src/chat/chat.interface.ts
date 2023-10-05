@@ -18,8 +18,8 @@ export interface PublicMessage {
   content: string;
   sender: string;
   senderID: string;
-  receiver: string;
-  receiverID: string;
+  receiver: string | null;
+  receiverID: string | null;
   createdAt: Date;
 }
 
@@ -28,8 +28,8 @@ export interface PublicChannelMessage {
   content: string;
   sender: string;
   senderID: string;
-  chanName: string;
-  chanID: string;
+  chanName: string | null;
+  chanID: string | null;
   createdAt: Date;
 }
 

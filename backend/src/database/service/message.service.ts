@@ -75,7 +75,7 @@ export class MessageService {
   async createChannelMessage(message: {
     content: string;
     senderID: string;
-    receiverID: string;
+    chanID: string;
   }) {
     try {
       return await this.prisma.message.create({
@@ -85,7 +85,7 @@ export class MessageService {
             connect: { id: message.senderID }
           },
           channel: {
-            connect: { id: message.receiverID }
+            connect: { id: message.chanID }
           }
         }
       });
