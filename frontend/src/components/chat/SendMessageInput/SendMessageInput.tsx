@@ -3,21 +3,32 @@ import { useState } from 'react';
 import { useSocketContext } from '../../../contexts/socket';
 
 interface SendMessageInputProps {
+  event: 'privateMessage' | 'channelMessage';
   receiverID: string;
 }
 
-export function SendMessageInput({ receiverID }: SendMessageInputProps) {
+export function SendMessageInput({ receiverID, event }: SendMessageInputProps) {
   const [message, setMessage] = useState('');
   const { socket } = useSocketContext();
 
-  const handleSubmit = (event: any) => {
-    event.preventDefault();
+  const handleSubmit = (e: any) => {
+    e.preventDefault();
     if (message.length !== 0) {
-      const data = {
-        content: message,
-        userID: receiverID
+      const data: {
+        content: string;
+        userID?: string;
+        chanID?: string;
+      } = {
+        content: message
       };
-      socket.emit('privateMessage', data);
+      if (event === 'privateMessage') {
+        data.userID = receiverID;
+      } else {
+        data.chanID = receiverID;
+      }
+      console.log(data);
+
+      socket.emit(event, data);
     }
     setMessage('');
   };
@@ -34,7 +45,7 @@ export function SendMessageInput({ receiverID }: SendMessageInputProps) {
         autoComplete="false"
         placeholder="Send Message..."
         value={message}
-        onChange={(event) => setMessage(event.target.value)}
+        onChange={(e) => setMessage(e.target.value)}
         className="peer h-8 w-full border-none bg-transparent pr-3 text-pong-white placeholder-pong-blue-100 outline-none"
       />
       <button type="submit">

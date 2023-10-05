@@ -37,7 +37,6 @@ export function ChannelCarrouselCard({
         <p className="font-semibold">{chanName}</p>
         <SecondaryButton
           onClick={() => {
-            onClick();
             toggleChannelSettings();
           }}
           disabled={false}
@@ -68,7 +67,7 @@ export function ChannelCarrousel({
 
   useEffect(() => {
     socket.emit('channels');
-  }, [socket, chanID]);
+  }, [socket]);
 
   return (
     <Scrollable>
@@ -80,10 +79,8 @@ export function ChannelCarrousel({
                 id={c.chanID}
                 key={c.chanID}
                 onClick={() => {
-                  if (chanID !== c.chanID) {
-                    setChanID(c.chanID);
-                    toggleChannelView();
-                  }
+                  setChanID(c.chanID);
+                  toggleChannelView();
                 }}
                 toggleChannelSettings={toggleChannelSettings}
                 select={chanID === c.chanID}

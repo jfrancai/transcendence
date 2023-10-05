@@ -48,11 +48,11 @@ export function Channel({
           <ChannelListFeed chanID={chanID} />
         </RenderIf>
         <RenderIf some={[isChannelView]}>
-          <ChatFeed userID={chanID} />
+          <ChatFeed userID={chanID} event="channelMessages" />
         </RenderIf>
       </div>
       <RenderIf some={[isChannelView]}>
-        <SendMessageInput receiverID={chanID} />
+        <SendMessageInput receiverID={chanID} event="channelMessage" />
       </RenderIf>
       <RenderIf some={[isCreateORJoinChannelView]}>
         <Scrollable>

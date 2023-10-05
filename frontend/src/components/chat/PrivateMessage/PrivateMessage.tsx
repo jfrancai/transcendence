@@ -20,8 +20,8 @@ export function PrivateMessage({
   return (
     <>
       <RenderIf some={[isConversationView]}>
-        <ChatFeed userID={userID} />
-        <SendMessageInput receiverID={userID} />
+        <ChatFeed userID={userID} event="messages" />
+        <SendMessageInput receiverID={userID} event="privateMessage" />
       </RenderIf>
       <RenderIf some={[isMessageView]}>
         <ContactListFeed

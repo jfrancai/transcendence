@@ -19,7 +19,7 @@ export function ChannelListFeed({ chanID }: ContactListProps) {
   const channel = useChanInfo();
 
   useEffect(() => {
-    if (chanID) {
+    if (chanID.length !== 0) {
       socket.emit('channelMembers', { chanID });
       socket.emit('channelInfo', { chanID });
     }
