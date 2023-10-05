@@ -27,22 +27,6 @@ export function ChannelCarrouselCard({
       <button type="button" onClick={onClick} className={`id-${id}`}>
         <ProfilePicture select={select} size="s" url="starwatcher.jpg" />
       </button>
-      <Tooltip
-        disableStyleInjection
-        className="z-50 flex flex-col rounded border-pong-blue-100 bg-pong-blue-500 bg-opacity-100 p-2 text-pong-white text-opacity-100 "
-        anchorSelect={`.id-${id}`}
-        clickable
-        place="right"
-      >
-        <p className="font-semibold">{chanName}</p>
-        <SecondaryButton
-          onClick={() => {
-            toggleChannelSettings();
-          }}
-          disabled={false}
-          span="settings"
-        />
-      </Tooltip>
     </div>
   );
 }
