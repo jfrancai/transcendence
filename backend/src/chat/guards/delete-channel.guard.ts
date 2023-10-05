@@ -9,8 +9,8 @@ import {
 } from '@nestjs/common';
 import { validate } from 'class-validator';
 import { ChannelService } from '../../database/service/channel.service';
-import { ChannelNameDto } from '../dto/channel-name.dto';
 import { EmptyChannel } from '../decorators/empty-channel';
+import { ChannelIdDto } from '../dto/channel-id.dto';
 
 @Injectable()
 export class EmptyChannelGuard implements CanActivate {
@@ -26,7 +26,7 @@ export class EmptyChannelGuard implements CanActivate {
     }
     const data = context.switchToWs().getData();
 
-    const channelDto = plainToClass(ChannelNameDto, data);
+    const channelDto = plainToClass(ChannelIdDto, data);
     const validationErrors = await validate(channelDto);
     const message = validationErrors.map((e) => e.constraints);
     if (validationErrors.length > 0) {

@@ -12,7 +12,7 @@ import { ChannelService } from '../../database/service/channel.service';
 import { ChanRestrictService } from '../../database/service/chan-restrict.service';
 import { ChatSocket } from '../chat.interface';
 import { Restrict } from '../decorators/restricts.decorator';
-import { ChannelNameDto } from '../dto/channel-name.dto';
+import { ChannelIdDto } from '../dto/channel-id.dto';
 
 @Injectable()
 export class RestrictGuard implements CanActivate {
@@ -33,15 +33,17 @@ export class RestrictGuard implements CanActivate {
     const socket = context.switchToWs().getClient() as ChatSocket;
     const data = context.switchToWs().getData();
 
-    const channelDto = plainToClass(ChannelNameDto, data);
+    const channelDto = plainToClass(ChannelIdDto, data);
     const validationErrors = await validate(channelDto);
     const message = validationErrors.map((e) => e.constraints);
     if (validationErrors.length > 0) {
       throw new BadRequestException({ message });
     }
 
-    const { chanName } = channelDto;
-    const channel = await this.channelService.getChanWithRestrictList(chanName);
+    const { chanID } = channelDto;
+    const channel = await this.channelService.getChanByIdWithRestrictList(
+      chanID
+    );
     if (channel) {
       const restrictSet: Set<'banned' | 'muted'> = new Set();
       const { restrictList } = channel;

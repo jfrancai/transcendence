@@ -96,6 +96,22 @@ export class ChannelService {
     }
   }
 
+  async getChanByIdWithRestrictList(id: string) {
+    try {
+      return await this.prisma.channel.findUnique({
+        where: {
+          id
+        },
+        include: {
+          restrictList: true
+        }
+      });
+    } catch (e) {
+      this.logger.warn(e);
+      throw new ForbiddenException();
+    }
+  }
+
   async getChanWithMessages(chanName: string) {
     try {
       return await this.prisma.channel.findUnique({

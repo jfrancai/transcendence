@@ -45,6 +45,7 @@ import { EmptyChannel } from './decorators/empty-channel';
 import { ChanRestrictService } from '../database/service/chan-restrict.service';
 import { ChannelRestrictDto } from './dto/channel-restrict.dto';
 import { UserDto } from './dto/user.dto';
+import { ChannelIdDto } from './dto/channel-id.dto';
 
 // WebSocketGateways are instantiated from the SocketIoAdapter (inside src/adapters)
 // inside this IoAdapter there is authentification process with JWT
@@ -460,10 +461,10 @@ export default class ChatGateway
   @Roles(['member', 'admin', 'creator'])
   @SubscribeMessage('channelInfo')
   async handleChannelInfo(
-    @MessageBody(new ValidationPipe()) channelNameDto: ChannelNameDto,
+    @MessageBody(new ValidationPipe()) channelIdDto: ChannelIdDto,
     @ConnectedSocket() socket: ChatSocket
   ) {
-    const { chanID } = channelNameDto;
+    const { chanID } = channelIdDto;
     const senderID = socket.user.id!;
     this.logger.log(
       `Channel info request for channel ${chanID} by user ${senderID}`
@@ -544,10 +545,10 @@ export default class ChatGateway
   @Roles(['creator', 'admin', 'member'])
   @SubscribeMessage('channelMembers')
   async handleChannelMembers(
-    @MessageBody(new ValidationPipe()) channelNameDto: ChannelNameDto,
+    @MessageBody(new ValidationPipe()) channelIdDto: ChannelIdDto,
     @ConnectedSocket() socket: ChatSocket
   ) {
-    const { chanID } = channelNameDto;
+    const { chanID } = channelIdDto;
     const senderID = socket.user.id!;
     this.logger.log(
       `Channel members request for channel ${chanID} by user ${senderID}`

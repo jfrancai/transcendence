@@ -11,7 +11,7 @@ import {
 import { ChannelService } from '../../database/service/channel.service';
 import { ChatSocket } from '../chat.interface';
 import { Roles, RolesType } from '../decorators/roles.decorator';
-import { ChannelNameDto } from '../dto/channel-name.dto';
+import { ChannelIdDto } from '../dto/channel-id.dto';
 
 @Injectable()
 export class RolesGuard implements CanActivate {
@@ -29,7 +29,7 @@ export class RolesGuard implements CanActivate {
     const socket = context.switchToWs().getClient() as ChatSocket;
     const data = context.switchToWs().getData();
 
-    const channelDto = plainToClass(ChannelNameDto, data);
+    const channelDto = plainToClass(ChannelIdDto, data);
     const validationErrors = await validate(channelDto);
     const message = validationErrors.map((e) => e.constraints);
     if (validationErrors.length > 0) {
