@@ -14,8 +14,10 @@ export interface Message {
   content: string;
   sender: string;
   senderID: string;
-  receiver: string;
-  receiverID: string;
+  receiver?: string;
+  receiverID?: string;
+  chanName?: string;
+  chanID?: string;
   createdAt: Date;
 }
 

@@ -11,6 +11,38 @@ export function useMessages(targetID: string): ChatInfo[] {
   const isConnected = useConnected();
 
   useEffect(() => {
+    const onChannelMessages = (messages: Message[]) => {
+      const formatedMessages: any = [];
+      messages.map((message: Message) => {
+        formatedMessages.push({
+          id: message.messageID,
+          message: message.content,
+          time: formatTimeMessage(message.createdAt),
+          username: message.sender,
+          chanName: message.chanName,
+          chanID: message.chanID,
+          profilePictureUrl: 'starwatcher.jpg'
+        });
+        return message;
+      });
+      setMsg(formatedMessages);
+    };
+
+    const onChannelMessage = (message: Message) => {
+      if (targetID === message.chanID) {
+        const formatedMessage = {
+          id: message.messageID,
+          message: message.content,
+          time: formatTimeMessage(message.createdAt),
+          username: message.sender,
+          chanName: message.chanName,
+          chanID: message.chanID,
+          profilePictureUrl: 'starwatcher.jpg'
+        };
+        setMsg((m) => m.concat(formatedMessage));
+      }
+    };
+
     const onPrivateMessage = (message: Message) => {
       if (targetID === message.senderID || message.senderID === socket.userID) {
         const formatedMessage = {
@@ -43,9 +75,13 @@ export function useMessages(targetID: string): ChatInfo[] {
 
     socket.on('messages', onMessages);
     socket.on('privateMessage', onPrivateMessage);
+    socket.on('channelMessages', onChannelMessages);
+    socket.on('channelMessage', onChannelMessage);
     return () => {
       socket.off('messages', onMessages);
       socket.off('privateMessage', onPrivateMessage);
+      socket.off('channelMessages', onChannelMessages);
+      socket.off('channelMessage', onChannelMessage);
     };
   }, [isConnected, socket, targetID]);
 
