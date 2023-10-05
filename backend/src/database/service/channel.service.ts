@@ -158,22 +158,6 @@ export class ChannelService {
     }
   }
 
-  async getChanByIdWithMembers(id: string) {
-    try {
-      return await this.prisma.channel.findUnique({
-        where: {
-          id
-        },
-        include: {
-          members: true
-        }
-      });
-    } catch (e) {
-      this.logger.warn(e);
-      throw new ForbiddenException();
-    }
-  }
-
   async getChanWithMembers(chanName: string) {
     try {
       return await this.prisma.channel.findUnique({

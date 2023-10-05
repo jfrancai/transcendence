@@ -526,16 +526,16 @@ export default class ChatGateway
   @Roles(['creator', 'admin', 'member'])
   @SubscribeMessage('channelMessages')
   async handleChannelMessages(
-    @MessageBody(new ValidationPipe()) channelNameDto: ChannelNameDto,
+    @MessageBody(new ValidationPipe()) channelIdDto: ChannelIdDto,
     @ConnectedSocket() socket: ChatSocket
   ) {
-    const { chanName } = channelNameDto;
+    const { chanID } = channelIdDto;
     const senderID = socket.user.id!;
     this.logger.log(
-      `Channel messages request for channel ${chanName} by user ${senderID}`
+      `Channel messages request for channel ${chanID} by user ${senderID}`
     );
 
-    const channel = await this.channelService.getChanWithMessages(chanName);
+    const channel = await this.channelService.getChanWithMessages(chanID);
     if (channel) {
       const { messages } = channel;
       this.io.to(senderID).emit('channelMessages', messages);
@@ -554,7 +554,7 @@ export default class ChatGateway
       `Channel members request for channel ${chanID} by user ${senderID}`
     );
 
-    const channel = await this.channelService.getChanByIdWithMembers(chanID);
+    const channel = await this.channelService.getChanWithMembers(chanID);
     if (channel) {
       const { members } = channel;
       const pubMembers: PublicChatUser[] = members.map((m) => ({
