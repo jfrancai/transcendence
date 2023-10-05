@@ -10,14 +10,10 @@ import { useSocketContext } from '../../../contexts/socket';
 import { useChanInfo } from '../../../utils/hooks/useChannelInfo';
 
 interface ContactListProps {
-  toggleConversationView: () => any;
   chanID: string;
 }
 
-export function ChannelListFeed({
-  chanID,
-  toggleConversationView
-}: ContactListProps) {
+export function ChannelListFeed({ chanID }: ContactListProps) {
   const { socket } = useSocketContext();
   const contactList = useUsers();
   const channel = useChanInfo();
@@ -49,9 +45,7 @@ export function ChannelListFeed({
       key={user.userID}
       username={user.username}
       userID={user.userID}
-      onClick={() => {
-        toggleConversationView();
-      }}
+      onClick={() => {}}
       url="starwatcher.jpg"
     />
   );

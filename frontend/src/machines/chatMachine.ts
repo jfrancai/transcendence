@@ -89,9 +89,6 @@ export const chatMachine = createMachine(
               clickOnChannel: {
                 target: 'channelView'
               },
-              selectContact: {
-                target: 'conversationView'
-              },
               clickOnSearch: {
                 target: 'searchView'
               },
@@ -141,9 +138,6 @@ export const chatMachine = createMachine(
           },
           inviteChannelView: {
             on: {
-              closeAddChannel: {
-                target: 'channelView'
-              },
               selectHeader: {
                 target: 'channelView'
               },
@@ -174,19 +168,19 @@ export const chatMachine = createMachine(
     },
     schema: {
       events: {} as
-        | { type: 'selectHeader' }
-        | { type: 'createChannel' }
-        | { type: 'joinChannel' }
         | { type: 'clickOnNotification' }
         | { type: 'clickOnSearch' }
+        | { type: 'selectContact' }
+        | { type: 'clickOnChannel' }
         | { type: 'clickOnMessage' }
+        | { type: 'selectHeader' }
         | { type: 'selectChannel' }
         | { type: 'addChannel' }
+        | { type: 'createChannel' }
+        | { type: 'joinChannel' }
         | { type: 'inviteChannel' }
         | { type: 'previousAddChannel' }
         | { type: 'closeAddChannel' }
-        | { type: 'clickOnChannel' }
-        | { type: 'selectContact' }
         | { type: 'CLOSE' }
         | { type: 'OPEN' },
       context: {} as { '': string }

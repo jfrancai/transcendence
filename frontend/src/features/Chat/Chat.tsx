@@ -61,7 +61,6 @@ function Chat() {
       />
       <Channel
         toggleChannelView={() => send('clickOnChannel')}
-        toggleConversationView={() => send('selectContact')}
         toggleInviteChannel={() => send('inviteChannel')}
         toggleChannelSettings={() => send('selectChannel')}
         toggleCreateChannelView={() => send('addChannel')}

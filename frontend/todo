@@ -1,0 +1,17 @@
+- Join Channel:
+  . public channel are display with number of users inside
+  . display a lock for protected channel and ask for password
+  . join by channel name for private channels
+- Channel settings
+  MEMBERS
+  . invite other user
+  ADMINS: 
+  . ban / mute other users if admin
+  CREATOR
+  . delete channel
+  . rename channel
+- Chat notification:
+  . Invites / Bans / Mute
+
+Optionnal:
+  . Notification on new messages

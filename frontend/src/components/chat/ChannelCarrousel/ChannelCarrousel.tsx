@@ -56,7 +56,7 @@ export function ChannelCarrousel({
 
   useEffect(() => {
     socket.emit('channels');
-  }, [socket]);
+  }, [socket, chanID]);
 
   useEffect(() => {
     if (channels.length) {

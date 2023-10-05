@@ -11,7 +11,6 @@ interface ChannelProps {
   toggleCreateChannelView: () => any;
   toggleInviteChannel: () => any;
   toggleChannelSettings: () => any;
-  toggleConversationView: () => any;
   createChannel: () => any;
   isChannelView: boolean;
   isCreateORJoinChannelView: boolean;
@@ -23,7 +22,6 @@ export function Channel({
   toggleCreateChannelView,
   toggleInviteChannel,
   toggleChannelSettings,
-  toggleConversationView,
   createChannel,
   isChannelView,
   isChannelSettings,
@@ -44,10 +42,7 @@ export function Channel({
           />
         </RenderIf>
         <RenderIf some={[isChannelSettings]}>
-          <ChannelListFeed
-            toggleConversationView={toggleConversationView}
-            chanID={chanID}
-          />
+          <ChannelListFeed chanID={chanID} />
         </RenderIf>
       </div>
       <RenderIf some={[isCreateORJoinChannelView]}>
