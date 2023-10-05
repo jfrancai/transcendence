@@ -128,6 +128,22 @@ export class ChannelService {
     }
   }
 
+  async getChanByIdWithMessages(id: string) {
+    try {
+      return await this.prisma.channel.findUnique({
+        where: {
+          id
+        },
+        include: {
+          messages: true
+        }
+      });
+    } catch (e) {
+      this.logger.warn(e);
+      throw new ForbiddenException();
+    }
+  }
+
   async getChanWithMessagesAndMembers(chanName: string) {
     try {
       return await this.prisma.channel.findUnique({
@@ -169,7 +185,23 @@ export class ChannelService {
         }
       });
     } catch (e) {
-      this.logger.warn(e);
+      this.logger.warn('getChanWithMembers', e);
+      throw new ForbiddenException();
+    }
+  }
+
+  async getChanByIdWithMembers(id: string) {
+    try {
+      return await this.prisma.channel.findUnique({
+        where: {
+          id
+        },
+        include: {
+          members: true
+        }
+      });
+    } catch (e) {
+      this.logger.warn('getChanWithMembers', e);
       throw new ForbiddenException();
     }
   }

@@ -470,7 +470,7 @@ export default class ChatGateway
       `Channel info request for channel ${chanID} by user ${senderID}`
     );
 
-    const channel = await this.channelService.getChanByName(chanID);
+    const channel = await this.channelService.getChanById(chanID);
     if (channel) {
       const pubChan: PublicChannel = {
         chanID: channel.id,
@@ -535,7 +535,7 @@ export default class ChatGateway
       `Channel messages request for channel ${chanID} by user ${senderID}`
     );
 
-    const channel = await this.channelService.getChanWithMessages(chanID);
+    const channel = await this.channelService.getChanByIdWithMessages(chanID);
     if (channel) {
       const { messages } = channel;
       this.io.to(senderID).emit('channelMessages', messages);
@@ -554,7 +554,7 @@ export default class ChatGateway
       `Channel members request for channel ${chanID} by user ${senderID}`
     );
 
-    const channel = await this.channelService.getChanWithMembers(chanID);
+    const channel = await this.channelService.getChanByIdWithMembers(chanID);
     if (channel) {
       const { members } = channel;
       const pubMembers: PublicChatUser[] = members.map((m) => ({
