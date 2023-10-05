@@ -25,10 +25,11 @@ export interface PublicMessage {
 
 export interface PublicChannelMessage {
   messageID: string;
-  chanID: string;
   content: string;
   sender: string;
-  receiver: string;
+  senderID: string;
+  chanName: string;
+  chanID: string;
   createdAt: Date;
 }
 

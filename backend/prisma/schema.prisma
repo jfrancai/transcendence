@@ -31,11 +31,11 @@ model Message {
   content    String
   sender     Users    @relation(name: "sender", fields: [senderID], references: [id])
   senderID   String   @db.Uuid
-  receiver   Users    @relation(name: "receiver", fields: [receiverID], references: [id])
-  receiverID String   @db.Uuid
-  createdAt  DateTime @default(now())
+  receiver   Users?   @relation(name: "receiver", fields: [receiverID], references: [id])
+  receiverID String?  @db.Uuid
   channel    Channel? @relation(fields: [channelID], references: [id])
   channelID  String?  @db.Uuid
+  createdAt  DateTime @default(now())
 }
 
 model ChanInvite {

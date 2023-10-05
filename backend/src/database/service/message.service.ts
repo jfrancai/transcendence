@@ -84,9 +84,6 @@ export class MessageService {
           sender: {
             connect: { id: message.senderID }
           },
-          receiver: {
-            connect: { id: message.receiverID }
-          },
           channel: {
             connect: { id: message.receiverID }
           }

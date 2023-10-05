@@ -1,11 +1,8 @@
 import { IsNotEmpty, IsString } from 'class-validator';
+import { ChannelIdDto } from './channel-id.dto';
 
-export class ChannelMessageDto {
+export class ChannelMessageDto extends ChannelIdDto {
   @IsNotEmpty()
   @IsString()
   readonly content: string;
-
-  @IsNotEmpty()
-  @IsString()
-  readonly chanName: string;
 }

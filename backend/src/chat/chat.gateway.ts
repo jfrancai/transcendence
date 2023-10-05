@@ -365,23 +365,26 @@ export default class ChatGateway
     @MessageBody(new ValidationPipe()) messageDto: ChannelMessageDto,
     @ConnectedSocket() socket: ChatSocket
   ) {
-    const { chanName, content } = messageDto;
+    const { chanID, content } = messageDto;
     const senderID = socket.user.id!;
     this.logger.log(
-      `Incoming channel message from ${senderID} to ${chanName} with content: ${content}`
+      `Incoming channel message from ${senderID} to ${chanID} with content: ${content}`
     );
     const chanMessage = await this.messageService.createChannelMessage({
       content,
       senderID,
-      receiverID: chanName
+      receiverID: chanID
     });
+    const sender = await this.usersService.getUserById(senderID);
+    const channel = await this.channelService.getChanById(chanID);
     if (chanMessage && chanMessage.channelID) {
       const pubChanMessage: PublicChannelMessage = {
         messageID: chanMessage.id,
-        chanID: chanMessage.channelID,
         content: chanMessage.content,
-        sender: chanMessage.senderID,
-        receiver: chanMessage.receiverID,
+        sender: sender!.username,
+        senderID: sender!.id,
+        chanName: channel!.chanName,
+        chanID: channel!.id,
         createdAt: chanMessage.createdAt
       };
       this.io.to(chanMessage.channelID).emit('channelMessage', pubChanMessage);
