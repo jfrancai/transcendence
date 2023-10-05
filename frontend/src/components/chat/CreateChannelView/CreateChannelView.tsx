@@ -50,6 +50,7 @@ export function CreateChannelView({
     socket.on('error', onError);
     return () => {
       socket.off('channelCreate', toggleInviteChannel);
+      socket.off('error', onError);
     };
   });
   return (
