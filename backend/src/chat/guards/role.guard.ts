@@ -29,14 +29,14 @@ export class RolesGuard implements CanActivate {
     const socket = context.switchToWs().getClient() as ChatSocket;
     const data = context.switchToWs().getData();
 
-    const channelDto = plainToClass(ChannelIdDto, data);
-    const validationErrors = await validate(channelDto);
+    const channelIdDto = plainToClass(ChannelIdDto, data);
+    const validationErrors = await validate(channelIdDto);
     const message = validationErrors.map((e) => e.constraints);
     if (validationErrors.length > 0) {
       throw new BadRequestException({ message });
     }
 
-    const { chanID } = channelDto;
+    const { chanID } = channelIdDto;
     const channel = await this.channelService.getChanByIdWithMembers(chanID);
     if (channel) {
       let socketRole: RolesType;

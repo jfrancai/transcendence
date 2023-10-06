@@ -108,17 +108,23 @@ export default class ChatGateway
       connectedChat: false
     });
     // /!\ To remove test only /!\
+
     this.logger.log('Initialized');
   }
 
   async handleConnection(socket: ChatSocket) {
+    const senderID = socket.user.id!;
+
     this.logger.log(`ClientId: ${socket.user.id} connected`);
     this.logger.log(`Nb clients: ${this.io.sockets.sockets.size}`);
 
-    this.usersService.setChatConnected(socket.user.id!);
-
     socket.join(socket.user.id!);
+    const user = await this.usersService.getUserByIdWithChan(senderID);
+    if (user) {
+      user.channels.forEach((c) => socket.join(c.id));
+    }
 
+    this.usersService.setChatConnected(socket.user.id!);
     socket.broadcast.emit('userConnected', {
       userID: socket.user.id,
       username: socket.user.username
@@ -386,10 +392,7 @@ export default class ChatGateway
         createdAt: chanMessage.createdAt
       };
       this.logger.debug(chanMessage.channelID);
-      this.io
-        .to(chanMessage.channelID)
-        .to(senderID)
-        .emit('privateMessage', pubChanMessage);
+      this.io.to(chanMessage.channelID).emit('channelMessage', pubChanMessage);
     }
   }
 

@@ -50,6 +50,19 @@ export class ChannelService {
     }
   }
 
+  async getAllChanWithMembers() {
+    try {
+      return await this.prisma.channel.findMany({
+        include: {
+          members: true
+        }
+      });
+    } catch (e: any) {
+      this.logger.warn(e);
+      return null;
+    }
+  }
+
   async getChanById(id: string) {
     try {
       return await this.prisma.channel.findUnique({

@@ -81,6 +81,9 @@ export const chatMachine = createMachine(
               },
               addChannel: {
                 target: 'createORJoinChannelView'
+              },
+              selectHeader: {
+                target: 'channelSettings'
               }
             }
           },

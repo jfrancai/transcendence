@@ -7,6 +7,7 @@ interface MenuSelectorProps {
   isMessageView: boolean;
   isChannelView: boolean;
   isSearchView: boolean;
+  isChannelSettings: boolean;
   isNotificationView: boolean;
   toggleMessageView: () => any;
   toggleChannelView: () => any;
@@ -18,6 +19,7 @@ export default function MenuSelector({
   isMessageView,
   isChannelView,
   isSearchView,
+  isChannelSettings,
   isNotificationView,
   toggleMessageView,
   toggleChannelView,
@@ -36,7 +38,9 @@ export default function MenuSelector({
       <button type="button" onClick={toggleChannelView}>
         <MdOutlineGroups
           className={`h-6 w-6 ${
-            isChannelView ? 'text-pong-white' : 'text-pong-blue-100'
+            isChannelView || isChannelSettings
+              ? 'text-pong-white'
+              : 'text-pong-blue-100'
           }`}
         />
       </button>
