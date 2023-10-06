@@ -25,7 +25,7 @@ export const chatMachine = createMachine(
                 target: 'conversationView'
               },
               clickOnChannel: {
-                target: 'channelView'
+                target: 'channelSettings'
               }
             }
           },

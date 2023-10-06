@@ -35,7 +35,7 @@ export function Channel({
   return (
     <>
       <div className="flex flex-row">
-        <RenderIf some={[isChannelView, isChannelSettings]}>
+        <RenderIf some={[isChannelSettings]}>
           <ChannelCarrousel
             toggleCreateChannelView={toggleCreateChannelView}
             toggleChannelSettings={toggleChannelSettings}

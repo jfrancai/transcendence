@@ -60,7 +60,7 @@ export function ChannelCarrousel({
   chanID
 }: ChannelCarrouselProps) {
   const { socket } = useSocketContext();
-  const channels = useChannels(setChanID);
+  const channels = useChannels(setChanID, chanID);
 
   useEffect(() => {
     socket.emit('channels');
