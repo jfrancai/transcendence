@@ -31,7 +31,7 @@ export function CreateChannelView({
   const { socket } = useSocketContext();
   const [chanName, setChanName] = useState(`${socket.username}'s channel`);
   const [type, setType] = useState<'PASSWORD' | 'PUBLIC' | 'PRIVATE'>('PUBLIC');
-  const [password, setPassword] = useState<string | undefined>(undefined);
+  const [password, setPassword] = useState<string>('');
   const [error, setError] = useState<string | undefined>(undefined);
 
   const handleCreateChannel = () => {

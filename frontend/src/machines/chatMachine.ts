@@ -100,6 +100,9 @@ export const chatMachine = createMachine(
               },
               clickOnMessage: {
                 target: 'messageView'
+              },
+              addChannel: {
+                target: 'createORJoinChannelView'
               }
             }
           },

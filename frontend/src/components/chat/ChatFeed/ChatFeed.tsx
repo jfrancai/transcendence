@@ -31,6 +31,13 @@ function ChatFeed({ userID, event }: ChatFeedProps) {
 
   return (
     <Scrollable width={336}>
+      {messages.length ? null : (
+        <div className="mt-80 flex h-auto items-center justify-center ">
+          <p className="text-2xl font-extrabold text-pong-blue-100">
+            Start writing :)
+          </p>
+        </div>
+      )}
       {messages.map((chat, index: number) => {
         if (index % 2) {
           return (
