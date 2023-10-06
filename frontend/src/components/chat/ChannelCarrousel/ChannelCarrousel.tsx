@@ -5,7 +5,6 @@ import ProfilePicture from '../ProfilePicture/ProfilePicture';
 import { Scrollable } from '../Scrollable/Scrollable';
 import { useChannels } from '../../../utils/hooks/useChannels';
 import { useSocketContext } from '../../../contexts/socket';
-import SecondaryButton from '../../SecondaryButton/SecondaryButton';
 
 interface ChannelCarrouselCardProps {
   onPrimaryClick: () => any;
@@ -23,7 +22,12 @@ export function ChannelCarrouselCard({
   id
 }: ChannelCarrouselCardProps) {
   return (
-    <div>
+    <div
+      onContextMenu={(e) => {
+        e.preventDefault();
+        onSecondaryClick();
+      }}
+    >
       <button type="button" onClick={onPrimaryClick} className={`id-${id}`}>
         <ProfilePicture select={select} size="s" url="starwatcher.jpg" />
       </button>
@@ -35,11 +39,6 @@ export function ChannelCarrouselCard({
         place="right"
       >
         <p className="font-semibold">{chanName}</p>
-        <SecondaryButton
-          onClick={onSecondaryClick}
-          disabled={false}
-          span="settings"
-        />
       </Tooltip>
     </div>
   );
@@ -61,7 +60,7 @@ export function ChannelCarrousel({
   chanID
 }: ChannelCarrouselProps) {
   const { socket } = useSocketContext();
-  const channels = useChannels();
+  const channels = useChannels(setChanID);
 
   useEffect(() => {
     socket.emit('channels');

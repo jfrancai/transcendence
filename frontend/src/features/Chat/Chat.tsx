@@ -87,6 +87,7 @@ function Chat() {
         <MenuSelector
           isMessageView={isMessageView}
           isChannelView={isChannelView}
+          isChannelSettings={isChannelSettings}
           isSearchView={isSearchView}
           isNotificationView={isNotificationView}
           toggleMessageView={() => send('clickOnMessage')}

@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import { useSocketContext } from '../../contexts/socket';
 import { Channel } from './useStatus.interfaces';
 
-export function useChannels() {
+export function useChannels(callBack: (chanID: string) => any) {
   const { socket } = useSocketContext();
   const [channels, setChannels] = useState<Channel[]>([]);
 
@@ -12,6 +12,7 @@ export function useChannels() {
     };
 
     const onChannels = (data: Channel[]) => {
+      callBack(data[0].chanID);
       setChannels(data);
     };
 
@@ -21,7 +22,7 @@ export function useChannels() {
       socket.off('channelCreate', onChannelCreate);
       socket.off('channels', onChannels);
     };
-  }, [socket]);
+  }, [socket, callBack]);
 
   return channels;
 }

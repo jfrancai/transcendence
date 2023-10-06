@@ -54,7 +54,7 @@ export function CreateChannelView({
     };
   });
   return (
-    <div className="flex w-full max-w-[336px] flex-col items-center justify-center gap-10 pt-28">
+    <div className="flex w-full flex-col items-center justify-center gap-10">
       <p className="text-2xl font-bold text-pong-white">Create your Channel</p>
 
       <Section>
