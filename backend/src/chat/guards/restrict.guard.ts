@@ -5,8 +5,7 @@ import {
   Injectable,
   CanActivate,
   ExecutionContext,
-  BadRequestException,
-  Logger
+  BadRequestException
 } from '@nestjs/common';
 import { ChannelService } from '../../database/service/channel.service';
 import { ChanRestrictService } from '../../database/service/chan-restrict.service';
@@ -16,8 +15,6 @@ import { ChannelIdDto } from '../dto/channel-id.dto';
 
 @Injectable()
 export class RestrictGuard implements CanActivate {
-  private readonly logger = new Logger(RestrictGuard.name);
-
   constructor(
     private channelService: ChannelService,
     private chanRestrictService: ChanRestrictService,
@@ -60,7 +57,6 @@ export class RestrictGuard implements CanActivate {
         }
       });
       const restrictArr = Array.from(restrictSet);
-      this.logger.debug(restrictArr, restricts);
       return !restricts.some((r) => restrictArr.includes(r));
     }
     return false;

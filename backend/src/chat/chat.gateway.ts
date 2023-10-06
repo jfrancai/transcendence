@@ -538,9 +538,12 @@ export default class ChatGateway
     const channel = await this.channelService.getChanByIdWithMessages(chanID);
     if (channel) {
       const { messages } = channel;
+      let sender: any;
       const pubMessages: PublicChannelMessage[] = await Promise.all(
         messages.map(async (m) => {
-          const sender = await this.usersService.getUserById(senderID);
+          if (!sender || m.senderID !== sender.id) {
+            sender = await this.usersService.getUserById(m.senderID);
+          }
           return {
             content: m.content,
             messageID: m.id,
