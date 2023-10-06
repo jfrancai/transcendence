@@ -22,7 +22,7 @@ function ChatMessage({
   return (
     <div
       className={`${noBgColor ? '' : 'bg-pong-blue-400'}
-        mx-2 my-1 flex w-80 flex-shrink-0 rounded-lg p-3 text-left `}
+        mx-2 my-1 flex w-full flex-shrink-0 rounded-lg p-3 text-left `}
       onClick={() => setClicked(!clicked)}
       role="presentation"
     >

@@ -50,24 +50,22 @@ export function ContactListFeed({
   );
   return (
     <Scrollable>
-      <div className="pt-28">
-        {online.length ? (
-          <>
-            <p className="pl-2 font-semibold text-pong-blue-100">
-              {`ONLINE — ${online.length}`}
-            </p>
-            {online.map(displayCard)}
-          </>
-        ) : null}
-        {offline.length ? (
-          <>
-            <p className="mt-3 pl-2 font-bold text-pong-blue-100">
-              {`OFFLINE — ${offline.length}`}
-            </p>
-            {offline.map(displayCard)}
-          </>
-        ) : null}
-      </div>
+      {online.length ? (
+        <>
+          <p className="pl-2 font-semibold text-pong-blue-100">
+            {`ONLINE — ${online.length}`}
+          </p>
+          {online.map(displayCard)}
+        </>
+      ) : null}
+      {offline.length ? (
+        <>
+          <p className="mt-3 pl-2 font-bold text-pong-blue-100">
+            {`OFFLINE — ${offline.length}`}
+          </p>
+          {offline.map(displayCard)}
+        </>
+      ) : null}
     </Scrollable>
   );
 }

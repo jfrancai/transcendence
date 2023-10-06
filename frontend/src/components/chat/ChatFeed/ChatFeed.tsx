@@ -30,21 +30,9 @@ function ChatFeed({ userID, event }: ChatFeedProps) {
   }, [userID, socket, event]);
 
   return (
-    <Scrollable>
-      <div className="mt-28">
-        {messages.map((chat, index: number) => {
-          if (index % 2) {
-            return (
-              <ChatMessage
-                key={chat.id}
-                message={chat.message}
-                time={chat.time}
-                username={chat.username}
-                profilePictureUrl={chat.profilePictureUrl}
-                noBgColor
-              />
-            );
-          }
+    <Scrollable width={336}>
+      {messages.map((chat, index: number) => {
+        if (index % 2) {
           return (
             <ChatMessage
               key={chat.id}
@@ -52,11 +40,21 @@ function ChatFeed({ userID, event }: ChatFeedProps) {
               time={chat.time}
               username={chat.username}
               profilePictureUrl={chat.profilePictureUrl}
+              noBgColor
             />
           );
-        })}
-        <div ref={messageEndRef} />
-      </div>
+        }
+        return (
+          <ChatMessage
+            key={chat.id}
+            message={chat.message}
+            time={chat.time}
+            username={chat.username}
+            profilePictureUrl={chat.profilePictureUrl}
+          />
+        );
+      })}
+      <div ref={messageEndRef} />
     </Scrollable>
   );
 }

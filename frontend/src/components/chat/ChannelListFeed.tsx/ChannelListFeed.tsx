@@ -52,7 +52,7 @@ export function ChannelListFeed({ chanID }: ContactListProps) {
   return (
     <div className="w-full">
       <Scrollable>
-        <div className="flex flex-col gap-3 pt-28">
+        <div className="flex flex-col gap-3">
           {admins.length ? (
             <div>
               <p className="pl-2 font-semibold text-pong-blue-100">

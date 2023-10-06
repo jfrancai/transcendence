@@ -55,7 +55,7 @@ export function Channel({
         <SendMessageInput receiverID={chanID} event="channelMessage" />
       </RenderIf>
       <RenderIf some={[isCreateORJoinChannelView]}>
-        <Scrollable>
+        <Scrollable width={336}>
           <div className="flex w-full flex-col items-center justify-center gap-10 pt-28">
             <p className="text-2xl font-bold text-pong-white">
               Create your Channel
@@ -69,7 +69,7 @@ export function Channel({
         <div className="h-14 w-[336px]" />
       </RenderIf>
       <RenderIf some={[isChannelNameView]}>
-        <Scrollable>
+        <Scrollable width={336}>
           <CreateChannelView toggleInviteChannel={toggleInviteChannel} />
         </Scrollable>
         <div className="h-14 w-[336px]" />

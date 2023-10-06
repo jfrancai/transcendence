@@ -26,7 +26,6 @@ export function SendMessageInput({ receiverID, event }: SendMessageInputProps) {
       } else {
         data.chanID = receiverID;
       }
-      console.log(data);
 
       socket.emit(event, data);
     }
@@ -36,7 +35,7 @@ export function SendMessageInput({ receiverID, event }: SendMessageInputProps) {
   return (
     <form
       onSubmit={handleSubmit}
-      className="flex h-14 w-full flex-shrink-0 items-center justify-between gap-y-24 bg-pong-blue-400 px-5"
+      className="flex h-14 w-[336px] flex-shrink-0 items-center justify-between gap-y-24 bg-pong-blue-400 px-5"
       autoComplete="off"
     >
       <input

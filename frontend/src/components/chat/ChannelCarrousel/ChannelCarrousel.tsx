@@ -69,30 +69,28 @@ export function ChannelCarrousel({
 
   return (
     <Scrollable>
-      <div className="t mt-28 min-h-[758px] w-16 rounded-2xl bg-pong-blue-500 pt-2">
-        <div className="shrink-0 flex-col-reverse items-center justify-end">
-          <div className="flex flex-col items-center justify-center gap-1">
-            {channels.map((c) => (
-              <ChannelCarrouselCard
-                id={c.chanID}
-                key={c.chanID}
-                onPrimaryClick={() => {
-                  setChanID(c.chanID);
-                  toggleChannelView();
-                }}
-                onSecondaryClick={() => {
-                  setChanID(c.chanID);
-                  toggleChannelSettings();
-                }}
-                select={chanID === c.chanID}
-                chanName={c.chanName}
-              />
-            ))}
-            <div className="">
-              <button type="button" onClick={toggleCreateChannelView}>
-                <AiOutlinePlusCircle className="h-[50px] w-[50px] rounded-2xl text-pong-blue-100 hover:bg-pong-blue-100 hover:text-pong-blue-500" />
-              </button>
-            </div>
+      <div className="min-h-[758px] w-16 rounded-2xl bg-pong-blue-500 pt-2">
+        <div className="flex flex-col items-center justify-center gap-1">
+          {channels.map((c) => (
+            <ChannelCarrouselCard
+              id={c.chanID}
+              key={c.chanID}
+              onPrimaryClick={() => {
+                setChanID(c.chanID);
+                toggleChannelView();
+              }}
+              onSecondaryClick={() => {
+                setChanID(c.chanID);
+                toggleChannelSettings();
+              }}
+              select={chanID === c.chanID}
+              chanName={c.chanName}
+            />
+          ))}
+          <div className="">
+            <button type="button" onClick={toggleCreateChannelView}>
+              <AiOutlinePlusCircle className="h-[50px] w-[50px] rounded-2xl text-pong-blue-100 hover:bg-pong-blue-100 hover:text-pong-blue-500" />
+            </button>
           </div>
         </div>
       </div>
