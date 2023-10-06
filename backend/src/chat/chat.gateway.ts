@@ -282,6 +282,7 @@ export default class ChatGateway
       chanType: channel.type,
       chanCreatedAt: channel.createdAt
     };
+    this.logger.debug(channel.id);
     socket.join(channel.id);
     this.io.to(creatorID).emit('channelCreate', pubChan);
   }
@@ -317,12 +318,12 @@ export default class ChatGateway
   @UseGuards(JoinChannelGuard)
   @SubscribeMessage('channelJoin')
   async handleJoinChannel(
-    @MessageBody(new ValidationPipe()) channelDto: ChannelDto,
+    @MessageBody(new ValidationPipe()) channelIdDto: ChannelIdDto,
     @ConnectedSocket() socket: ChatSocket
   ) {
-    const { chanName } = channelDto;
+    const { chanID } = channelIdDto;
     const clientId = socket.user.id!;
-    this.logger.log(`ClientId ${clientId} request to join chan ${chanName}`);
+    this.logger.log(`ClientId ${clientId} request to join chan ${chanID}`);
 
     const user = await this.usersService.getUserById(clientId);
     if (!user) {
@@ -332,7 +333,7 @@ export default class ChatGateway
       });
     }
     const channel = await this.channelService.addChannelMember(
-      chanName,
+      chanID,
       clientId
     );
     if (channel) {
@@ -344,7 +345,7 @@ export default class ChatGateway
         chanType: channel.type,
         chanCreatedAt: channel.createdAt
       };
-      socket.join(chanName);
+      socket.join(chanID);
       this.io.to(clientId).emit('channelJoin', pubChannel);
       const pubChatUser: Partial<PublicChatUser> = {
         username: user.username,
@@ -384,7 +385,11 @@ export default class ChatGateway
         chanID: channel!.id,
         createdAt: chanMessage.createdAt
       };
-      this.io.to(chanMessage.channelID).emit('channelMessage', pubChanMessage);
+      this.logger.debug(chanMessage.channelID);
+      this.io
+        .to(chanMessage.channelID)
+        .to(senderID)
+        .emit('privateMessage', pubChanMessage);
     }
   }
 
