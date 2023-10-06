@@ -8,25 +8,39 @@ import { useSocketContext } from '../../../contexts/socket';
 import SecondaryButton from '../../SecondaryButton/SecondaryButton';
 
 interface ChannelCarrouselCardProps {
-  onClick: () => any;
-  toggleChannelSettings: () => any;
+  onPrimaryClick: () => any;
+  onSecondaryClick: () => any;
   select: boolean;
   chanName: string;
   id: string;
 }
 
 export function ChannelCarrouselCard({
-  onClick,
+  onPrimaryClick,
+  onSecondaryClick,
   select,
   chanName,
-  toggleChannelSettings,
   id
 }: ChannelCarrouselCardProps) {
   return (
     <div>
-      <button type="button" onClick={onClick} className={`id-${id}`}>
+      <button type="button" onClick={onPrimaryClick} className={`id-${id}`}>
         <ProfilePicture select={select} size="s" url="starwatcher.jpg" />
       </button>
+      <Tooltip
+        disableStyleInjection
+        className="z-50 flex flex-col rounded border-pong-blue-100 bg-pong-blue-500 bg-opacity-100 p-2 text-pong-white text-opacity-100 "
+        anchorSelect={`.id-${id}`}
+        clickable
+        place="right"
+      >
+        <p className="font-semibold">{chanName}</p>
+        <SecondaryButton
+          onClick={onSecondaryClick}
+          disabled={false}
+          span="settings"
+        />
+      </Tooltip>
     </div>
   );
 }
@@ -62,11 +76,14 @@ export function ChannelCarrousel({
               <ChannelCarrouselCard
                 id={c.chanID}
                 key={c.chanID}
-                onClick={() => {
+                onPrimaryClick={() => {
                   setChanID(c.chanID);
                   toggleChannelView();
                 }}
-                toggleChannelSettings={toggleChannelSettings}
+                onSecondaryClick={() => {
+                  setChanID(c.chanID);
+                  toggleChannelSettings();
+                }}
                 select={chanID === c.chanID}
                 chanName={c.chanName}
               />
