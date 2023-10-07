@@ -27,6 +27,7 @@ function Chat() {
   const isSearchView = state.matches({ opened: 'searchView' });
   const isNotificationView = state.matches({ opened: 'notificationView' });
   const isChannelNameView = state.matches({ opened: 'channelNameView' });
+  const isJoinChannelView = state.matches({ opened: 'joinChannelView' });
   const isChannelSettings = state.matches({ opened: 'channelSettings' });
   const isCreateORJoinChannelView = state.matches({
     opened: 'createORJoinChannelView'
@@ -62,10 +63,12 @@ function Chat() {
         toggleChannelSettings={() => send('selectChannel')}
         toggleCreateChannelView={() => send('addChannel')}
         createChannel={() => send('createChannel')}
+        joinChannel={() => send('joinChannel')}
         isCreateORJoinChannelView={isCreateORJoinChannelView}
         isChannelView={isChannelView}
         isChannelSettings={isChannelSettings}
         isChannelNameView={isChannelNameView}
+        isJoinChannelView={isJoinChannelView}
       />
       <RenderIf some={[isInviteChannelView]}>coucou</RenderIf>
       <RenderIf some={[isSearchView]}>

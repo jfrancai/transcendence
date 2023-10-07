@@ -464,6 +464,24 @@ export default class ChatGateway
     }
   }
 
+  @UseGuards(JoinChannelGuard)
+  @SubscribeMessage('channelId')
+  async handleChannelId(
+    @MessageBody(new ValidationPipe()) channelNameDto: ChannelNameDto,
+    @ConnectedSocket() socket: ChatSocket
+  ) {
+    const { chanName } = channelNameDto;
+    const senderID = socket.user.id!;
+    this.logger.log(
+      `Channel id request for channel ${chanName} by user ${senderID}`
+    );
+
+    const channel = await this.channelService.getChanByName(chanName);
+    if (channel) {
+      this.io.to(senderID).emit('channelId', channel.id);
+    }
+  }
+
   @Roles(['member', 'admin', 'creator'])
   @SubscribeMessage('channelInfo')
   async handleChannelInfo(

@@ -1,41 +1,30 @@
 import { useEffect, useState } from 'react';
-import { AiOutlineCloudUpload } from 'react-icons/ai';
 import { SelectChannelType } from '../SelectChannelType/SelectChannelType';
 import { PrimaryButton } from '../../PrimaryButton/PrimaryButton';
 import RenderIf from '../RenderIf/RenderIf';
 import { useSocketContext } from '../../../contexts/socket';
+import { Section, SectionTitle } from '../Section';
+import { Channel } from '../../../utils/hooks/useStatus.interfaces';
 
-interface SectionTitleProps {
-  title: string;
+interface JoinChannelViewProps {
+  toggleChannelView: () => any;
+  setChanID: (arg: string) => any;
+  chanID: string;
 }
 
-function SectionTitle({ title }: SectionTitleProps) {
-  return <p className="block text-sm font-bold text-pong-white">{title}</p>;
-}
-
-interface SectionProps {
-  children: React.ReactNode;
-}
-
-function Section({ children }: SectionProps) {
-  return <div className="flex w-full flex-col gap-1 px-5">{children}</div>;
-}
-
-interface CreateChannelViewProps {
-  toggleInviteChannel: () => any;
-}
-
-export function CreateChannelView({
-  toggleInviteChannel
-}: CreateChannelViewProps) {
+export function JoinChannelView({
+  toggleChannelView,
+  setChanID,
+  chanID
+}: JoinChannelViewProps) {
   const { socket } = useSocketContext();
   const [chanName, setChanName] = useState(`${socket.username}'s channel`);
   const [type, setType] = useState<'PASSWORD' | 'PUBLIC' | 'PRIVATE'>('PUBLIC');
   const [password, setPassword] = useState<string>('');
   const [error, setError] = useState<string | undefined>(undefined);
 
-  const handleCreateChannel = () => {
-    socket.emit('channelCreate', {
+  const handleJoinChannel = () => {
+    socket.emit('channelId', {
       chanName,
       type,
       password
@@ -46,27 +35,32 @@ export function CreateChannelView({
     const onError = (err: any) => {
       setError(err.message);
     };
-    socket.on('channelCreate', toggleInviteChannel);
+    const onChannelJoin = (channel: Channel) => {
+      setChanID(channel.chanID);
+      toggleChannelView();
+    };
+    const onChannelID = (data: string) => {
+      setChanID(data);
+      socket.emit('channelJoin', {
+        chanID,
+        chanName,
+        type,
+        password
+      });
+    };
+    socket.on('channelId', onChannelID);
+    socket.on('channelJoin', onChannelJoin);
     socket.on('error', onError);
     return () => {
-      socket.off('channelCreate', toggleInviteChannel);
+      socket.off('channelId', onChannelID);
+      socket.off('channelJoin', onChannelJoin);
       socket.off('error', onError);
     };
-  }, [socket, toggleInviteChannel]);
+  }, [socket, toggleChannelView, setChanID, chanID, chanName, type, password]);
+
   return (
     <div className="flex w-full flex-col items-center justify-center gap-10">
-      <p className="text-2xl font-bold text-pong-white">Create your Channel</p>
-
-      <Section>
-        <SectionTitle title="CHANNEL PICTURE" />
-        <label
-          htmlFor="UploadChannelImage"
-          className="flex justify-center rounded border border-dashed border-pong-white text-[50px]"
-        >
-          <input id="UploadChannelImage" type="file" className="hidden" />
-          <AiOutlineCloudUpload className="my-4 cursor-pointer rounded-full bg-pong-blue-500 p-1 text-pong-blue-100" />
-        </label>
-      </Section>
+      <p className="text-2xl font-bold text-pong-white">Join Channel</p>
 
       <Section>
         <SectionTitle title="CHANNEL NAME" />
@@ -115,9 +109,7 @@ export function CreateChannelView({
           </label>
         </Section>
       </RenderIf>
-      <PrimaryButton onClick={handleCreateChannel}>
-        Create Channel
-      </PrimaryButton>
+      <PrimaryButton onClick={handleJoinChannel}>Join Channel</PrimaryButton>
     </div>
   );
 }

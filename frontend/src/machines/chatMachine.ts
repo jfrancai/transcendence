@@ -10,7 +10,7 @@ export const chatMachine = createMachine(
     states: {
       opened: {
         description: 'The channel component is open',
-        initial: 'messageView',
+        initial: 'createORJoinChannelView',
         states: {
           messageView: {
             description: 'The chat component displays the contact view.',
@@ -109,7 +109,7 @@ export const chatMachine = createMachine(
           createORJoinChannelView: {
             on: {
               selectHeader: {
-                target: 'channelView'
+                target: 'channelSettings'
               },
               createChannel: {
                 target: 'channelNameView'
@@ -125,7 +125,7 @@ export const chatMachine = createMachine(
                 target: 'inviteChannelView'
               },
               selectHeader: {
-                target: 'channelView'
+                target: 'channelSettings'
               },
               previousAddChannel: {
                 target: 'createORJoinChannelView'
@@ -134,6 +134,9 @@ export const chatMachine = createMachine(
           },
           joinChannelView: {
             on: {
+              selectHeader: {
+                target: 'channelSettings'
+              },
               previousAddChannel: {
                 target: 'createORJoinChannelView'
               },
