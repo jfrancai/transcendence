@@ -288,7 +288,6 @@ export default class ChatGateway
       chanType: channel.type,
       chanCreatedAt: channel.createdAt
     };
-    this.logger.debug(channel.id);
     socket.join(channel.id);
     this.io.to(creatorID).emit('channelCreate', pubChan);
   }
@@ -391,7 +390,6 @@ export default class ChatGateway
         chanID: channel!.id,
         createdAt: chanMessage.createdAt
       };
-      this.logger.debug(chanMessage.channelID);
       this.io.to(chanMessage.channelID).emit('channelMessage', pubChanMessage);
     }
   }
