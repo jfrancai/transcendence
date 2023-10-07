@@ -92,7 +92,6 @@ export function Channel({
           <JoinChannelView
             toggleChannelView={toggleChannelView}
             setChanID={setChanID}
-            chanID={chanID}
           />
         </Scrollable>
         <div className="h-14 w-[336px]" />

@@ -4,18 +4,15 @@ import { PrimaryButton } from '../../PrimaryButton/PrimaryButton';
 import RenderIf from '../RenderIf/RenderIf';
 import { useSocketContext } from '../../../contexts/socket';
 import { Section, SectionTitle } from '../Section';
-import { Channel } from '../../../utils/hooks/useStatus.interfaces';
 
 interface JoinChannelViewProps {
   toggleChannelView: () => any;
   setChanID: (arg: string) => any;
-  chanID: string;
 }
 
 export function JoinChannelView({
   toggleChannelView,
-  setChanID,
-  chanID
+  setChanID
 }: JoinChannelViewProps) {
   const { socket } = useSocketContext();
   const [chanName, setChanName] = useState(`${socket.username}'s channel`);
@@ -35,14 +32,13 @@ export function JoinChannelView({
     const onError = (err: any) => {
       setError(err.message);
     };
-    const onChannelJoin = (channel: Channel) => {
-      setChanID(channel.chanID);
+    const onChannelJoin = () => {
       toggleChannelView();
     };
     const onChannelID = (data: string) => {
       setChanID(data);
       socket.emit('channelJoin', {
-        chanID,
+        chanID: data,
         chanName,
         type,
         password
@@ -56,7 +52,7 @@ export function JoinChannelView({
       socket.off('channelJoin', onChannelJoin);
       socket.off('error', onError);
     };
-  }, [socket, toggleChannelView, setChanID, chanID, chanName, type, password]);
+  }, [socket, toggleChannelView, setChanID, chanName, type, password]);
 
   return (
     <div className="flex w-full flex-col items-center justify-center gap-10">

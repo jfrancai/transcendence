@@ -12,7 +12,12 @@ export function useChannels(callBack: (chanID: string) => any, chanID: string) {
     };
 
     const onChannels = (data: Channel[]) => {
-      const id = !chanID ? data[0].chanID : chanID;
+      let id = '';
+      if (!chanID) {
+        id = data.length ? data[0].chanID : '';
+      } else {
+        id = chanID;
+      }
       callBack(id);
       setChannels(data);
     };
