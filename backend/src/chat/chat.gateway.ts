@@ -352,7 +352,7 @@ export default class ChatGateway
       };
       socket.join(channel.id);
       this.io.to(clientId).emit('channelJoin', pubChannel);
-      const pubChatUser: Partial<PublicChatUser> = {
+      const pubChatUser: PublicChatUser = {
         username: user.username,
         userID: user.id,
         connected: user.connectedChat

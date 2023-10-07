@@ -10,9 +10,15 @@ export function useUsers(): ContactList {
     const onChannelMembers = (data: ContactList) => {
       setContactList(data);
     };
+
+    const onChannelUserJoin = (data: Contact) => {
+      setContactList((list) => list.concat(data));
+    }
+
     const onUsers = (data: ContactList) => {
       setContactList(data.filter((d) => d.userID !== socket.userID));
     };
+
     const onUserDisconnected = (data: User) => {
       setContactList((list) => {
         const newList = list.map((c) => {
@@ -38,11 +44,13 @@ export function useUsers(): ContactList {
     };
 
     socket.on('users', onUsers);
+    socket.on('channelUserJoin', onChannelUserJoin);
     socket.on('channelMembers', onChannelMembers);
     socket.on('userConnected', onUserConnected);
     socket.on('userDisconnected', onUserDisconnected);
     return () => {
       socket.off('users', onUsers);
+      socket.off('channelUserJoin', onChannelUserJoin);
       socket.off('channelMembers', onChannelMembers);
       socket.off('userConnected', onUserConnected);
       socket.off('userDisconnected', onUserDisconnected);

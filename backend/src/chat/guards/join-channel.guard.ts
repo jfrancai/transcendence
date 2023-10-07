@@ -13,7 +13,6 @@ import { ChannelService } from '../../database/service/channel.service';
 import { ChatSocket } from '../chat.interface';
 import { ChanInviteService } from '../../database/service/chan-invite.service';
 import { ChannelDto } from '../dto/channel.dto';
-import ChatGateway from '../chat.gateway';
 
 @Injectable()
 export class JoinChannelGuard implements CanActivate {
