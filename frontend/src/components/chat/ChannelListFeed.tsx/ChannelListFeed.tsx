@@ -1,4 +1,5 @@
 import { useEffect } from 'react';
+import { Tooltip } from 'react-tooltip';
 import {
   Contact,
   ContactList
@@ -16,7 +17,7 @@ interface ContactListProps {
 
 export function ChannelListFeed({ chanID, setChanID }: ContactListProps) {
   const { socket } = useSocketContext();
-  const contactList = useUsers();
+  const contactList = useUsers(() => setChanID(''));
   const channel = useChanInfo();
 
   useEffect(() => {
@@ -45,8 +46,48 @@ export function ChannelListFeed({ chanID, setChanID }: ContactListProps) {
   const handleLeave = () => {
     if (chanID.length !== 0) {
       socket.emit('channelLeave', { chanID });
-      setChanID('');
     }
+  };
+
+  const handleDelete = () => {
+    if (chanID.length !== 0) {
+      socket.emit('channelDelete', { chanID });
+    }
+  };
+
+  const displayButton = () => {
+    const handler =
+      channel?.creatorID === socket.userID ? handleDelete : handleLeave;
+    const label =
+      channel?.creatorID === socket.userID ? 'Delete Channel' : 'Leave';
+    const disabled =
+      contactList.length > 1 && channel?.creatorID === socket.userID;
+    return (
+      <>
+        <button
+          onClick={disabled ? () => {} : handler}
+          type="button"
+          className={`deleteButton mx-2 rounded ${
+            disabled
+              ? 'bg-pong-blue-800 text-pong-blue-100'
+              : 'bg-red-500 text-pong-white hover:bg-red-600'
+          } px-4 py-2 shadow `}
+        >
+          {label}
+        </button>
+        <Tooltip
+          disableStyleInjection
+          className={`z-50 flex flex-col rounded border-pong-blue-100 bg-pong-blue-500 bg-opacity-100 p-2 text-pong-white text-opacity-100 ${
+            !disabled && 'hidden'
+          }`}
+          anchorSelect=".deleteButton"
+          clickable
+          place="bottom"
+        >
+          <p className="font-semibold">The channel needs to be empty</p>
+        </Tooltip>
+      </>
+    );
   };
 
   const displayCard = (user: Contact) => (
@@ -54,7 +95,7 @@ export function ChannelListFeed({ chanID, setChanID }: ContactListProps) {
       key={user.userID}
       username={user.username}
       userID={user.userID}
-      onClick={() => { }}
+      onClick={() => {}}
       url="starwatcher.jpg"
     />
   );
@@ -86,15 +127,7 @@ export function ChannelListFeed({ chanID, setChanID }: ContactListProps) {
               {offline.map(displayCard)}
             </div>
           ) : null}
-          {contactList.length ? (
-            <button
-              onClick={handleLeave}
-              type="button"
-              className="bg-red-500 text-white mx-2 px-4 py-2 rounded shadow hover:bg-red-600"
-            >
-              Leave
-            </button>
-          ) : null}
+          {contactList.length ? displayButton() : null}
         </div>
       </Scrollable>
     </div>

@@ -94,4 +94,17 @@ export class MessageService {
       return null;
     }
   }
+
+  async deleteMessageByChanId(channelID: string) {
+    try {
+      return await this.prisma.message.deleteMany({
+        where: {
+          channelID
+        }
+      });
+    } catch (e: any) {
+      this.logger.warn(e);
+      return null;
+    }
+  }
 }

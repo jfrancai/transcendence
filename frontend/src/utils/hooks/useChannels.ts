@@ -30,10 +30,12 @@ export function useChannels(callBack: (chanID: string) => any, chanID: string) {
 
     socket.on('channelCreate', onChannelCreate);
     socket.on('channelLeave', onChannelLeave);
+    socket.on('channelDelete', onChannelLeave);
     socket.on('channels', onChannels);
     return () => {
       socket.off('channelCreate', onChannelCreate);
       socket.off('channelLeave', onChannelLeave);
+      socket.off('channelDelete', onChannelLeave);
       socket.off('channels', onChannels);
     };
   }, [socket, callBack, chanID]);

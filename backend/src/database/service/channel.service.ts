@@ -271,11 +271,11 @@ export class ChannelService {
     }
   }
 
-  async deleteChannelByName(chanName: string) {
+  async deleteChannelById(id: string) {
     try {
       return await this.prisma.channel.delete({
         where: {
-          chanName
+          id
         }
       });
     } catch (e) {

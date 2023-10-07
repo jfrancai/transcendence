@@ -296,25 +296,21 @@ export default class ChatGateway
   @Roles(['creator'])
   @SubscribeMessage('channelDelete')
   async handleDeleteChannel(
-    @MessageBody(new ValidationPipe()) channelDto: ChannelNameDto,
+    @MessageBody(new ValidationPipe()) channelIdDto: ChannelIdDto,
     @ConnectedSocket() socket: ChatSocket
   ) {
-    const { chanName } = channelDto;
-    const clientId = socket.user.id!;
-    this.logger.log(`Client ${clientId} request to delete chan ${chanName}`);
+    const { chanID } = channelIdDto;
+    const senderID = socket.user.id!;
+    this.logger.log(`Client ${senderID} request to delete chan ${chanID}`);
 
-    const deletedChan = await this.channelService.deleteChannelByName(chanName);
+    const deletedChan = await this.channelService.deleteChannelById(chanID);
+    await this.messageService.deleteMessageByChanId(chanID);
     if (deletedChan) {
       socket.leave(deletedChan.id);
-      const pubChan: PublicChannel = {
+      this.io.to(senderID).emit('channelDelete', {
         chanID: deletedChan.id,
-        chanAdmins: deletedChan.admins,
-        creatorID: deletedChan.creatorID,
-        chanName: deletedChan.chanName,
-        chanType: deletedChan.type,
-        chanCreatedAt: deletedChan.createdAt
-      };
-      this.io.to(clientId).emit('channelDelete', pubChan);
+        userID: senderID
+      });
     }
   }
 
@@ -497,7 +493,7 @@ export default class ChatGateway
     if (channel) {
       const pubChan: PublicChannel = {
         chanID: channel.id,
-        creatorID: channel.id,
+        creatorID: channel.creatorID,
         chanName: channel.chanName,
         chanType: channel.type,
         chanAdmins: channel.admins,
