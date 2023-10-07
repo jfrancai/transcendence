@@ -48,9 +48,7 @@ export function Channel({
             setChanID={setChanID}
             chanID={chanID}
           />
-        </RenderIf>
-        <RenderIf some={[isChannelSettings]}>
-          <ChannelListFeed chanID={chanID} />
+          <ChannelListFeed chanID={chanID} setChanID={setChanID} />
         </RenderIf>
         <RenderIf some={[isChannelView]}>
           <ChatFeed userID={chanID} event="channelMessages" />

@@ -237,11 +237,11 @@ export class ChannelService {
     }
   }
 
-  async removeChannelMember(chanName: string, memberId: string) {
+  async removeChannelMember(id: string, memberId: string) {
     try {
       return await this.prisma.channel.update({
         where: {
-          chanName
+          id
         },
         data: {
           members: {

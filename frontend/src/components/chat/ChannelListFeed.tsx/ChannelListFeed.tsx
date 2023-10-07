@@ -11,9 +11,10 @@ import { useChanInfo } from '../../../utils/hooks/useChannelInfo';
 
 interface ContactListProps {
   chanID: string;
+  setChanID: (arg: string) => any;
 }
 
-export function ChannelListFeed({ chanID }: ContactListProps) {
+export function ChannelListFeed({ chanID, setChanID }: ContactListProps) {
   const { socket } = useSocketContext();
   const contactList = useUsers();
   const channel = useChanInfo();
@@ -40,12 +41,20 @@ export function ChannelListFeed({ chanID }: ContactListProps) {
       offline.push(user);
     }
   });
+
+  const handleLeave = () => {
+    if (chanID.length !== 0) {
+      socket.emit('channelLeave', { chanID });
+      setChanID('');
+    }
+  };
+
   const displayCard = (user: Contact) => (
     <ContactCard
       key={user.userID}
       username={user.username}
       userID={user.userID}
-      onClick={() => {}}
+      onClick={() => { }}
       url="starwatcher.jpg"
     />
   );
@@ -76,6 +85,15 @@ export function ChannelListFeed({ chanID }: ContactListProps) {
               </p>
               {offline.map(displayCard)}
             </div>
+          ) : null}
+          {contactList.length ? (
+            <button
+              onClick={handleLeave}
+              type="button"
+              className="bg-red-500 text-white mx-2 px-4 py-2 rounded shadow hover:bg-red-600"
+            >
+              Leave
+            </button>
           ) : null}
         </div>
       </Scrollable>

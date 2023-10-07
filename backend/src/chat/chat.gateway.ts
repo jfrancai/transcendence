@@ -397,20 +397,19 @@ export default class ChatGateway
   @Roles(['member', 'admin'])
   @SubscribeMessage('channelLeave')
   async handleLeaveChannel(
-    @MessageBody(new ValidationPipe()) leaveChannelDto: ChannelNameDto,
+    @MessageBody(new ValidationPipe()) channelIdDto: ChannelIdDto,
     @ConnectedSocket() socket: ChatSocket
   ) {
-    const { chanName } = leaveChannelDto;
+    const { chanID } = channelIdDto;
     const senderID = socket.user.id!;
-    this.logger.log(`User ${senderID} leave channel [${chanName}]`);
+    this.logger.log(`User ${senderID} leave channel [${chanID}]`);
     const channel = await this.channelService.removeChannelMember(
-      chanName,
+      chanID,
       senderID
     );
     if (channel) {
       socket.leave(channel.id);
       this.io.to(channel.id).to(senderID).emit('channelLeave', {
-        chanName,
         chanID: channel.id,
         userID: senderID
       });
