@@ -41,7 +41,7 @@ function ProfilePicture({ size = 'xl', level, url }: ProfilePictureProps) {
   return (
     <div
       style={{ backgroundImage: `url(${url})` }}
-      className={`cursor-pointer ${style[size].div} w-flex-shrink-0 relative flex items-end justify-center rounded-full border-solid border-pong-purple bg-cover bg-no-repeat`}
+      className={`cursor-pointer ${style[size].div} w-flex-shrink-0 border-pong-purple relative flex items-end justify-center rounded-full border-solid bg-cover bg-no-repeat`}
     >
       <div className={`absolute ${style[size].position}`}>
         <div
@@ -49,7 +49,7 @@ function ProfilePicture({ size = 'xl', level, url }: ProfilePictureProps) {
         >
           <div className={`relative ${style[size].dimension}`}>
             <div
-              className={`-rotate-30 absolute ${style[size].dimension} origin-center transform bg-pong-purple`}
+              className={`-rotate-30 absolute ${style[size].dimension} bg-pong-purple origin-center transform`}
               style={{
                 clipPath:
                   'polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%)'

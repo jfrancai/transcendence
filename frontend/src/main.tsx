@@ -12,6 +12,7 @@ import ErrorPage from '@login/ErrorPage';
 import ErrorValidation from '@login/ErrorValidation';
 import ValidationTwoAuth from '@login/ValidationTwoAuth';
 import UploadImg from '@login/UploadImg';
+import { loader as loaderProfile } from './components/Profile/profile.loader';
 import Pong from './components/Pong/Pong';
 import Profile from './components/Profile/Profile';
 import './index.css';
@@ -62,7 +63,8 @@ const router = createBrowserRouter([
   },
   {
     path: '/profile',
-    element: <Profile />
+    element: <Profile />,
+    loader: loaderProfile
   }
 ]);
 

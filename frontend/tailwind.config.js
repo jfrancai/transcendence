@@ -11,7 +11,8 @@ export default {
         'blue-pong-2': '#2A2957',
         'blue-pong-3': '#1C1C45',
         'blue-pong-4': '#38396F',
-        'green-login': '#00BABC'
+        'green-login': '#00BABC',
+        'profile-purple': '#6659FD'
       },
       backgroundImage: {
         default: "url('./images/background.png')",

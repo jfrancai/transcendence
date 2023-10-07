@@ -1,7 +1,7 @@
 import {
-  redirect,
   useRouteError,
-  isRouteErrorResponse
+  isRouteErrorResponse,
+  useNavigate
 } from 'react-router-dom';
 import { useRef, useState } from 'react';
 import axios, { AxiosResponse, AxiosRequestConfig, AxiosError } from 'axios';
@@ -14,6 +14,7 @@ import Header from './Header';
 // It probably work i didn't find it, so i tried vanilla react.
 export default function UploadImg() {
   const error = useRouteError();
+  const navigate = useNavigate();
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
   const [image, setImage] = useState<File | null>(null);
   const [imagePreview, setImagePreview] = useState<string | null>(null);
@@ -27,9 +28,25 @@ export default function UploadImg() {
 
   const handleUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     e.preventDefault();
+    const allowedTypes = ['image/jpeg', 'image/png'];
     const reader = new FileReader();
     const file = e.target.files?.[0];
     if (file) {
+      if (file.size > 20000) {
+        setErrorMsg('Invalid size image should be under 20KB');
+        setTimeout(() => {
+          setErrorMsg(null);
+        }, 5000);
+        return;
+      }
+      if (!allowedTypes.includes(file.type)) {
+        setErrorMsg(`Invalid file type extension ${file.type}`);
+        setTimeout(() => {
+          setErrorMsg(null);
+        }, 5000);
+        return;
+      }
+
       reader.onloadend = () => {
         setImage(file);
         setImagePreview(reader.result as string);
@@ -67,7 +84,9 @@ export default function UploadImg() {
         }
       });
 
-    if (result) redirect('/home');
+    if (result) {
+      navigate('/profile');
+    }
   };
 
   if (isRouteErrorResponse(error)) {

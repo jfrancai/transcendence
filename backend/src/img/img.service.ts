@@ -36,4 +36,28 @@ export class ImgService {
     );
     return flag ? '' : `${fileName}${fileExt}`;
   }
+
+  deleteFile(path: string) {
+    if (path.includes('default.jpg')) return;
+
+    fs.unlink(path, (err) => {
+      if (err) {
+        this.logger.log(`file doesn't exist ${path}`);
+      } else {
+        this.logger.log(`file delete ${path}`);
+      }
+    });
+  }
+
+  // send the extension of the image important for react so you can show the image properly
+  imageToBase64(path: string | undefined) {
+    if (path && fs.existsSync(path)) {
+      const data: string = fs.readFileSync(path, 'base64');
+      if (path.includes('.jpeg') || path.includes('.jpg')) {
+        return { img: data, ext: '.jpeg' };
+      }
+      return { img: data, ext: '.png' };
+    }
+    return null;
+  }
 }
