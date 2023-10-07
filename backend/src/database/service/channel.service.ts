@@ -219,11 +219,11 @@ export class ChannelService {
     }
   }
 
-  async addChannelMember(id: string, memberId: string) {
+  async addChannelMember(chanName: string, memberId: string) {
     try {
       return await this.prisma.channel.update({
         where: {
-          id
+          chanName
         },
         data: {
           members: {
