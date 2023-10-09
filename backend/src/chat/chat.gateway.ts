@@ -306,8 +306,8 @@ export default class ChatGateway
     const senderID = socket.user.id!;
     this.logger.log(`Client ${senderID} request to delete chan ${chanID}`);
 
-    const deletedChan = await this.channelService.deleteChannelById(chanID);
     await this.messageService.deleteMessageByChanId(chanID);
+    const deletedChan = await this.channelService.deleteChannelById(chanID);
     if (deletedChan) {
       socket.leave(deletedChan.id);
       this.io.to(senderID).emit('channelDelete', {
