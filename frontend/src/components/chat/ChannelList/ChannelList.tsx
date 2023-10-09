@@ -1,3 +1,4 @@
+import { socket } from '../../../utils/functions/socket';
 import {
   Contact,
   ContactList
@@ -7,16 +8,31 @@ import { ChanContact } from '../ChanContact/ChanContact';
 interface ChannelListProps {
   list: ContactList;
   title: string;
+  chanID: string;
+  isCreator: boolean;
+  isAdmin: boolean;
 }
 
-export function ChannelList({ list, title }: ChannelListProps) {
+export function ChannelList({
+  list,
+  title,
+  chanID,
+  isCreator,
+  isAdmin
+}: ChannelListProps) {
   const displayCard = (user: Contact) => (
     <ChanContact
       key={user.userID}
       username={user.username}
-      userID={user.userID}
-      onClick={() => {}}
       url="starwatcher.jpg"
+      addAdmin={() => {
+        socket.emit('channelAddAdmin', {
+          usersID: [user.userID],
+          chanID
+        });
+      }}
+      isCreator={isCreator}
+      isAdmin={isAdmin}
     />
   );
 

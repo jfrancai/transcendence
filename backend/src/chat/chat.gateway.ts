@@ -418,17 +418,17 @@ export default class ChatGateway
     @MessageBody(new ValidationPipe()) channelUsersDto: ChannelUsersDto,
     @ConnectedSocket() socket: ChatSocket
   ) {
-    const { usersID, chanName } = channelUsersDto;
+    const { usersID, chanID } = channelUsersDto;
     const senderID = socket.user.id!;
     this.logger.log(
-      `Add admin request for ${usersID} by ${senderID} for channel ${chanName}`
+      `Add admin request for ${usersID} by ${senderID} for channel ${chanID}`
     );
-    const channel = await this.channelService.getChanByName(chanName);
+    const channel = await this.channelService.getChanById(chanID);
     if (channel) {
       const { admins } = channel;
-      admins.concat(usersID);
-      const adminsSet = new Set(admins);
-      await this.channelService.updateAdmins(chanName, Array.from(adminsSet));
+      const newAdmins = admins.concat(usersID);
+      const adminsSet = new Set(newAdmins);
+      await this.channelService.updateAdmins(chanID, Array.from(adminsSet));
       this.io.to(senderID).to(usersID).emit('channelAddAdmin', {
         chanID: channel.id,
         userID: usersID
@@ -442,16 +442,16 @@ export default class ChatGateway
     @MessageBody(new ValidationPipe()) channelUsersDto: ChannelUsersDto,
     @ConnectedSocket() socket: ChatSocket
   ) {
-    const { usersID, chanName } = channelUsersDto;
+    const { usersID, chanID } = channelUsersDto;
     const senderID = socket.user.id!;
     this.logger.log(
-      `Remove admin request for ${usersID} by ${senderID} for channel ${chanName}`
+      `Remove admin request for ${usersID} by ${senderID} for channel ${chanID}`
     );
-    const channel = await this.channelService.getChanByName(chanName);
+    const channel = await this.channelService.getChanById(chanID);
     if (channel) {
       const admins = channel.admins.filter((admin) => !usersID.includes(admin));
       const adminsSet = new Set(admins);
-      await this.channelService.updateAdmins(chanName, Array.from(adminsSet));
+      await this.channelService.updateAdmins(chanID, Array.from(adminsSet));
       this.io.to(senderID).to(usersID).emit('channelRemoveAdmin', {
         chanID: channel.id,
         userID: usersID

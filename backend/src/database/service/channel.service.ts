@@ -255,11 +255,11 @@ export class ChannelService {
     }
   }
 
-  async updateAdmins(chanName: string, admins: string[]) {
+  async updateAdmins(id: string, admins: string[]) {
     try {
       return await this.prisma.channel.update({
         where: {
-          chanName
+          id
         },
         data: {
           admins
