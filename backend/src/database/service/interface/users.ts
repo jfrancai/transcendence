@@ -20,7 +20,6 @@ export interface IChanInvite {
 
 export interface IChanRestrict {
   id: string;
-  type: $Enums.ChatRestrictType;
   user: IUsers;
   usersId: string;
   channel: IChannel;

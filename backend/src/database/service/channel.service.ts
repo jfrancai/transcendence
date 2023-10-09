@@ -76,55 +76,6 @@ export class ChannelService {
     }
   }
 
-  async getChanWithInviteList(chanName: string) {
-    try {
-      return await this.prisma.channel.findUnique({
-        where: {
-          chanName
-        },
-        include: {
-          inviteList: true,
-          restrictList: true
-        }
-      });
-    } catch (e) {
-      this.logger.warn(e);
-      throw new ForbiddenException();
-    }
-  }
-
-  async getChanWithRestrictList(chanName: string) {
-    try {
-      return await this.prisma.channel.findUnique({
-        where: {
-          chanName
-        },
-        include: {
-          restrictList: true
-        }
-      });
-    } catch (e) {
-      this.logger.warn(e);
-      throw new ForbiddenException();
-    }
-  }
-
-  async getChanByIdWithRestrictList(id: string) {
-    try {
-      return await this.prisma.channel.findUnique({
-        where: {
-          id
-        },
-        include: {
-          restrictList: true
-        }
-      });
-    } catch (e) {
-      this.logger.warn(e);
-      throw new ForbiddenException();
-    }
-  }
-
   async getChanWithMessages(chanName: string) {
     try {
       return await this.prisma.channel.findUnique({
@@ -247,6 +198,38 @@ export class ChannelService {
           members: {
             disconnect: { id: memberId }
           }
+        }
+      });
+    } catch (e) {
+      this.logger.warn(e);
+      return null;
+    }
+  }
+
+  async updateBans(id: string, bans: string[]) {
+    try {
+      return await this.prisma.channel.update({
+        where: {
+          id
+        },
+        data: {
+          bans
+        }
+      });
+    } catch (e) {
+      this.logger.warn(e);
+      return null;
+    }
+  }
+
+  async updateMute(id: string, mute: string[]) {
+    try {
+      return await this.prisma.channel.update({
+        where: {
+          id
+        },
+        data: {
+          mute
         }
       });
     } catch (e) {

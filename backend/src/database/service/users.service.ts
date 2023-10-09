@@ -38,8 +38,6 @@ export class UsersService {
           email
         },
         include: {
-          restrictList: true,
-          inviteList: true,
           channels: true
         }
       });

@@ -42,7 +42,6 @@ import { ChannelNameDto } from './dto/channel-name.dto';
 import { ChannelMessageDto } from './dto/channel-message.dto';
 import { ChannelUsersDto } from './dto/channel-users.dto';
 import { EmptyChannel } from './decorators/empty-channel';
-import { ChanRestrictService } from '../database/service/chan-restrict.service';
 import { ChannelRestrictDto } from './dto/channel-restrict.dto';
 import { UserDto } from './dto/user.dto';
 import { ChannelIdDto } from './dto/channel-id.dto';
@@ -63,8 +62,7 @@ export default class ChatGateway
   constructor(
     private usersService: UsersService,
     private messageService: MessageService,
-    private channelService: ChannelService,
-    private chanRestrictService: ChanRestrictService
+    private channelService: ChannelService
   ) {}
 
   getLogger(): Logger {
@@ -610,48 +608,36 @@ export default class ChatGateway
     @MessageBody(new ValidationPipe()) channelRestrictDto: ChannelRestrictDto,
     @ConnectedSocket() socket: ChatSocket
   ) {
-    const { userID, chanName, restrictType, endOfRestrict, reason } =
-      channelRestrictDto;
+    const { userID, chanID, restrictType, reason } = channelRestrictDto;
     const senderID = socket.user.id!;
     this.logger.log(
-      `Channel restrict request for ${userID} by ${senderID} for channel ${chanName}. Restrict type: ${restrictType}`
+      `Channel restrict request for ${userID} by ${senderID} for channel ${chanID}. Restrict type: ${restrictType}`
     );
-    const channel = await this.channelService.getChanByName(chanName);
+    const channel = await this.channelService.getChanById(chanID);
     if (channel) {
       if (userID === channel.creatorID) {
         throw new ForbiddenException("Channel creator can't be restricted");
       }
-      if (restrictType === 'BAN' || restrictType === 'MUTE') {
-        const restrict = await this.chanRestrictService.createChanRestrict({
-          type: restrictType,
-          endOfRestrict,
-          reason,
-          user: { connect: { id: userID } },
-          channel: { connect: { id: channel.id } }
-        });
-        if (restrict) {
-          const payload = {
-            chanID: restrict.channelID,
-            reason: restrict.reason
-          };
-          if (restrictType === 'BAN') {
-            this.io.to(userID).emit('channelBan', payload);
-
-            this.channelService.removeChannelMember(channel.id, senderID);
-            socket.leave(restrict.channelID);
-          } else if (restrictType === 'MUTE') {
-            this.io.to(userID).emit('channelMute', payload);
-          }
-          this.io.to(senderID).emit('channelRestrict', payload);
-        }
+      if (restrictType === 'BAN') {
+        const newBans = channel.bans.concat(userID);
+        const bansSet = new Set(newBans);
+        await this.channelService.updateBans(chanID, Array.from(bansSet));
+        this.channelService.removeChannelMember(channel.id, senderID);
+        socket.leave(chanID);
+      } else if (restrictType === 'MUTE') {
+        const newMute = channel.mute.concat(userID);
+        const muteSet = new Set(newMute);
+        await this.channelService.updateMute(chanID, Array.from(muteSet));
+        this.channelService.removeChannelMember(channel.id, senderID);
       } else if (restrictType === 'KICK') {
         this.channelService.removeChannelMember(channel.id, senderID);
         socket.leave(channel.id);
-        this.io.to(senderID).emit('channelRestrict', {
-          chanID: restrictType,
-          reason
-        });
       }
+      this.io.to(chanID).to(userID).emit('channelRestrict', {
+        chanID: channel.id,
+        reason,
+        type: restrictType
+      });
     }
   }
 }
