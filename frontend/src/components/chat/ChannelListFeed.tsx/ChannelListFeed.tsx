@@ -47,9 +47,6 @@ export function ChannelListFeed({ chanID, setChanID }: ContactListProps) {
   }, [socket, chanID]);
   useEffect(() => {}, [socket]);
 
-  const online: ContactList = contactList.filter((c) => c.connected);
-  const offline: ContactList = contactList.filter((c) => !c.connected);
-
   const handleLeave = () => {
     if (chanID.length !== 0) {
       socket.emit('channelLeave', { chanID });
@@ -66,14 +63,14 @@ export function ChannelListFeed({ chanID, setChanID }: ContactListProps) {
       <Scrollable>
         <div className="flex flex-col gap-3">
           <ChannelList
-            list={online.filter((c) => isCreator(c.userID))}
+            list={contactList.filter((c) => isCreator(c.userID))}
             title="CREATOR"
             chanID={channel ? channel.chanID : ''}
             isAdmin={false}
             isCreator={false}
           />
           <ChannelList
-            list={online.filter((c) => isAdmin(c.userID))}
+            list={contactList.filter((c) => isAdmin(c.userID))}
             title="ADMINS"
             chanID={channel ? channel.chanID : ''}
             isAdmin={false}
@@ -81,15 +78,8 @@ export function ChannelListFeed({ chanID, setChanID }: ContactListProps) {
             adminSection
           />
           <ChannelList
-            list={online.filter((c) => isMember(c.userID))}
-            title="ONLINE"
-            chanID={channel ? channel.chanID : ''}
-            isAdmin={isAdmin(socket.userID)}
-            isCreator={isCreator(socket.userID)}
-          />
-          <ChannelList
-            list={offline}
-            title="OFFLINE"
+            list={contactList.filter((c) => isMember(c.userID))}
+            title="MEMBER"
             chanID={channel ? channel.chanID : ''}
             isAdmin={isAdmin(socket.userID)}
             isCreator={isCreator(socket.userID)}

@@ -404,6 +404,9 @@ export default class ChatGateway
       senderID
     );
     if (channel) {
+      const admins = channel.admins.filter((id) => id !== senderID);
+      const adminsSet = new Set(admins);
+      await this.channelService.updateAdmins(chanID, Array.from(adminsSet));
       socket.leave(channel.id);
       this.io.to(channel.id).to(senderID).emit('channelLeave', {
         chanID: channel.id,
@@ -428,7 +431,7 @@ export default class ChatGateway
       const newAdmins = channel.admins.concat(usersID);
       const adminsSet = new Set(newAdmins);
       await this.channelService.updateAdmins(chanID, Array.from(adminsSet));
-      this.io.to(senderID).to(usersID).emit('channelAddAdmin', {
+      this.io.to(channel.id).emit('channelAddAdmin', {
         chanID: channel.id,
         userID: usersID
       });
@@ -448,12 +451,10 @@ export default class ChatGateway
     );
     const channel = await this.channelService.getChanById(chanID);
     if (channel) {
-      this.logger.debug(channel.admins);
       const admins = channel.admins.filter((admin) => !usersID.includes(admin));
-      this.logger.debug(admins);
       const adminsSet = new Set(admins);
       await this.channelService.updateAdmins(chanID, Array.from(adminsSet));
-      this.io.to(senderID).to(usersID).emit('channelRemoveAdmin', {
+      this.io.to(channel.id).emit('channelRemoveAdmin', {
         chanID: channel.id,
         userID: usersID
       });
