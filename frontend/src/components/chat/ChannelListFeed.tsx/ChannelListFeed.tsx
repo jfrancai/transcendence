@@ -1,41 +1,11 @@
 import { useEffect } from 'react';
-import { Tooltip } from 'react-tooltip';
-import {
-  Contact,
-  ContactList
-} from '../../../utils/hooks/useStatus.interfaces';
 import { useUsers } from '../../../utils/hooks/useUsers';
 import { Scrollable } from '../Scrollable/Scrollable';
 import { useSocketContext } from '../../../contexts/socket';
 import { useChanInfo } from '../../../utils/hooks/useChannelInfo';
-import { ChanContact } from '../ChanContact/ChanContact';
-
-interface ChannelListProps {
-  list: ContactList;
-  title: string;
-}
-
-export function ChannelList({ list, title }: ChannelListProps) {
-  const displayCard = (user: Contact) => (
-    <ChanContact
-      key={user.userID}
-      username={user.username}
-      userID={user.userID}
-      onClick={() => {}}
-      url="starwatcher.jpg"
-    />
-  );
-
-  if (list.length) {
-    return (
-      <div>
-        <p className="pl-2 font-semibold text-pong-blue-100">{title}</p>
-        {list.map(displayCard)}
-      </div>
-    );
-  }
-  return null;
-}
+import { ContactList } from '../../../utils/hooks/useStatus.interfaces';
+import { ChannelList } from '../ChannelList/ChannelList';
+import { LeaveChannel } from '../LeaveChannel/LeaveChannel';
 
 interface ContactListProps {
   chanID: string;
@@ -46,6 +16,7 @@ export function ChannelListFeed({ chanID, setChanID }: ContactListProps) {
   const { socket } = useSocketContext();
   const contactList = useUsers(() => setChanID(''));
   const channel = useChanInfo();
+  const isCreator = (userID: string) => channel?.creatorID === userID;
 
   useEffect(() => {
     if (chanID.length !== 0) {
@@ -56,20 +27,17 @@ export function ChannelListFeed({ chanID, setChanID }: ContactListProps) {
 
   const creator: ContactList = [];
   const admins: ContactList = [];
-  const online: ContactList = [];
-  const offline: ContactList = [];
+  const members: ContactList = [];
+  const offline: ContactList = contactList.filter((c) => !c.connected);
+  const online: ContactList = contactList.filter((c) => c.connected);
 
-  contactList.forEach((user) => {
-    if (channel && user.connected === true) {
-      if (channel.creatorID === user.userID) {
-        creator.push(user);
-      } else if (channel.chanAdmins.find((a) => a === user.userID)) {
-        admins.push(user);
-      } else {
-        online.push(user);
-      }
+  online.forEach((user) => {
+    if (isCreator(user.userID)) {
+      creator.push(user);
+    } else if (channel?.chanAdmins.find((a) => a === user.userID)) {
+      admins.push(user);
     } else {
-      offline.push(user);
+      members.push(user);
     }
   });
 
@@ -84,51 +52,20 @@ export function ChannelListFeed({ chanID, setChanID }: ContactListProps) {
       socket.emit('channelDelete', { chanID });
     }
   };
-
-  const displayButton = () => {
-    const handler =
-      channel?.creatorID === socket.userID ? handleDelete : handleLeave;
-    const label =
-      channel?.creatorID === socket.userID ? 'Delete Channel' : 'Leave';
-    const disabled =
-      contactList.length > 1 && channel?.creatorID === socket.userID;
-    return (
-      <>
-        <button
-          onClick={disabled ? () => {} : handler}
-          type="button"
-          className={`deleteButton mx-2 rounded ${
-            disabled
-              ? 'bg-pong-blue-800 text-pong-blue-100'
-              : 'bg-red-500 text-pong-white hover:bg-red-600'
-          } px-4 py-2 shadow `}
-        >
-          {label}
-        </button>
-        <Tooltip
-          disableStyleInjection
-          className={`z-50 flex flex-col rounded border-pong-blue-100 bg-pong-blue-500 bg-opacity-100 p-2 text-pong-white text-opacity-100 ${
-            !disabled && 'hidden'
-          }`}
-          anchorSelect=".deleteButton"
-          clickable
-          place="bottom"
-        >
-          <p className="font-semibold">The channel needs to be empty</p>
-        </Tooltip>
-      </>
-    );
-  };
-
   return (
     <div className="w-full">
       <Scrollable>
         <div className="flex flex-col gap-3">
           <ChannelList list={creator} title="CREATOR" />
           <ChannelList list={admins} title="ADMINS" />
-          <ChannelList list={online} title="ONLINE" />
+          <ChannelList list={members} title="ONLINE" />
           <ChannelList list={offline} title="OFFLINE" />
-          {contactList.length ? displayButton() : null}
+          <LeaveChannel
+            display={contactList.length !== 0}
+            handler={isCreator(socket.userID) ? handleDelete : handleLeave}
+            label={isCreator(socket.userID) ? 'Delete channel' : 'Leave'}
+            disabled={contactList.length > 1 && isCreator(socket.userID)}
+          />
         </div>
       </Scrollable>
     </div>
