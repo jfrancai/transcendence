@@ -1,5 +1,4 @@
 import { useState } from 'react';
-import { PrimaryButton } from '../../PrimaryButton/PrimaryButton';
 import { ChannelCarrousel } from '../ChannelCarrousel/ChannelCarrousel';
 import { ChannelListFeed } from '../ChannelListFeed.tsx/ChannelListFeed';
 import { CreateChannelView } from '../CreateChannelView/CreateChannelView';
@@ -8,6 +7,7 @@ import { Scrollable } from '../Scrollable/Scrollable';
 import { SendMessageInput } from '../SendMessageInput/SendMessageInput';
 import ChatFeed from '../ChatFeed/ChatFeed';
 import { JoinChannelView } from '../JoinChannelView/JoinChannelView';
+import { CreateChannelMenu } from '../CreateChannelMenu/CreateChannelMenu';
 
 interface ChannelProps {
   toggleChannelView: () => any;
@@ -21,6 +21,7 @@ interface ChannelProps {
   isChannelSettings: boolean;
   isChannelNameView: boolean;
   isJoinChannelView: boolean;
+  isInviteChannelView: boolean;
 }
 export function Channel({
   toggleChannelView,
@@ -33,7 +34,8 @@ export function Channel({
   isChannelSettings,
   isCreateORJoinChannelView,
   isChannelNameView,
-  isJoinChannelView
+  isJoinChannelView,
+  isInviteChannelView
 }: ChannelProps) {
   const [chanID, setChanID] = useState<string>('');
 
@@ -58,32 +60,19 @@ export function Channel({
         <SendMessageInput receiverID={chanID} event="channelMessage" />
       </RenderIf>
       <RenderIf some={[isCreateORJoinChannelView]}>
-        <Scrollable width={336}>
-          <div className="flex w-full flex-col items-center justify-center gap-10">
-            <p className="text-2xl font-bold text-pong-white">
-              Create your Channel
-            </p>
-
-            <div className="font-bold text-pong-white">
-              <PrimaryButton onClick={createChannel}>
-                Create my own channel
-              </PrimaryButton>
-            </div>
-            <p className="text-pong-white">OR</p>
-            <div className="text-pong-white">
-              <button onClick={joinChannel} className="underline" type="button">
-                Join a Channel
-              </button>
-            </div>
-          </div>
-        </Scrollable>
-        <div className="h-14 w-[336px]" />
+        <CreateChannelMenu
+          createChannel={createChannel}
+          joinChannel={joinChannel}
+        />
       </RenderIf>
       <RenderIf some={[isChannelNameView]}>
-        <Scrollable width={336}>
-          <CreateChannelView toggleInviteChannel={toggleInviteChannel} />
-        </Scrollable>
-        <div className="h-14 w-[336px]" />
+        <CreateChannelView toggleInviteChannel={toggleInviteChannel} />
+      </RenderIf>
+      <RenderIf some={[isInviteChannelView]}>
+        <>
+          <Scrollable width={336}>coucou</Scrollable>
+          <div className="h-14 w-[336px]" />
+        </>
       </RenderIf>
       <RenderIf some={[isJoinChannelView]}>
         <Scrollable width={336}>

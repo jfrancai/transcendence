@@ -5,10 +5,10 @@ import {
   ContactList
 } from '../../../utils/hooks/useStatus.interfaces';
 import { useUsers } from '../../../utils/hooks/useUsers';
-import { ContactCard } from '../ContactCard/ContactCard';
 import { Scrollable } from '../Scrollable/Scrollable';
 import { useSocketContext } from '../../../contexts/socket';
 import { useChanInfo } from '../../../utils/hooks/useChannelInfo';
+import { ChanContact } from '../ChanContact/ChanContact';
 
 interface ContactListProps {
   chanID: string;
@@ -27,13 +27,16 @@ export function ChannelListFeed({ chanID, setChanID }: ContactListProps) {
     }
   }, [socket, chanID]);
 
+  const creator: ContactList = [];
   const admins: ContactList = [];
   const online: ContactList = [];
   const offline: ContactList = [];
 
   contactList.forEach((user) => {
     if (channel && user.connected === true) {
-      if (channel.chanAdmins.find((a) => a === user.userID)) {
+      if (channel.creatorID === user.userID) {
+        creator.push(user);
+      } else if (channel.chanAdmins.find((a) => a === user.userID)) {
         admins.push(user);
       } else {
         online.push(user);
@@ -90,19 +93,31 @@ export function ChannelListFeed({ chanID, setChanID }: ContactListProps) {
     );
   };
 
-  const displayCard = (user: Contact) => (
-    <ContactCard
-      key={user.userID}
-      username={user.username}
-      userID={user.userID}
-      onClick={() => {}}
-      url="starwatcher.jpg"
-    />
-  );
+  const displayCard = (user: Contact) => {
+    const onClick = () => {
+      const isCreator = channel?.creatorID === socket.userID;
+      const isAdmin = channel?.chanAdmins.find((id) => id === socket.userID);
+    };
+    return (
+      <ChanContact
+        key={user.userID}
+        username={user.username}
+        userID={user.userID}
+        onClick={onClick}
+        url="starwatcher.jpg"
+      />
+    );
+  };
   return (
     <div className="w-full">
       <Scrollable>
         <div className="flex flex-col gap-3">
+          {creator.length ? (
+            <div>
+              <p className="pl-2 font-semibold text-pong-blue-100">CREATOR</p>
+              {creator.map(displayCard)}
+            </div>
+          ) : null}
           {admins.length ? (
             <div>
               <p className="pl-2 font-semibold text-pong-blue-100">

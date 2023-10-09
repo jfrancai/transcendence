@@ -69,8 +69,8 @@ function Chat() {
         isChannelSettings={isChannelSettings}
         isChannelNameView={isChannelNameView}
         isJoinChannelView={isJoinChannelView}
+        isInviteChannelView={isInviteChannelView}
       />
-      <RenderIf some={[isInviteChannelView]}>coucou</RenderIf>
       <RenderIf some={[isSearchView]}>
         <p className="text-white">searchView</p>
       </RenderIf>
