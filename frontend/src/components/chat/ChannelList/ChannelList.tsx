@@ -1,4 +1,4 @@
-import { socket } from '../../../utils/functions/socket';
+import { useSocketContext } from '../../../contexts/socket';
 import {
   Contact,
   ContactList
@@ -20,6 +20,7 @@ export function ChannelList({
   isCreator,
   isAdmin
 }: ChannelListProps) {
+  const { socket } = useSocketContext();
   const displayCard = (user: Contact) => (
     <ChanContact
       key={user.userID}
