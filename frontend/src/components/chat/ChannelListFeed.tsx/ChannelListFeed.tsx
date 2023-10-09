@@ -15,6 +15,7 @@ interface ContactListProps {
 export function ChannelListFeed({ chanID, setChanID }: ContactListProps) {
   const { socket } = useSocketContext();
   const contactList = useChanUsers(() => setChanID(''));
+
   const channel = useChanInfo();
   const isCreator = (userID: string) => channel?.creatorID === userID;
   const isAdmin = (userID: string) => {
@@ -29,16 +30,25 @@ export function ChannelListFeed({ chanID, setChanID }: ContactListProps) {
     }
     return false;
   };
-
   useEffect(() => {
-    if (chanID.length !== 0) {
-      socket.emit('channelMembers', { chanID });
-      socket.emit('channelInfo', { chanID });
-    }
+    const emitInfo = () => {
+      if (chanID.length !== 0) {
+        socket.emit('channelMembers', { chanID });
+        socket.emit('channelInfo', { chanID });
+      }
+    };
+    emitInfo();
+    socket.on('channelAddAdmin', emitInfo);
+    socket.on('channelRemoveAdmin', emitInfo);
+    return () => {
+      socket.off('channelAddAdmin', emitInfo);
+      socket.off('channelRemoveAdmin', emitInfo);
+    };
   }, [socket, chanID]);
+  useEffect(() => {}, [socket]);
 
-  const offline: ContactList = contactList.filter((c) => !c.connected);
   const online: ContactList = contactList.filter((c) => c.connected);
+  const offline: ContactList = contactList.filter((c) => !c.connected);
 
   const handleLeave = () => {
     if (chanID.length !== 0) {

@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { useSocketContext } from '../../contexts/socket';
-import { Contact, ContactList } from './useStatus.interfaces';
+import { Contact, ContactList, User } from './useStatus.interfaces';
 
 export function useChanUsers(callback: (...arg: any) => any): ContactList {
   const { socket } = useSocketContext();
@@ -29,6 +29,33 @@ export function useChanUsers(callback: (...arg: any) => any): ContactList {
       setContactList([]);
     };
 
+    const onUserDisconnected = (data: User) => {
+      setContactList((list) => {
+        const newList = list.map((c) => {
+          if (c.userID === data.userID) {
+            return { ...c, connected: false };
+          }
+          return c;
+        });
+        return newList;
+      });
+    };
+
+    const onUserConnected = (data: User) => {
+      setContactList((list) => {
+        const newList = list.map((c) => {
+          if (c.userID === data.userID) {
+            return { ...c, connected: true };
+          }
+          return c;
+        });
+        return newList;
+      });
+    };
+
+    socket.on('userConnected', onUserConnected);
+    socket.on('userDisconnected', onUserDisconnected);
+
     socket.on('channelUserJoin', onChannelUserJoin);
     socket.on('channelLeave', onChannelLeave);
     socket.on('channelDelete', onChannelDelete);
@@ -37,6 +64,8 @@ export function useChanUsers(callback: (...arg: any) => any): ContactList {
       socket.off('channelUserJoin', onChannelUserJoin);
       socket.off('channelLeave', onChannelLeave);
       socket.off('channelDelete', onChannelDelete);
+      socket.off('userConnected', onUserConnected);
+      socket.off('userDisconnected', onUserDisconnected);
       socket.off('channelMembers', onChannelMembers);
     };
   }, [socket, callback]);
