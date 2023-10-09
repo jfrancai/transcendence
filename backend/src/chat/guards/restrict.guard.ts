@@ -8,7 +8,6 @@ import {
   BadRequestException
 } from '@nestjs/common';
 import { ChannelService } from '../../database/service/channel.service';
-import { ChanRestrictService } from '../../database/service/chan-restrict.service';
 import { ChatSocket } from '../chat.interface';
 import { Restrict } from '../decorators/restricts.decorator';
 import { ChannelIdDto } from '../dto/channel-id.dto';
@@ -17,7 +16,6 @@ import { ChannelIdDto } from '../dto/channel-id.dto';
 export class RestrictGuard implements CanActivate {
   constructor(
     private channelService: ChannelService,
-    private chanRestrictService: ChanRestrictService,
     private reflector: Reflector
   ) {}
 
@@ -26,7 +24,6 @@ export class RestrictGuard implements CanActivate {
     if (!restricts) {
       return true;
     }
-
     const socket = context.switchToWs().getClient() as ChatSocket;
     const data = context.switchToWs().getData();
 
@@ -38,26 +35,17 @@ export class RestrictGuard implements CanActivate {
     }
 
     const { chanID } = channelDto;
-    const channel = await this.channelService.getChanByIdWithRestrictList(
-      chanID
-    );
+    const channel = await this.channelService.getChanById(chanID);
     if (channel) {
-      const restrictSet: Set<'banned' | 'muted'> = new Set();
-      const { restrictList } = channel;
-      const userRestricts = restrictList.filter(
-        (r) => r.usersID === socket.user.id!
-      );
-      userRestricts.forEach((restrict) => {
-        if (restrict.endOfRestrict < new Date()) {
-          this.chanRestrictService.deleteChanRestrictById(restrict.id);
-        } else if (restrict.type === 'BAN') {
-          restrictSet.add('banned');
-        } else if (restrict.type === 'MUTE') {
-          restrictSet.add('muted');
-        }
-      });
-      const restrictArr = Array.from(restrictSet);
-      return !restricts.some((r) => restrictArr.includes(r));
+      const isMute = channel.mute.includes(socket.user.id!);
+      if (restricts.includes('muted') && isMute) {
+        return false;
+      }
+      const isBan = channel.bans.includes(socket.user.id!);
+      if (restricts.includes('banned') && isBan) {
+        return false;
+      }
+      return true;
     }
     return false;
   }
