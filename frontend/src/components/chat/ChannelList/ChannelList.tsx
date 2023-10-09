@@ -11,6 +11,7 @@ interface ChannelListProps {
   chanID: string;
   isCreator: boolean;
   isAdmin: boolean;
+  adminSection?: boolean;
 }
 
 export function ChannelList({
@@ -18,7 +19,8 @@ export function ChannelList({
   title,
   chanID,
   isCreator,
-  isAdmin
+  isAdmin,
+  adminSection = false
 }: ChannelListProps) {
   const { socket } = useSocketContext();
   const displayCard = (user: Contact) => (
@@ -32,8 +34,15 @@ export function ChannelList({
           chanID
         });
       }}
+      removeAdmin={() => {
+        socket.emit('channelRemoveAdmin', {
+          usersID: [user.userID],
+          chanID
+        });
+      }}
       isCreator={isCreator}
       isAdmin={isAdmin}
+      adminSection={adminSection}
     />
   );
 

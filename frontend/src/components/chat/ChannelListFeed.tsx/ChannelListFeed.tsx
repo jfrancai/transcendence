@@ -1,11 +1,11 @@
 import { useEffect } from 'react';
-import { useUsers } from '../../../utils/hooks/useUsers';
 import { Scrollable } from '../Scrollable/Scrollable';
 import { useSocketContext } from '../../../contexts/socket';
 import { useChanInfo } from '../../../utils/hooks/useChannelInfo';
 import { ContactList } from '../../../utils/hooks/useStatus.interfaces';
 import { ChannelList } from '../ChannelList/ChannelList';
 import { LeaveChannel } from '../LeaveChannel/LeaveChannel';
+import { useChanUsers } from '../../../utils/hooks/useChanUsers';
 
 interface ContactListProps {
   chanID: string;
@@ -14,7 +14,7 @@ interface ContactListProps {
 
 export function ChannelListFeed({ chanID, setChanID }: ContactListProps) {
   const { socket } = useSocketContext();
-  const contactList = useUsers(() => setChanID(''));
+  const contactList = useChanUsers(() => setChanID(''));
   const channel = useChanInfo();
   const isCreator = (userID: string) => channel?.creatorID === userID;
   const isAdmin = (userID: string) => {
@@ -58,28 +58,29 @@ export function ChannelListFeed({ chanID, setChanID }: ContactListProps) {
           <ChannelList
             list={online.filter((c) => isCreator(c.userID))}
             title="CREATOR"
-            chanID={channel?.chanID}
+            chanID={channel ? channel.chanID : ''}
             isAdmin={false}
             isCreator={false}
           />
           <ChannelList
             list={online.filter((c) => isAdmin(c.userID))}
             title="ADMINS"
-            chanID={channel?.chanID}
-            isAdmin={isAdmin(socket.userID)}
+            chanID={channel ? channel.chanID : ''}
+            isAdmin={false}
             isCreator={isCreator(socket.userID)}
+            adminSection
           />
           <ChannelList
             list={online.filter((c) => isMember(c.userID))}
             title="ONLINE"
-            chanID={channel?.chanID}
+            chanID={channel ? channel.chanID : ''}
             isAdmin={isAdmin(socket.userID)}
             isCreator={isCreator(socket.userID)}
           />
           <ChannelList
             list={offline}
             title="OFFLINE"
-            chanID={channel?.chanID}
+            chanID={channel ? channel.chanID : ''}
             isAdmin={isAdmin(socket.userID)}
             isCreator={isCreator(socket.userID)}
           />
