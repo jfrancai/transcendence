@@ -2,7 +2,6 @@ import { useEffect } from 'react';
 import { Scrollable } from '../Scrollable/Scrollable';
 import { useSocketContext } from '../../../contexts/socket';
 import { useChanInfo } from '../../../utils/hooks/useChannelInfo';
-import { ContactList } from '../../../utils/hooks/useStatus.interfaces';
 import { ChannelList } from '../ChannelList/ChannelList';
 import { LeaveChannel } from '../LeaveChannel/LeaveChannel';
 import { useChanUsers } from '../../../utils/hooks/useChanUsers';

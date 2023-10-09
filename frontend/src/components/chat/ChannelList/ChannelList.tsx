@@ -40,6 +40,14 @@ export function ChannelList({
           chanID
         });
       }}
+      kickUser={() => {
+        socket.emit('channelRestrict', {
+          userID: user.userID,
+          chanID,
+          restrictType: 'KICK',
+          reason: 'You have been kick'
+        });
+      }}
       isCreator={isCreator}
       isAdmin={isAdmin}
       adminSection={adminSection}

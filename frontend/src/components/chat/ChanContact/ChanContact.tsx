@@ -2,6 +2,7 @@ import {
   MdAdminPanelSettings,
   MdOutlineAdminPanelSettings
 } from 'react-icons/md';
+import { GiBootKick } from 'react-icons/gi';
 import ProfilePicture from '../ProfilePicture/ProfilePicture';
 
 interface ButtonListProps {
@@ -10,6 +11,7 @@ interface ButtonListProps {
   adminSection: boolean;
   addAdmin: () => any;
   removeAdmin: () => any;
+  kickUser: () => any;
 }
 
 function ButtonList({
@@ -17,20 +19,31 @@ function ButtonList({
   isAdmin,
   adminSection,
   addAdmin,
-  removeAdmin
+  removeAdmin,
+  kickUser
 }: ButtonListProps) {
   if (isCreator || isAdmin) {
     if (adminSection) {
       return (
-        <button className="rounded-full" type="button" onClick={removeAdmin}>
-          <MdAdminPanelSettings className="h-6 w-6 text-pong-blue-100" />
-        </button>
+        <div className="flex flex-row gap-1">
+          <button className="rounded-full" type="button" onClick={removeAdmin}>
+            <MdAdminPanelSettings className="h-6 w-6 text-pong-blue-100" />
+          </button>
+          <button className="rounded-full" type="button" onClick={kickUser}>
+            <GiBootKick className="h-6 w-6 text-pong-blue-100" />
+          </button>
+        </div>
       );
     }
     return (
-      <button className="rounded-full" type="button" onClick={addAdmin}>
-        <MdOutlineAdminPanelSettings className="h-6 w-6 text-pong-blue-100" />
-      </button>
+      <div className="flex flex-row gap-1">
+        <button className="rounded-full" type="button" onClick={addAdmin}>
+          <MdOutlineAdminPanelSettings className="h-6 w-6 text-pong-blue-100" />
+        </button>
+        <button className="rounded-full" type="button" onClick={kickUser}>
+          <GiBootKick className="h-6 w-6 text-pong-blue-100" />
+        </button>
+      </div>
     );
   }
   return null;
@@ -41,6 +54,7 @@ interface ChanContactProps {
   url: string;
   addAdmin: () => any;
   removeAdmin: () => any;
+  kickUser: () => any;
   isCreator: boolean;
   isAdmin: boolean;
   adminSection: boolean;
@@ -53,7 +67,8 @@ export function ChanContact({
   removeAdmin,
   isCreator,
   isAdmin,
-  adminSection
+  adminSection,
+  kickUser
 }: ChanContactProps) {
   return (
     <>
@@ -70,6 +85,7 @@ export function ChanContact({
           addAdmin={addAdmin}
           removeAdmin={removeAdmin}
           adminSection={adminSection}
+          kickUser={kickUser}
         />
       </div>
       <hr className="border-pong-blue-700" />
