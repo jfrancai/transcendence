@@ -11,7 +11,6 @@ export function useChanInfo(): Channel | undefined {
       setChanInfo(data);
     };
     socket.on('channelInfo', onChannelInfo);
-
     return () => {
       socket.off('channelInfo', onChannelInfo);
     };

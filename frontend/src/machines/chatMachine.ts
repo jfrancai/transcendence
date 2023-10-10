@@ -17,6 +17,9 @@ export const chatMachine = createMachine(
             on: {
               selectHeader: {
                 target: 'channelSettings'
+              },
+              selectChannel: {
+                target: 'channelSettings'
               }
             }
           },

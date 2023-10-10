@@ -610,7 +610,7 @@ export default class ChatGateway
           chanType: privChan.type,
           chanCreatedAt: privChan.createdAt
         };
-        this.io.to(senderID).emit('channelInfo', pubChan);
+        this.io.to(senderID).emit('channelMode', pubChan);
       }
     }
   }

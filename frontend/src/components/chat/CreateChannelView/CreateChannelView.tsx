@@ -24,12 +24,16 @@ function Section({ children }: SectionProps) {
 
 interface CreateChannelViewProps {
   toggleInviteChannel: () => any;
+  toggleChannelSettings: () => any;
   isNameView: boolean;
+  chanID: string;
 }
 
 export function CreateChannelView({
   toggleInviteChannel,
-  isNameView
+  toggleChannelSettings,
+  isNameView,
+  chanID
 }: CreateChannelViewProps) {
   const { socket } = useSocketContext();
   const [chanName, setChanName] = useState(`${socket.username}'s channel`);
@@ -43,21 +47,31 @@ export function CreateChannelView({
       type,
       password
     });
+    toggleChannelSettings();
   };
 
-  const handleUpdateChannel = () => {};
+  const handleUpdateChannel = () => {
+    socket.emit('channelMode', {
+      chanID,
+      chanName,
+      type,
+      password
+    });
+  };
 
   useEffect(() => {
     const onError = (err: any) => {
       setError(err.message);
     };
     socket.on('channelCreate', toggleInviteChannel);
+    socket.on('channelMode', toggleChannelSettings);
     socket.on('error', onError);
     return () => {
       socket.off('channelCreate', toggleInviteChannel);
+      socket.off('channelMode', toggleChannelSettings);
       socket.off('error', onError);
     };
-  }, [socket, toggleInviteChannel]);
+  }, [socket, toggleInviteChannel, toggleChannelSettings]);
   return (
     <>
       <Scrollable width={336}>
