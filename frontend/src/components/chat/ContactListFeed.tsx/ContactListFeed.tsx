@@ -59,6 +59,11 @@ export function ContactListFeed({
                   userID: user.userID
                 });
               }}
+              unblockUser={() => {
+                socket.emit('unblockUser', {
+                  userID: user.userID
+                });
+              }}
               url="starwatcher.jpg"
               blocked={false}
             />
@@ -81,6 +86,11 @@ export function ContactListFeed({
               }}
               blockUser={() => {
                 socket.emit('blockUser', {
+                  userID: user.userID
+                });
+              }}
+              unblockUser={() => {
+                socket.emit('unblockUser', {
                   userID: user.userID
                 });
               }}

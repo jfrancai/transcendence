@@ -49,20 +49,9 @@ export function ContactCard({
         </div>
         <div ref={ref} className="flex flex-row gap-4">
           {!blocked ? (
-            <>
-              <button type="button" onClick={sendMessage}>
-                <BiMessageDetail className="userMessage h-6 w-6 text-pong-blue-100 " />
-              </button>
-              <Tooltip
-                disableStyleInjection
-                className="z-50 flex flex-col rounded border-pong-blue-100 bg-pong-blue-500 bg-opacity-100 p-2 text-pong-white text-opacity-100 "
-                anchorSelect=".userMessage"
-                clickable
-                place="bottom"
-              >
-                <p className="font-semibold">Message user</p>
-              </Tooltip>
-            </>
+            <button type="button" onClick={sendMessage}>
+              <BiMessageDetail className="userMessage h-6 w-6 text-pong-blue-100 " />
+            </button>
           ) : null}
           {clicked || blocked ? (
             <>
@@ -80,7 +69,9 @@ export function ContactCard({
                 clickable
                 place="bottom"
               >
-                <p className="font-semibold">Unblock user</p>
+                <p className="font-semibold">
+                  {blocked ? 'Unblock user' : 'Block user'}
+                </p>
               </Tooltip>
             </>
           ) : null}
