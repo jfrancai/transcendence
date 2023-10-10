@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import { useSocketContext } from '../../contexts/socket';
 import { ContactList, User } from './useStatus.interfaces';
 
-export function useUsers(callback: (...arg: any) => any): ContactList {
+export function useUsers(): ContactList {
   const { socket } = useSocketContext();
   const [contactList, setContactList] = useState<ContactList>([]);
 
@@ -43,7 +43,7 @@ export function useUsers(callback: (...arg: any) => any): ContactList {
       socket.off('userConnected', onUserConnected);
       socket.off('userDisconnected', onUserDisconnected);
     };
-  }, [socket, callback]);
+  }, [socket]);
 
   return contactList;
 }

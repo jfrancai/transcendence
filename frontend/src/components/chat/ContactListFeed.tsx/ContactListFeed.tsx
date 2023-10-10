@@ -41,9 +41,14 @@ export function ContactListFeed({
       key={user.userID}
       username={user.username}
       userID={user.userID}
-      onClick={() => {
+      sendMessage={() => {
         setUserID(user.userID);
         toggleConversationView();
+      }}
+      blockUser={() => {
+        socket.emit('blockUser', {
+          userID: user.userID
+        });
       }}
       url="starwatcher.jpg"
     />

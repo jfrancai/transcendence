@@ -5,7 +5,7 @@ import { CreateChannelView } from '../CreateChannelView/CreateChannelView';
 import RenderIf from '../RenderIf/RenderIf';
 import { Scrollable } from '../Scrollable/Scrollable';
 import { SendMessageInput } from '../SendMessageInput/SendMessageInput';
-import ChatFeed from '../ChatFeed/ChatFeed';
+import ChanFeed from '../ChatFeed/ChatFeed';
 import { JoinChannelView } from '../JoinChannelView/JoinChannelView';
 import { CreateChannelMenu } from '../CreateChannelMenu/CreateChannelMenu';
 
@@ -53,7 +53,7 @@ export function Channel({
           <ChannelListFeed chanID={chanID} setChanID={setChanID} />
         </RenderIf>
         <RenderIf some={[isChannelView]}>
-          <ChatFeed
+          <ChanFeed
             userID={chanID}
             event="channelMessages"
             toggleChannelSettings={toggleChannelSettings}
