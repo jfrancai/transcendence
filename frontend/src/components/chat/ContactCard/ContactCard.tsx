@@ -54,26 +54,35 @@ export function ContactCard({
             </button>
           ) : null}
           {clicked || blocked ? (
-            <>
-              <button type="button" onClick={blocked ? unblockUser : blockUser}>
-                {blocked ? (
-                  <BsEyeSlash className="userBlock h-5 w-5 text-pong-blue-100" />
-                ) : (
+            <button type="button" onClick={blocked ? unblockUser : blockUser}>
+              {blocked ? (
+                <>
+                  <BsEyeSlash className="userUnblock h-5 w-5 text-pong-blue-100" />
+                  <Tooltip
+                    disableStyleInjection
+                    className="z-50 flex flex-col rounded border-pong-blue-100 bg-pong-blue-500 bg-opacity-100 p-2 text-pong-white text-opacity-100 "
+                    anchorSelect=".userUnblock"
+                    clickable
+                    place="bottom"
+                  >
+                    <p className="font-semibold">Unblock user</p>
+                  </Tooltip>
+                </>
+              ) : (
+                <>
                   <BsEye className="userBlock h-5 w-5 text-pong-blue-100" />
-                )}
-              </button>
-              <Tooltip
-                disableStyleInjection
-                className="z-50 flex flex-col rounded border-pong-blue-100 bg-pong-blue-500 bg-opacity-100 p-2 text-pong-white text-opacity-100 "
-                anchorSelect=".userBlock"
-                clickable
-                place="bottom"
-              >
-                <p className="font-semibold">
-                  {blocked ? 'Unblock user' : 'Block user'}
-                </p>
-              </Tooltip>
-            </>
+                  <Tooltip
+                    disableStyleInjection
+                    className="z-50 flex flex-col rounded border-pong-blue-100 bg-pong-blue-500 bg-opacity-100 p-2 text-pong-white text-opacity-100 "
+                    anchorSelect=".userBlock"
+                    clickable
+                    place="bottom"
+                  >
+                    <p className="font-semibold">Block user</p>
+                  </Tooltip>
+                </>
+              )}
+            </button>
           ) : null}
         </div>
       </div>
