@@ -1,3 +1,4 @@
+import { Tooltip } from 'react-tooltip';
 import {
   MdAdminPanelSettings,
   MdOutlineAdminPanelSettings
@@ -30,28 +31,83 @@ function ButtonList({
       return (
         <div className="flex flex-row gap-1">
           <button className="rounded-full" type="button" onClick={removeAdmin}>
-            <MdAdminPanelSettings className="h-6 w-6 text-pong-blue-100" />
+            <MdAdminPanelSettings className="removeAdmin h-6 w-6 text-pong-blue-100" />
           </button>
+          <Tooltip
+            disableStyleInjection
+            className="z-50 flex flex-col rounded border-pong-blue-100 bg-pong-blue-500 bg-opacity-100 p-2 text-pong-white text-opacity-100 "
+            anchorSelect=".removeAdmin"
+            clickable
+            place="bottom"
+          >
+            <p className="font-semibold">Remove admin</p>
+          </Tooltip>
+
           <button className="rounded-full" type="button" onClick={kickUser}>
-            <GiBootKick className="h-6 w-6 text-pong-blue-100" />
+            <GiBootKick className="kickUser h-6 w-6 text-pong-blue-100" />
           </button>
+          <Tooltip
+            disableStyleInjection
+            className="z-50 flex flex-col rounded border-pong-blue-100 bg-pong-blue-500 bg-opacity-100 p-2 text-pong-white text-opacity-100 "
+            anchorSelect=".kickUser"
+            clickable
+            place="bottom"
+          >
+            <p className="font-semibold">Kick user</p>
+          </Tooltip>
           <button className="rounded-full" type="button" onClick={banUser}>
-            <FaBan className="h-6 w-6 text-pong-blue-100" />
+            <FaBan className="banUser h-6 w-6 text-pong-blue-100" />
           </button>
+          <Tooltip
+            disableStyleInjection
+            className="z-50 flex flex-col rounded border-pong-blue-100 bg-pong-blue-500 bg-opacity-100 p-2 text-pong-white text-opacity-100 "
+            anchorSelect=".banUser"
+            clickable
+            place="bottom"
+          >
+            <p className="font-semibold">Ban user</p>
+          </Tooltip>
         </div>
       );
     }
     return (
       <div className="flex flex-row gap-1">
         <button className="rounded-full" type="button" onClick={addAdmin}>
-          <MdOutlineAdminPanelSettings className="h-6 w-6 text-pong-blue-100" />
+          <MdOutlineAdminPanelSettings className="addAdmin h-6 w-6 text-pong-blue-100" />
         </button>
+        <Tooltip
+          disableStyleInjection
+          className="z-50 flex flex-col rounded border-pong-blue-100 bg-pong-blue-500 bg-opacity-100 p-2 text-pong-white text-opacity-100 "
+          anchorSelect=".addAdmin"
+          clickable
+          place="bottom"
+        >
+          <p className="font-semibold">Add admin</p>
+        </Tooltip>
         <button className="rounded-full" type="button" onClick={kickUser}>
-          <GiBootKick className="h-6 w-6 text-pong-blue-100" />
+          <GiBootKick className="kickUser h-6 w-6 text-pong-blue-100" />
         </button>
+        <Tooltip
+          disableStyleInjection
+          className="z-50 flex flex-col rounded border-pong-blue-100 bg-pong-blue-500 bg-opacity-100 p-2 text-pong-white text-opacity-100 "
+          anchorSelect=".kickUser"
+          clickable
+          place="bottom"
+        >
+          <p className="font-semibold">Kick user</p>
+        </Tooltip>
         <button className="rounded-full" type="button" onClick={banUser}>
-          <FaBan className="h-6 w-6 text-pong-blue-100" />
+          <FaBan className="banUser h-6 w-6 text-pong-blue-100" />
         </button>
+        <Tooltip
+          disableStyleInjection
+          className="z-50 flex flex-col rounded border-pong-blue-100 bg-pong-blue-500 bg-opacity-100 p-2 text-pong-white text-opacity-100 "
+          anchorSelect=".banUser"
+          clickable
+          place="bottom"
+        >
+          <p className="font-semibold">Ban user</p>
+        </Tooltip>
       </div>
     );
   }
