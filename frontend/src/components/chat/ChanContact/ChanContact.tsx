@@ -3,6 +3,7 @@ import {
   MdOutlineAdminPanelSettings
 } from 'react-icons/md';
 import { GiBootKick } from 'react-icons/gi';
+import { FaBan } from 'react-icons/fa';
 import ProfilePicture from '../ProfilePicture/ProfilePicture';
 
 interface ButtonListProps {
@@ -12,6 +13,7 @@ interface ButtonListProps {
   addAdmin: () => any;
   removeAdmin: () => any;
   kickUser: () => any;
+  banUser: () => any;
 }
 
 function ButtonList({
@@ -20,7 +22,8 @@ function ButtonList({
   adminSection,
   addAdmin,
   removeAdmin,
-  kickUser
+  kickUser,
+  banUser
 }: ButtonListProps) {
   if (isCreator || isAdmin) {
     if (adminSection) {
@@ -32,6 +35,9 @@ function ButtonList({
           <button className="rounded-full" type="button" onClick={kickUser}>
             <GiBootKick className="h-6 w-6 text-pong-blue-100" />
           </button>
+          <button className="rounded-full" type="button" onClick={banUser}>
+            <FaBan className="h-6 w-6 text-pong-blue-100" />
+          </button>
         </div>
       );
     }
@@ -42,6 +48,9 @@ function ButtonList({
         </button>
         <button className="rounded-full" type="button" onClick={kickUser}>
           <GiBootKick className="h-6 w-6 text-pong-blue-100" />
+        </button>
+        <button className="rounded-full" type="button" onClick={banUser}>
+          <FaBan className="h-6 w-6 text-pong-blue-100" />
         </button>
       </div>
     );
@@ -55,6 +64,7 @@ interface ChanContactProps {
   addAdmin: () => any;
   removeAdmin: () => any;
   kickUser: () => any;
+  banUser: () => any;
   isCreator: boolean;
   isAdmin: boolean;
   adminSection: boolean;
@@ -68,7 +78,8 @@ export function ChanContact({
   isCreator,
   isAdmin,
   adminSection,
-  kickUser
+  kickUser,
+  banUser
 }: ChanContactProps) {
   return (
     <>
@@ -86,6 +97,7 @@ export function ChanContact({
           removeAdmin={removeAdmin}
           adminSection={adminSection}
           kickUser={kickUser}
+          banUser={banUser}
         />
       </div>
       <hr className="border-pong-blue-700" />
