@@ -11,17 +11,18 @@ datasource db {
 }
 
 model Users {
-  id            String         @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  email         String         @unique
-  username      String         @unique
-  password      String
-  twoAuthOn     Boolean        @default(false)
-  twoAuthSecret String?
-  apiToken      String?
-  connectedChat Boolean        @default(false)
-  channels      Channel[]
-  messageSent   Message[] @relation(name: "sender")
+  id              String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  email           String    @unique
+  username        String    @unique
+  password        String
+  twoAuthOn       Boolean   @default(false)
+  twoAuthSecret   String?
+  apiToken        String?
+  connectedChat   Boolean   @default(false)
+  channels        Channel[]
+  messageSent     Message[] @relation(name: "sender")
   messageReceived Message[] @relation(name: "receiver")
+  blockList       String[]  @db.Uuid
 }
 
 model Message {
@@ -37,17 +38,17 @@ model Message {
 }
 
 model Channel {
-  id           String         @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  chanName     String         @unique
-  type         ChannelType    @default(PRIVATE)
-  createdAt    DateTime       @default(now())
-  password     String?
-  creatorID    String         @db.Uuid
-  admins       String[]       @db.Uuid
-  bans         String[]       @db.Uuid
-  mute         String[]       @db.Uuid
-  members      Users[]
-  messages     Message[]
+  id        String      @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  chanName  String      @unique
+  type      ChannelType @default(PRIVATE)
+  createdAt DateTime    @default(now())
+  password  String?
+  creatorID String      @db.Uuid
+  admins    String[]    @db.Uuid
+  bans      String[]    @db.Uuid
+  mute      String[]    @db.Uuid
+  members   Users[]
+  messages  Message[]
 }
 
 enum ChannelType {
