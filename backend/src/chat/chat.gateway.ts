@@ -207,6 +207,26 @@ export default class ChatGateway
     socket.emit('users', publicUsers);
   }
 
+  @SubscribeMessage('usersBlocked')
+  async handleUsersBlocked(@ConnectedSocket() socket: ChatSocket) {
+    const senderID = socket.user.id!;
+    const user = await this.usersService.getUserById(senderID);
+    const privateUsers = await this.usersService.getAllUsers();
+    const publicUsers: PublicChatUser[] = [];
+    if (privateUsers && user) {
+      privateUsers
+        .filter((u) => user.blockList.includes(u.id))
+        .forEach((u) => {
+          publicUsers.push({
+            userID: u.id,
+            connected: u.connectedChat,
+            username: u.username!
+          });
+        });
+    }
+    socket.emit('usersBlocked', publicUsers);
+  }
+
   @SubscribeMessage('blockUser')
   async handleBlockUser(
     @MessageBody(new ValidationPipe()) userDto: UserDto,
@@ -220,7 +240,9 @@ export default class ChatGateway
       const blockSet = new Set(newBlocks);
       user.blockList = Array.from(blockSet);
       await this.usersService.updateUser({ username: user.username }, user);
-      socket.emit('blockUser');
+      socket.emit('blockUser', {
+        userID
+      });
     }
   }
 

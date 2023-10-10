@@ -18,17 +18,11 @@ export function ContactListFeed({
   toggleConversationView
 }: ContactListProps) {
   const { socket } = useSocketContext();
-  const contactList = useUsers();
+  const { contactList, blockedList } = useUsers();
 
   useEffect(() => {
-    const onBlockUser = () => {
-      socket.emit('users');
-    };
     socket.emit('users');
-    socket.on('blockUser', onBlockUser);
-    return () => {
-      socket.off('blockUser', onBlockUser);
-    };
+    socket.emit('usersBlocked');
   }, [socket]);
 
   const online: ContactList = [];
@@ -76,6 +70,14 @@ export function ContactListFeed({
             {`OFFLINE — ${offline.length}`}
           </p>
           {offline.map(displayCard)}
+        </>
+      ) : null}
+      {blockedList.length ? (
+        <>
+          <p className="mt-3 pl-2 font-bold text-pong-blue-100">
+            {`BLOCKED — ${blockedList.length}`}
+          </p>
+          {blockedList.map(displayCard)}
         </>
       ) : null}
     </Scrollable>
