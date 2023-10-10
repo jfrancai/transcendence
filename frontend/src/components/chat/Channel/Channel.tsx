@@ -53,7 +53,11 @@ export function Channel({
           <ChannelListFeed chanID={chanID} setChanID={setChanID} />
         </RenderIf>
         <RenderIf some={[isChannelView]}>
-          <ChatFeed userID={chanID} event="channelMessages" />
+          <ChatFeed
+            userID={chanID}
+            event="channelMessages"
+            toggleChannelSettings={toggleChannelSettings}
+          />
         </RenderIf>
       </div>
       <RenderIf some={[isChannelView]}>

@@ -8,12 +8,23 @@ import { useSocketContext } from '../../../contexts/socket';
 interface ChatFeedProps {
   event: 'channelMessages' | 'messages';
   userID: string;
+  toggleChannelSettings: () => any;
 }
 
-function ChatFeed({ userID, event }: ChatFeedProps) {
+function ChatFeed({ userID, event, toggleChannelSettings }: ChatFeedProps) {
   const { socket } = useSocketContext();
   const messages = useMessages(userID);
   const messageEndRef = useScroll(messages);
+
+  useEffect(() => {
+    const onChannelRestrict = () => {
+      toggleChannelSettings();
+    };
+    socket.on('channelRestrict', onChannelRestrict);
+    return () => {
+      socket.off('channelRestrict', onChannelRestrict);
+    };
+  });
 
   useEffect(() => {
     if (userID.length !== 0) {
