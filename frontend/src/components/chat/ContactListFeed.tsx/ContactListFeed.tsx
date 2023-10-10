@@ -21,7 +21,14 @@ export function ContactListFeed({
   const contactList = useUsers();
 
   useEffect(() => {
+    const onBlockUser = () => {
+      socket.emit('users');
+    };
     socket.emit('users');
+    socket.on('blockUser', onBlockUser);
+    return () => {
+      socket.off('blockUser', onBlockUser);
+    };
   }, [socket]);
 
   const online: ContactList = [];

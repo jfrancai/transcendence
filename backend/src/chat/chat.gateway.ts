@@ -189,18 +189,39 @@ export default class ChatGateway
 
   @SubscribeMessage('users')
   async handleUsers(@ConnectedSocket() socket: ChatSocket) {
+    const senderID = socket.user.id!;
+    const user = await this.usersService.getUserById(senderID);
     const privateUsers = await this.usersService.getAllUsers();
     const publicUsers: PublicChatUser[] = [];
-    if (privateUsers) {
-      privateUsers!.forEach((user) => {
-        publicUsers.push({
-          userID: user.id,
-          connected: user.connectedChat,
-          username: user.username!
+    if (privateUsers && user) {
+      privateUsers
+        .filter((u) => !user.blockList.includes(u.id))
+        .forEach((u) => {
+          publicUsers.push({
+            userID: u.id,
+            connected: u.connectedChat,
+            username: u.username!
+          });
         });
-      });
     }
     socket.emit('users', publicUsers);
+  }
+
+  @SubscribeMessage('blockUser')
+  async handleBlockUser(
+    @MessageBody(new ValidationPipe()) userDto: UserDto,
+    @ConnectedSocket() socket: ChatSocket
+  ) {
+    const { userID } = userDto;
+    const senderID = socket.user.id!;
+    const user = await this.usersService.getUserById(senderID);
+    if (user && userID !== senderID) {
+      const newBlocks = user.blockList.concat(userID);
+      const blockSet = new Set(newBlocks);
+      user.blockList = Array.from(blockSet);
+      await this.usersService.updateUser({ username: user.username }, user);
+      socket.emit('blockUser');
+    }
   }
 
   @SubscribeMessage('channels')
@@ -620,7 +641,6 @@ export default class ChatGateway
     );
     const channel = await this.channelService.getChanById(chanID);
     const socketToRestrict = this.socketMap.get(userID);
-    this.logger.debug(socketToRestrict);
     if (channel && socketToRestrict) {
       if (userID === channel.creatorID) {
         throw new ForbiddenException("Channel creator can't be restricted");
