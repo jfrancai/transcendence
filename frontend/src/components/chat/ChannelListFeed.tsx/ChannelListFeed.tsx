@@ -78,7 +78,7 @@ export function ChannelListFeed({
             list={contactList.filter((c) => isAdmin(c.userID))}
             title="ADMINS"
             chanID={channel ? channel.chanID : ''}
-            isAdmin={false}
+            isAdmin={isAdmin(socket.userID)}
             isCreator={isCreator(socket.userID)}
             adminSection
           />

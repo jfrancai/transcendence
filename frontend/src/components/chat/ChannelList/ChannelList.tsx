@@ -57,7 +57,7 @@ export function ChannelList({
         });
       }}
       isCreator={isCreator}
-      isAdmin={isAdmin}
+      isAdmin={isAdmin && user.userID !== socket.userID}
       adminSection={adminSection}
     />
   );
