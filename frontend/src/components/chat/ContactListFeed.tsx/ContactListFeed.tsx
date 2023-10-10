@@ -37,23 +37,7 @@ export function ContactListFeed({
         offline.push(user);
       }
     });
-  const displayCard = (user: Contact) => (
-    <ContactCard
-      key={user.userID}
-      username={user.username}
-      userID={user.userID}
-      sendMessage={() => {
-        setUserID(user.userID);
-        toggleConversationView();
-      }}
-      blockUser={() => {
-        socket.emit('blockUser', {
-          userID: user.userID
-        });
-      }}
-      url="starwatcher.jpg"
-    />
-  );
+
   return (
     <Scrollable>
       {online.length ? (
@@ -61,7 +45,24 @@ export function ContactListFeed({
           <p className="pl-2 font-semibold text-pong-blue-100">
             {`ONLINE — ${online.length}`}
           </p>
-          {online.map(displayCard)}
+          {online.map((user: Contact) => (
+            <ContactCard
+              key={user.userID}
+              username={user.username}
+              userID={user.userID}
+              sendMessage={() => {
+                setUserID(user.userID);
+                toggleConversationView();
+              }}
+              blockUser={() => {
+                socket.emit('blockUser', {
+                  userID: user.userID
+                });
+              }}
+              url="starwatcher.jpg"
+              blocked={false}
+            />
+          ))}
         </>
       ) : null}
       {offline.length ? (
@@ -69,7 +70,24 @@ export function ContactListFeed({
           <p className="mt-3 pl-2 font-bold text-pong-blue-100">
             {`OFFLINE — ${offline.length}`}
           </p>
-          {offline.map(displayCard)}
+          {offline.map((user: Contact) => (
+            <ContactCard
+              key={user.userID}
+              username={user.username}
+              userID={user.userID}
+              sendMessage={() => {
+                setUserID(user.userID);
+                toggleConversationView();
+              }}
+              blockUser={() => {
+                socket.emit('blockUser', {
+                  userID: user.userID
+                });
+              }}
+              url="starwatcher.jpg"
+              blocked={false}
+            />
+          ))}
         </>
       ) : null}
       {blockedList.length ? (
@@ -77,7 +95,29 @@ export function ContactListFeed({
           <p className="mt-3 pl-2 font-bold text-pong-blue-100">
             {`BLOCKED — ${blockedList.length}`}
           </p>
-          {blockedList.map(displayCard)}
+          {blockedList.map((user: Contact) => (
+            <ContactCard
+              key={user.userID}
+              username={user.username}
+              userID={user.userID}
+              sendMessage={() => {
+                setUserID(user.userID);
+                toggleConversationView();
+              }}
+              blockUser={() => {
+                socket.emit('blockUser', {
+                  userID: user.userID
+                });
+              }}
+              unblockUser={() => {
+                socket.emit('unblockUser', {
+                  userID: user.userID
+                });
+              }}
+              url="starwatcher.jpg"
+              blocked
+            />
+          ))}
         </>
       ) : null}
     </Scrollable>

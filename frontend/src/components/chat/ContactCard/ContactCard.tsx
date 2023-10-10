@@ -1,6 +1,6 @@
 import { Tooltip } from 'react-tooltip';
 import { BiMessageDetail } from 'react-icons/bi';
-import { FaBan } from 'react-icons/fa';
+import { BsEyeSlash, BsEye } from 'react-icons/bs';
 import { useState } from 'react';
 import ProfilePicture from '../ProfilePicture/ProfilePicture';
 import { useOutsideClick } from '../../../utils/hooks/useOutsideClick';
@@ -8,10 +8,12 @@ import { useOutsideClick } from '../../../utils/hooks/useOutsideClick';
 interface ContactCardProps {
   sendMessage: () => any;
   blockUser: () => any;
+  unblockUser: () => any;
   noBgColor?: boolean;
   userID: string;
   username: string;
   url: string;
+  blocked: boolean;
 }
 
 export function ContactCard({
@@ -20,7 +22,9 @@ export function ContactCard({
   username,
   noBgColor,
   url,
-  blockUser
+  blockUser,
+  unblockUser,
+  blocked
 }: ContactCardProps) {
   const [clicked, setClicked] = useState(false);
   const ref = useOutsideClick(() => setClicked(false));
@@ -44,22 +48,30 @@ export function ContactCard({
           </p>
         </div>
         <div ref={ref} className="flex flex-row gap-4">
-          <button type="button" onClick={sendMessage}>
-            <BiMessageDetail className="userMessage h-6 w-6 text-pong-blue-100 " />
-          </button>
-          <Tooltip
-            disableStyleInjection
-            className="z-50 flex flex-col rounded border-pong-blue-100 bg-pong-blue-500 bg-opacity-100 p-2 text-pong-white text-opacity-100 "
-            anchorSelect=".userMessage"
-            clickable
-            place="bottom"
-          >
-            <p className="font-semibold">Message user</p>
-          </Tooltip>
-          {clicked ? (
+          {!blocked ? (
             <>
-              <button type="button" onClick={blockUser}>
-                <FaBan className="userBlock h-5 w-5 text-pong-blue-100" />
+              <button type="button" onClick={sendMessage}>
+                <BiMessageDetail className="userMessage h-6 w-6 text-pong-blue-100 " />
+              </button>
+              <Tooltip
+                disableStyleInjection
+                className="z-50 flex flex-col rounded border-pong-blue-100 bg-pong-blue-500 bg-opacity-100 p-2 text-pong-white text-opacity-100 "
+                anchorSelect=".userMessage"
+                clickable
+                place="bottom"
+              >
+                <p className="font-semibold">Message user</p>
+              </Tooltip>
+            </>
+          ) : null}
+          {clicked || blocked ? (
+            <>
+              <button type="button" onClick={blocked ? unblockUser : blockUser}>
+                {blocked ? (
+                  <BsEyeSlash className="userBlock h-5 w-5 text-pong-blue-100" />
+                ) : (
+                  <BsEye className="userBlock h-5 w-5 text-pong-blue-100" />
+                )}
               </button>
               <Tooltip
                 disableStyleInjection
@@ -68,7 +80,7 @@ export function ContactCard({
                 clickable
                 place="bottom"
               >
-                <p className="font-semibold">Block user</p>
+                <p className="font-semibold">Unblock user</p>
               </Tooltip>
             </>
           ) : null}
