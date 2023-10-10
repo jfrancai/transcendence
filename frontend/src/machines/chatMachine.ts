@@ -12,6 +12,14 @@ export const chatMachine = createMachine(
         description: 'The channel component is open',
         initial: 'messageView',
         states: {
+          channelConfigView: {
+            description: 'Update channel type, name and picture',
+            on: {
+              selectHeader: {
+                target: 'channelSettings'
+              }
+            }
+          },
           messageView: {
             description: 'The chat component displays the contact view.',
             on: {
@@ -103,6 +111,9 @@ export const chatMachine = createMachine(
               },
               addChannel: {
                 target: 'createORJoinChannelView'
+              },
+              updateChannel: {
+                target: 'channelConfigView'
               }
             }
           },
@@ -177,6 +188,7 @@ export const chatMachine = createMachine(
         | { type: 'clickOnNotification' }
         | { type: 'clickOnSearch' }
         | { type: 'selectContact' }
+        | { type: 'updateChannel' }
         | { type: 'clickOnChannel' }
         | { type: 'clickOnMessage' }
         | { type: 'selectHeader' }

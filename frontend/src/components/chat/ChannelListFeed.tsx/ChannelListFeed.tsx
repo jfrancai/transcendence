@@ -5,13 +5,19 @@ import { useChanInfo } from '../../../utils/hooks/useChannelInfo';
 import { ChannelList } from '../ChannelList/ChannelList';
 import { LeaveChannel } from '../LeaveChannel/LeaveChannel';
 import { useChanUsers } from '../../../utils/hooks/useChanUsers';
+import { UpdateChannel } from '../AddPassword/AddPassword';
 
 interface ContactListProps {
   chanID: string;
   setChanID: (arg: string) => any;
+  updateChannel: () => any;
 }
 
-export function ChannelListFeed({ chanID, setChanID }: ContactListProps) {
+export function ChannelListFeed({
+  chanID,
+  setChanID,
+  updateChannel
+}: ContactListProps) {
   const { socket } = useSocketContext();
   const contactList = useChanUsers(() => setChanID(''));
 
@@ -83,6 +89,14 @@ export function ChannelListFeed({ chanID, setChanID }: ContactListProps) {
             isAdmin={isAdmin(socket.userID)}
             isCreator={isCreator(socket.userID)}
           />
+          {isCreator(socket.userID) ? (
+            <UpdateChannel
+              display={contactList.length !== 0}
+              handler={updateChannel}
+              label="Channel configuration"
+              disabled={contactList.length > 1 && isCreator(socket.userID)}
+            />
+          ) : null}
           <LeaveChannel
             display={contactList.length !== 0}
             handler={isCreator(socket.userID) ? handleDelete : handleLeave}
