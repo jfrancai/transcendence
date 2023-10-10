@@ -24,10 +24,12 @@ function Section({ children }: SectionProps) {
 
 interface CreateChannelViewProps {
   toggleInviteChannel: () => any;
+  isNameView: boolean;
 }
 
 export function CreateChannelView({
-  toggleInviteChannel
+  toggleInviteChannel,
+  isNameView
 }: CreateChannelViewProps) {
   const { socket } = useSocketContext();
   const [chanName, setChanName] = useState(`${socket.username}'s channel`);
@@ -42,6 +44,8 @@ export function CreateChannelView({
       password
     });
   };
+
+  const handleUpdateChannel = () => {};
 
   useEffect(() => {
     const onError = (err: any) => {
@@ -59,34 +63,41 @@ export function CreateChannelView({
       <Scrollable width={336}>
         <div className="flex w-full flex-col items-center justify-center gap-10">
           <p className="text-2xl font-bold text-pong-white">
-            Create your Channel
+            {isNameView ? 'Create your Channel' : 'Update Channel'}
           </p>
 
-          <Section>
-            <SectionTitle title="CHANNEL PICTURE" />
-            <label
-              htmlFor="UploadChannelImage"
-              className="flex justify-center rounded border border-dashed border-pong-white text-[50px]"
-            >
-              <input id="UploadChannelImage" type="file" className="hidden" />
-              <AiOutlineCloudUpload className="my-4 cursor-pointer rounded-full bg-pong-blue-500 p-1 text-pong-blue-100" />
-            </label>
-          </Section>
+          {isNameView ? (
+            <>
+              <Section>
+                <SectionTitle title="CHANNEL PICTURE" />
+                <label
+                  htmlFor="UploadChannelImage"
+                  className="flex justify-center rounded border border-dashed border-pong-white text-[50px]"
+                >
+                  <input
+                    id="UploadChannelImage"
+                    type="file"
+                    className="hidden"
+                  />
+                  <AiOutlineCloudUpload className="my-4 cursor-pointer rounded-full bg-pong-blue-500 p-1 text-pong-blue-100" />
+                </label>
+              </Section>
 
-          <Section>
-            <SectionTitle title="CHANNEL NAME" />
-            <label htmlFor="ChannelName">
-              <input
-                type="text"
-                id="ChannelName"
-                className="w-full rounded-md border border-pong-blue-100 bg-pong-blue-500 p-1 text-base text-pong-white"
-                value={chanName}
-                onChange={(e) => setChanName(e.target.value)}
-              />
-            </label>
-            {error ? <p className="text-red-500">{error}</p> : null}
-          </Section>
-
+              <Section>
+                <SectionTitle title="CHANNEL NAME" />
+                <label htmlFor="ChannelName">
+                  <input
+                    type="text"
+                    id="ChannelName"
+                    className="w-full rounded-md border border-pong-blue-100 bg-pong-blue-500 p-1 text-base text-pong-white"
+                    value={chanName}
+                    onChange={(e) => setChanName(e.target.value)}
+                  />
+                </label>
+                {error ? <p className="text-red-500">{error}</p> : null}
+              </Section>
+            </>
+          ) : null}
           <Section>
             <SectionTitle title="CHANNEL TYPE" />
             <SelectChannelType active={type} setActive={setType} />
@@ -120,8 +131,10 @@ export function CreateChannelView({
               </label>
             </Section>
           </RenderIf>
-          <PrimaryButton onClick={handleCreateChannel}>
-            Create Channel
+          <PrimaryButton
+            onClick={isNameView ? handleCreateChannel : handleUpdateChannel}
+          >
+            {isNameView ? 'Create Channel' : 'Update Channel'}
           </PrimaryButton>
         </div>
       </Scrollable>

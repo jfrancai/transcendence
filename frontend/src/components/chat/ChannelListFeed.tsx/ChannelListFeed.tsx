@@ -94,7 +94,6 @@ export function ChannelListFeed({
               display={contactList.length !== 0}
               handler={updateChannel}
               label="Channel configuration"
-              disabled={contactList.length > 1 && isCreator(socket.userID)}
             />
           ) : null}
           <LeaveChannel

@@ -78,7 +78,10 @@ export function Channel({
         />
       </RenderIf>
       <RenderIf some={[isChannelNameView, isChannelConfigView]}>
-        <CreateChannelView toggleInviteChannel={toggleInviteChannel} />
+        <CreateChannelView
+          isNameView={isChannelNameView}
+          toggleInviteChannel={toggleInviteChannel}
+        />
       </RenderIf>
       <RenderIf some={[isInviteChannelView]}>
         <>
