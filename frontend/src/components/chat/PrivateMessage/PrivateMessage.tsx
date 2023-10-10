@@ -1,8 +1,8 @@
 import { useState } from 'react';
 import RenderIf from '../RenderIf/RenderIf';
-import ChatFeed from '../ChatFeed/ChatFeed';
 import { ContactListFeed } from '../ContactListFeed.tsx/ContactListFeed';
 import { SendMessageInput } from '../SendMessageInput/SendMessageInput';
+import { PrivateFeed } from '../PrivateFeed/PrivateFeed';
 
 interface PrivateMessageProps {
   isMessageView: boolean;
@@ -20,7 +20,7 @@ export function PrivateMessage({
   return (
     <>
       <RenderIf some={[isConversationView]}>
-        <ChatFeed userID={userID} event="messages" />
+        <PrivateFeed userID={userID} event="messages" />
         <SendMessageInput receiverID={userID} event="privateMessage" />
       </RenderIf>
       <RenderIf some={[isMessageView]}>
