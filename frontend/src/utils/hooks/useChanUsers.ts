@@ -2,13 +2,21 @@ import { useEffect, useState } from 'react';
 import { useSocketContext } from '../../contexts/socket';
 import { Contact, ContactList, User } from './useStatus.interfaces';
 
-export function useChanUsers(callback: (...arg: any) => any): ContactList {
+export function useChanUsers(callback: (...arg: any) => any): {
+  contactList: ContactList;
+  bannedList: ContactList;
+} {
   const { socket } = useSocketContext();
   const [contactList, setContactList] = useState<ContactList>([]);
+  const [bannedList, setBannedList] = useState<ContactList>([]);
 
   useEffect(() => {
     const onChannelMembers = (data: ContactList) => {
       setContactList(data);
+    };
+
+    const onUsersBanned = (data: ContactList) => {
+      setBannedList(data);
     };
 
     const onChannelUserJoin = (data: Contact) => {
@@ -55,13 +63,14 @@ export function useChanUsers(callback: (...arg: any) => any): ContactList {
 
     socket.on('userConnected', onUserConnected);
     socket.on('userDisconnected', onUserDisconnected);
-
+    socket.on('usersBanned', onUsersBanned);
     socket.on('channelUserJoin', onChannelUserJoin);
     socket.on('channelLeave', onChannelLeave);
     socket.on('channelDelete', onChannelDelete);
     socket.on('channelMembers', onChannelMembers);
     return () => {
       socket.off('channelUserJoin', onChannelUserJoin);
+      socket.off('usersBanned', onUsersBanned);
       socket.off('channelLeave', onChannelLeave);
       socket.off('channelDelete', onChannelDelete);
       socket.off('userConnected', onUserConnected);
@@ -70,5 +79,5 @@ export function useChanUsers(callback: (...arg: any) => any): ContactList {
     };
   }, [socket, callback]);
 
-  return contactList;
+  return { contactList, bannedList };
 }

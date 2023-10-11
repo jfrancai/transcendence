@@ -227,6 +227,28 @@ export default class ChatGateway
     socket.emit('usersBlocked', publicUsers);
   }
 
+  @SubscribeMessage('usersBanned')
+  async handleUsersBanned(
+    @MessageBody(new ValidationPipe()) channelIdDto: ChannelIdDto,
+    @ConnectedSocket() socket: ChatSocket
+  ) {
+    const { chanID } = channelIdDto;
+    const senderID = socket.user.id!;
+    const channel = await this.channelService.getChanById(chanID);
+    const privateUsers = await this.usersService.getAllUsers();
+    if (channel && privateUsers) {
+      const banMembers: PublicChatUser[] = privateUsers
+        .filter((m) => channel.bans.includes(m.id))
+        .map((m) => ({
+          userID: m.id,
+          connected: m.connectedChat,
+          username: m.username!
+        }));
+      this.logger.debug(banMembers);
+      this.io.to(senderID).emit('usersBanned', banMembers);
+    }
+  }
+
   @SubscribeMessage('unblockUser')
   async handleUnblockUser(
     @MessageBody(new ValidationPipe()) userDto: UserDto,

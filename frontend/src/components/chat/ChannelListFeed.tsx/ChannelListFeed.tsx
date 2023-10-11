@@ -19,7 +19,7 @@ export function ChannelListFeed({
   updateChannel
 }: ContactListProps) {
   const { socket } = useSocketContext();
-  const contactList = useChanUsers(() => setChanID(''));
+  const { contactList, bannedList } = useChanUsers(() => setChanID(''));
 
   const channel = useChanInfo();
   const isCreator = (userID: string) => channel?.creatorID === userID;
@@ -38,6 +38,7 @@ export function ChannelListFeed({
   useEffect(() => {
     const emitInfo = () => {
       if (chanID.length !== 0) {
+        socket.emit('usersBanned', { chanID });
         socket.emit('channelMembers', { chanID });
         socket.emit('channelInfo', { chanID });
       }
@@ -89,6 +90,17 @@ export function ChannelListFeed({
             isAdmin={isAdmin(socket.userID)}
             isCreator={isCreator(socket.userID)}
           />
+
+          {(isCreator(socket.userID) || isAdmin(socket.userID)) &&
+          bannedList.length ? (
+            <div>
+              <p className="pl-2 font-semibold text-pong-blue-100">BANNED</p>
+              {bannedList.map((user) => (
+                <div>{console.log(user)}</div>
+              ))}
+            </div>
+          ) : null}
+
           {isCreator(socket.userID) ? (
             <UpdateChannel
               display={contactList.length !== 0}
