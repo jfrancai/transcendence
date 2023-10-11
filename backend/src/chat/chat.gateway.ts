@@ -724,6 +724,7 @@ export default class ChatGateway
         });
       }
       this.io.to(chanID).to(userID).emit('channelRestrict', {
+        userID,
         chanID: channel.id,
         reason,
         type: restrictType

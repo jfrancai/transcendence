@@ -17,8 +17,15 @@ function ChanFeed({ userID, event, toggleChannelSettings }: ChanFeedProps) {
   const messageEndRef = useScroll(messages);
 
   useEffect(() => {
-    const onChannelRestrict = () => {
-      toggleChannelSettings();
+    const onChannelRestrict = (data: {
+      userID: string;
+      chanID: string;
+      reason: string;
+      type: string;
+    }) => {
+      if (socket.userID === data.userID) {
+        toggleChannelSettings();
+      }
     };
     socket.on('channelRestrict', onChannelRestrict);
     return () => {
