@@ -244,7 +244,6 @@ export default class ChatGateway
           connected: m.connectedChat,
           username: m.username!
         }));
-      this.logger.debug(banMembers);
       this.io.to(senderID).emit('usersBanned', banMembers);
     }
   }
@@ -612,7 +611,6 @@ export default class ChatGateway
     );
 
     const channel = await this.channelService.getChanByName(chanName);
-    this.logger.debug(chanName);
     if (channel) {
       if (password) {
         const salt = await bcrypt.genSalt(CONST_SALT);
