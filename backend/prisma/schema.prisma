@@ -56,8 +56,3 @@ enum ChannelType {
   PRIVATE
   PASSWORD
 }
-
-enum ChatRestrictType {
-  BAN
-  MUTE
-}

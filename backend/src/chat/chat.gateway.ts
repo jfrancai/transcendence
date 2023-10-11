@@ -531,7 +531,7 @@ export default class ChatGateway
     }
   }
 
-  @Roles(['creator'])
+  @Roles(['creator', 'admin'])
   @SubscribeMessage('channelRemoveAdmin')
   async handleRemoveAdminChannel(
     @MessageBody(new ValidationPipe()) channelUsersDto: ChannelUsersDto,
@@ -612,6 +612,7 @@ export default class ChatGateway
     );
 
     const channel = await this.channelService.getChanByName(chanName);
+    this.logger.debug(chanName);
     if (channel) {
       if (password) {
         const salt = await bcrypt.genSalt(CONST_SALT);
@@ -744,6 +745,10 @@ export default class ChatGateway
           chanID: channel.id,
           userID
         });
+      } else if (restrictType === 'UNBAN') {
+        const newBans = channel.bans.filter((id) => id !== userID);
+        const bansSet = new Set(newBans);
+        await this.channelService.updateBans(chanID, Array.from(bansSet));
       }
       this.io.to(chanID).to(userID).emit('channelRestrict', {
         userID,

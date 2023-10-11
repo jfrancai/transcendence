@@ -9,8 +9,8 @@ export class ChannelRestrictDto extends IntersectionType(ChannelIdDto) {
 
   @IsNotEmpty()
   @IsString()
-  @IsIn(['BAN', 'MUTE', 'KICK'])
-  readonly restrictType: 'BAN' | 'MUTE' | 'KICK';
+  @IsIn(['BAN', 'MUTE', 'KICK', 'UNBAN'])
+  readonly restrictType: 'BAN' | 'MUTE' | 'KICK' | 'UNBAN';
 
   @IsNotEmpty()
   @IsString()

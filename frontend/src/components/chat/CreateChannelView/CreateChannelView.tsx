@@ -5,6 +5,7 @@ import { Scrollable } from '../Scrollable/Scrollable';
 import { PrimaryButton } from '../../PrimaryButton/PrimaryButton';
 import RenderIf from '../RenderIf/RenderIf';
 import { useSocketContext } from '../../../contexts/socket';
+import { useChanInfo } from '../../../utils/hooks/useChannelInfo';
 
 interface SectionTitleProps {
   title: string;
@@ -40,6 +41,7 @@ export function CreateChannelView({
   const [type, setType] = useState<'PASSWORD' | 'PUBLIC' | 'PRIVATE'>('PUBLIC');
   const [password, setPassword] = useState<string>('');
   const [error, setError] = useState<string | undefined>(undefined);
+  const channel = useChanInfo();
 
   const handleCreateChannel = () => {
     socket.emit('channelCreate', {
@@ -50,13 +52,23 @@ export function CreateChannelView({
     toggleChannelSettings();
   };
 
+  useEffect(() => {
+    if (!isNameView && chanID) {
+      socket.emit('channelInfo', {
+        chanID
+      });
+    }
+  }, [chanID, isNameView, socket]);
+
   const handleUpdateChannel = () => {
-    socket.emit('channelMode', {
-      chanID,
-      chanName,
-      type,
-      password
-    });
+    if (channel) {
+      socket.emit('channelMode', {
+        chanID,
+        chanName: channel.chanName,
+        type,
+        password
+      });
+    }
   };
 
   useEffect(() => {

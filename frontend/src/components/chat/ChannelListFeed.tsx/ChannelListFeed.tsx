@@ -45,9 +45,11 @@ export function ChannelListFeed({
     };
     emitInfo();
     socket.on('channelAddAdmin', emitInfo);
+    socket.on('channelRestrict', emitInfo);
     socket.on('channelRemoveAdmin', emitInfo);
     return () => {
       socket.off('channelAddAdmin', emitInfo);
+      socket.off('channelRestrict', emitInfo);
       socket.off('channelRemoveAdmin', emitInfo);
     };
   }, [socket, chanID]);
@@ -91,14 +93,15 @@ export function ChannelListFeed({
             isCreator={isCreator(socket.userID)}
           />
 
-          {(isCreator(socket.userID) || isAdmin(socket.userID)) &&
-          bannedList.length ? (
-            <div>
-              <p className="pl-2 font-semibold text-pong-blue-100">BANNED</p>
-              {bannedList.map((user) => (
-                <div>{console.log(user)}</div>
-              ))}
-            </div>
+          {isCreator(socket.userID) || isAdmin(socket.userID) ? (
+            <ChannelList
+              list={bannedList}
+              title="BANLIST"
+              chanID={channel ? channel.chanID : ''}
+              isAdmin={false}
+              isCreator={false}
+              isBanned
+            />
           ) : null}
 
           {isCreator(socket.userID) ? (

@@ -11,6 +11,7 @@ interface ChannelListProps {
   chanID: string;
   isCreator: boolean;
   isAdmin: boolean;
+  isBanned?: boolean;
   adminSection?: boolean;
 }
 
@@ -20,6 +21,7 @@ export function ChannelList({
   chanID,
   isCreator,
   isAdmin,
+  isBanned = false,
   adminSection = false
 }: ChannelListProps) {
   const { socket } = useSocketContext();
@@ -56,9 +58,18 @@ export function ChannelList({
           reason: 'You have been ban'
         });
       }}
+      unbanUser={() => {
+        socket.emit('channelRestrict', {
+          userID: user.userID,
+          chanID,
+          restrictType: 'UNBAN',
+          reason: 'You have been unban'
+        });
+      }}
       isCreator={isCreator}
       isAdmin={isAdmin && user.userID !== socket.userID}
       adminSection={adminSection}
+      isBanned={isBanned}
     />
   );
 

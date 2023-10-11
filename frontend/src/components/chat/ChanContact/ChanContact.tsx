@@ -5,6 +5,7 @@ import {
 } from 'react-icons/md';
 import { GiBootKick } from 'react-icons/gi';
 import { FaBan } from 'react-icons/fa';
+import { AiFillLock } from 'react-icons/ai';
 import ProfilePicture from '../ProfilePicture/ProfilePicture';
 
 interface ButtonListProps {
@@ -15,6 +16,8 @@ interface ButtonListProps {
   removeAdmin: () => any;
   kickUser: () => any;
   banUser: () => any;
+  unbanUser: () => any;
+  isBanned: boolean;
 }
 
 function ButtonList({
@@ -24,8 +27,28 @@ function ButtonList({
   addAdmin,
   removeAdmin,
   kickUser,
-  banUser
+  banUser,
+  unbanUser,
+  isBanned
 }: ButtonListProps) {
+  if (isBanned) {
+    return (
+      <>
+        <button className="rounded-full" type="button" onClick={unbanUser}>
+          <AiFillLock className="unbanUser h-6 w-6 text-pong-blue-100" />
+        </button>
+        <Tooltip
+          disableStyleInjection
+          className="z-50 flex flex-col rounded border-pong-blue-100 bg-pong-blue-500 bg-opacity-100 p-2 text-pong-white text-opacity-100 "
+          anchorSelect=".unbanUser"
+          clickable
+          place="bottom"
+        >
+          <p className="font-semibold">Unban user</p>
+        </Tooltip>
+      </>
+    );
+  }
   if (isCreator || isAdmin) {
     if (adminSection) {
       return (
@@ -124,6 +147,8 @@ interface ChanContactProps {
   isCreator: boolean;
   isAdmin: boolean;
   adminSection: boolean;
+  unbanUser: () => any;
+  isBanned: boolean;
 }
 
 export function ChanContact({
@@ -135,7 +160,9 @@ export function ChanContact({
   isAdmin,
   adminSection,
   kickUser,
-  banUser
+  banUser,
+  unbanUser,
+  isBanned
 }: ChanContactProps) {
   return (
     <>
@@ -154,6 +181,8 @@ export function ChanContact({
           adminSection={adminSection}
           kickUser={kickUser}
           banUser={banUser}
+          unbanUser={unbanUser}
+          isBanned={isBanned}
         />
       </div>
       <hr className="border-pong-blue-700" />
