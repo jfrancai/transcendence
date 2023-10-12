@@ -10,28 +10,63 @@ import ProfilePicture from '../ProfilePicture/ProfilePicture';
 import { useSocketContext } from '../../../contexts/socket';
 
 interface ButtonListProps {
+  userID: string;
+  chanID: string;
   isCreator: boolean;
   isAdmin: boolean;
   adminSection: boolean;
-  addAdmin: () => any;
-  removeAdmin: () => any;
-  kickUser: () => any;
-  banUser: () => any;
-  unbanUser: () => any;
   isBanned: boolean;
 }
 
 function ButtonList({
+  userID,
+  chanID,
   isCreator,
   isAdmin,
   adminSection,
-  addAdmin,
-  removeAdmin,
-  kickUser,
-  banUser,
-  unbanUser,
   isBanned
 }: ButtonListProps) {
+  const { socket } = useSocketContext();
+  const addAdmin = () => {
+    socket.emit('channelAddAdmin', {
+      usersID: [userID],
+      chanID
+    });
+  };
+
+  const removeAdmin = () => {
+    socket.emit('channelRemoveAdmin', {
+      usersID: [userID],
+      chanID
+    });
+  };
+
+  const kickUser = () => {
+    socket.emit('channelRestrict', {
+      userID,
+      chanID,
+      restrictType: 'KICK',
+      reason: 'You have been kick'
+    });
+  };
+
+  const banUser = () => {
+    socket.emit('channelRestrict', {
+      userID,
+      chanID,
+      restrictType: 'BAN',
+      reason: 'You have been ban'
+    });
+  };
+
+  const unbanUser = () => {
+    socket.emit('channelRestrict', {
+      userID,
+      chanID,
+      restrictType: 'UNBAN',
+      reason: 'You have been unban'
+    });
+  };
   if (isBanned) {
     return (
       <>
@@ -159,48 +194,6 @@ export function ChanContact({
   adminSection,
   isBanned
 }: ChanContactProps) {
-  const { socket } = useSocketContext();
-
-  const addAdmin = () => {
-    socket.emit('channelAddAdmin', {
-      usersID: [userID],
-      chanID
-    });
-  };
-
-  const removeAdmin = () => {
-    socket.emit('channelRemoveAdmin', {
-      usersID: [userID],
-      chanID
-    });
-  };
-
-  const kickUser = () => {
-    socket.emit('channelRestrict', {
-      userID,
-      chanID,
-      restrictType: 'KICK',
-      reason: 'You have been kick'
-    });
-  };
-
-  const banUser = () => {
-    socket.emit('channelRestrict', {
-      userID,
-      chanID,
-      restrictType: 'BAN',
-      reason: 'You have been ban'
-    });
-  };
-
-  const unbanUser = () => {
-    socket.emit('channelRestrict', {
-      userID,
-      chanID,
-      restrictType: 'UNBAN',
-      reason: 'You have been unban'
-    });
-  };
   return (
     <>
       <div className="mx-2 my-1 flex flex-shrink-0 items-center justify-between p-3 text-left">
@@ -211,14 +204,11 @@ export function ChanContact({
           </p>
         </div>
         <ButtonList
+          userID={userID}
+          chanID={chanID}
           isCreator={isCreator}
           isAdmin={isAdmin}
-          addAdmin={addAdmin}
-          removeAdmin={removeAdmin}
           adminSection={adminSection}
-          kickUser={kickUser}
-          banUser={banUser}
-          unbanUser={unbanUser}
           isBanned={isBanned}
         />
       </div>
