@@ -83,7 +83,6 @@ export function Channel({
           toggleInviteChannel={toggleInviteChannel}
           toggleChannelSettings={toggleChannelSettings}
           chanID={chanID}
-          setChanID={setChanID}
         />
       </RenderIf>
       <RenderIf some={[isInviteChannelView]}>

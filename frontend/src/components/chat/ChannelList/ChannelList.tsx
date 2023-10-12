@@ -29,43 +29,9 @@ export function ChannelList({
     <ChanContact
       key={user.userID}
       username={user.username}
+      userID={user.userID}
+      chanID={chanID}
       url="starwatcher.jpg"
-      addAdmin={() => {
-        socket.emit('channelAddAdmin', {
-          usersID: [user.userID],
-          chanID
-        });
-      }}
-      removeAdmin={() => {
-        socket.emit('channelRemoveAdmin', {
-          usersID: [user.userID],
-          chanID
-        });
-      }}
-      kickUser={() => {
-        socket.emit('channelRestrict', {
-          userID: user.userID,
-          chanID,
-          restrictType: 'KICK',
-          reason: 'You have been kick'
-        });
-      }}
-      banUser={() => {
-        socket.emit('channelRestrict', {
-          userID: user.userID,
-          chanID,
-          restrictType: 'BAN',
-          reason: 'You have been ban'
-        });
-      }}
-      unbanUser={() => {
-        socket.emit('channelRestrict', {
-          userID: user.userID,
-          chanID,
-          restrictType: 'UNBAN',
-          reason: 'You have been unban'
-        });
-      }}
       isCreator={isCreator}
       isAdmin={isAdmin && user.userID !== socket.userID}
       adminSection={adminSection}

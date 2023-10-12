@@ -7,6 +7,7 @@ import { GiBootKick } from 'react-icons/gi';
 import { FaBan } from 'react-icons/fa';
 import { AiFillLock } from 'react-icons/ai';
 import ProfilePicture from '../ProfilePicture/ProfilePicture';
+import { useSocketContext } from '../../../contexts/socket';
 
 interface ButtonListProps {
   isCreator: boolean;
@@ -139,31 +140,67 @@ function ButtonList({
 
 interface ChanContactProps {
   username: string;
+  userID: string;
+  chanID: string;
   url: string;
-  addAdmin: () => any;
-  removeAdmin: () => any;
-  kickUser: () => any;
-  banUser: () => any;
   isCreator: boolean;
   isAdmin: boolean;
   adminSection: boolean;
-  unbanUser: () => any;
   isBanned: boolean;
 }
 
 export function ChanContact({
   username,
+  userID,
+  chanID,
   url,
-  addAdmin,
-  removeAdmin,
   isCreator,
   isAdmin,
   adminSection,
-  kickUser,
-  banUser,
-  unbanUser,
   isBanned
 }: ChanContactProps) {
+  const { socket } = useSocketContext();
+
+  const addAdmin = () => {
+    socket.emit('channelAddAdmin', {
+      usersID: [userID],
+      chanID
+    });
+  };
+
+  const removeAdmin = () => {
+    socket.emit('channelRemoveAdmin', {
+      usersID: [userID],
+      chanID
+    });
+  };
+
+  const kickUser = () => {
+    socket.emit('channelRestrict', {
+      userID,
+      chanID,
+      restrictType: 'KICK',
+      reason: 'You have been kick'
+    });
+  };
+
+  const banUser = () => {
+    socket.emit('channelRestrict', {
+      userID,
+      chanID,
+      restrictType: 'BAN',
+      reason: 'You have been ban'
+    });
+  };
+
+  const unbanUser = () => {
+    socket.emit('channelRestrict', {
+      userID,
+      chanID,
+      restrictType: 'UNBAN',
+      reason: 'You have been unban'
+    });
+  };
   return (
     <>
       <div className="mx-2 my-1 flex flex-shrink-0 items-center justify-between p-3 text-left">
