@@ -12,7 +12,7 @@ datasource db {
 
 model Users {
   id              String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  img           String         @default("/home/qbornet/42/ft_transcendence/backend/img/default.jpg")
+  img             String    @default("/home/qbornet/42/ft_transcendence/backend/img/default.jpg")
   email           String    @unique
   username        String    @unique
   password        String
@@ -23,6 +23,7 @@ model Users {
   channels        Channel[]
   messageSent     Message[] @relation(name: "sender")
   messageReceived Message[] @relation(name: "receiver")
+  friendList      String[]  @db.Uuid
   blockList       String[]  @db.Uuid
 }
 
