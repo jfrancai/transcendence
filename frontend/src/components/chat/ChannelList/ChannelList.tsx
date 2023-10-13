@@ -1,67 +1,9 @@
-import { useSocketContext } from '../../../contexts/socket';
-import {
-  Contact,
-  ContactList
-} from '../../../utils/hooks/useStatus.interfaces';
+import { ContactList } from '../../../utils/hooks/useStatus.interfaces';
 import { AdminContact } from '../AdminContact';
 import { BannedContact } from '../BannedContact';
 import { ChanContact } from '../ChanContact/ChanContact';
 import { ListHeader } from '../ListHeader';
 import { MemberContact } from '../MemberContact';
-
-interface ChannelListProps {
-  list: ContactList;
-  title: string;
-  chanID: string;
-  isCreator: boolean;
-  isAdmin: boolean;
-  isBanned?: boolean;
-  adminSection?: boolean;
-}
-
-export function ChannelList({
-  list,
-  title,
-  chanID,
-  isCreator,
-  isAdmin,
-  isBanned = false,
-  adminSection = false
-}: ChannelListProps) {
-  const { socket } = useSocketContext();
-  const displayCard = (user: Contact) => {
-    const isAdm = isAdmin && user.userID !== socket.userID;
-    const { userID, username } = user;
-    if (isBanned) {
-      return (
-        <BannedContact userID={userID} username={username} chanID={chanID} />
-      );
-    }
-    if (isCreator || isAdm) {
-      return (
-        <AdminContact
-          username={username}
-          userID={userID}
-          chanID={chanID}
-          toggleAdmin={adminSection}
-        />
-      );
-    }
-    return (
-      <ChanContact key={userID} username={username} url="starwatcher.jpg" />
-    );
-  };
-
-  if (list.length) {
-    return (
-      <div>
-        <p className="pl-2 font-semibold text-pong-blue-100">{title}</p>
-        {list.map(displayCard)}
-      </div>
-    );
-  }
-  return null;
-}
 
 interface CreatorProps {
   list: ContactList;
@@ -136,6 +78,32 @@ export function Members({
             userID={user.userID}
             chanID={chanID}
             displayButtons={displayButtons && user.userID !== userID}
+          />
+        ))}
+      </div>
+    );
+  }
+  return null;
+}
+
+interface BanProps {
+  list: ContactList;
+  chanID: string;
+  displayButtons: boolean;
+}
+
+export function Banned({ list, chanID, displayButtons }: BanProps) {
+  if (list.length) {
+    return (
+      <div>
+        <ListHeader>banned</ListHeader>
+        {list.map((user) => (
+          <BannedContact
+            key={user.userID}
+            username={user.username}
+            userID={user.userID}
+            chanID={chanID}
+            displayButtons={displayButtons}
           />
         ))}
       </div>

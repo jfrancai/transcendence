@@ -4,6 +4,7 @@ import { useSocketContext } from '../../../contexts/socket';
 import { useChanInfo } from '../../../utils/hooks/useChannelInfo';
 import {
   Admins,
+  Banned,
   ChannelList,
   Creator,
   Members
@@ -88,17 +89,11 @@ export function ChannelListFeed({
             displayButtons={isAdmin(socket.userID) || isCreator(socket.userID)}
             userID={socket.userID}
           />
-          {isCreator(socket.userID) || isAdmin(socket.userID) ? (
-            <ChannelList
-              list={bannedList}
-              title="BANLIST"
-              chanID={channel ? channel.chanID : ''}
-              isAdmin={false}
-              isCreator={false}
-              isBanned
-            />
-          ) : null}
-
+          <Banned
+            list={bannedList}
+            chanID={channel ? channel.chanID : ''}
+            displayButtons={isAdmin(socket.userID) || isCreator(socket.userID)}
+          />
           {isCreator(socket.userID) ? (
             <UpdateChannel
               display={contactList.length !== 0}

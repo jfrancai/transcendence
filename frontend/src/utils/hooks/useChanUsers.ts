@@ -16,7 +16,11 @@ export function useChanUsers(callback: (...arg: any) => any): {
     };
 
     const onUsersBanned = (data: ContactList) => {
-      setBannedList(data);
+      if (data.find((c) => c.userID === socket.userID)) {
+        setBannedList([]);
+      } else {
+        setBannedList(data);
+      }
     };
 
     const onChannelUserJoin = (data: Contact) => {

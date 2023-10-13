@@ -5,16 +5,19 @@ interface BannedContactProps {
   userID: string;
   username: string;
   chanID: string;
+  displayButtons: boolean;
 }
 
 export function BannedContact({
   userID,
   username,
-  chanID
+  chanID,
+  displayButtons
 }: BannedContactProps) {
+  const buttons = () => <UnbanButton userID={userID} chanID={chanID} />;
   return (
     <ChanContact key={userID} username={username} url="starwatcher.jpg">
-      <UnbanButton userID={userID} chanID={chanID} />
+      {displayButtons ? buttons() : null}
     </ChanContact>
   );
 }
