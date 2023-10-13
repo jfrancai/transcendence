@@ -9,9 +9,7 @@ export default function Profile() {
     username: string;
   };
   const base64Image =
-    data.ext === '.jpeg'
-      ? 'data:image/jpeg;base64'
-      : 'data:image/png;base64';
+    data.ext === '.jpeg' ? 'data:image/jpeg;base64' : 'data:image/png;base64';
 
   return (
     <div className="bg-blue-pong-3">

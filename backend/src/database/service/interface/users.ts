@@ -50,6 +50,7 @@ export interface IUsers {
   apiToken: string | null;
   twoAuth: ITwoAuth;
   connectedChat: boolean;
+  friendList: string[];
   inviteList: Partial<IChanInvite>[];
   restrictList: Partial<IChanRestrict>[];
   channels: Partial<IChannel>[];

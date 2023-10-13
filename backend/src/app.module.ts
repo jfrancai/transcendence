@@ -6,6 +6,7 @@ import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { AuthModule } from './auth/auth.module';
 import { ImgModule } from './img/img.module';
+import { UserModule } from './user/user.module';
 import ChatModule from './chat/chat.module';
 import envSchema from './env.validation';
 import configuration from './config/configuration';
@@ -25,7 +26,8 @@ import configuration from './config/configuration';
     }),
     ChatModule,
     AuthModule,
-    ImgModule
+    ImgModule,
+    UserModule
   ],
   controllers: [AppController],
   providers: [AppService]

@@ -26,6 +26,10 @@ export default function UploadImg() {
     }
   };
 
+  const handleNextClick = () => {
+    navigate('/profile');
+  };
+
   const handleUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     e.preventDefault();
     const allowedTypes = ['image/jpeg', 'image/png'];
@@ -134,12 +138,22 @@ export default function UploadImg() {
               name="image"
               onChange={handleUpload}
             />
-            <button
-              className="mt-2 h-[40px] w-full rounded-[15px] border border-blue-pong-1 bg-blue-pong-4 p-1 font-roboto text-[14px] font-bold text-white"
-              type="submit"
-            >
-              Submit
-            </button>
+            {imagePreview !== null ? (
+              <button
+                className="mt-2 h-[40px] w-full rounded-[15px] border border-blue-pong-1 bg-blue-pong-4 p-1 font-roboto text-[14px] font-bold text-white"
+                type="submit"
+              >
+                Submit
+              </button>
+            ) : (
+              <button
+                className="mt-2 h-[40px] w-full rounded-[15px] border border-blue-pong-1 bg-blue-pong-4 p-1 font-roboto text-[14px] font-bold text-white"
+                type="button"
+                onClick={handleNextClick}
+              >
+                Skip
+              </button>
+            )}
           </form>
         </label>
       </div>

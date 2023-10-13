@@ -71,12 +71,13 @@ export class ImgController {
   }
 
   // use this route for fetching on specific user
-  @Get('download')
+  @Get('download/:username')
   @UseGuards(ApiGuard, JwtAuthGuard)
   async findUserImage(@Param('username') toFind: string) {
     const user = await this.authService.findUser({ username: toFind });
     if (user) {
-      return this.imgService.imageToBase64(user?.img);
+      const imgValue = this.imgService.imageToBase64(user?.img);
+      return { username: user.username, ...imgValue };
     }
     return null;
   }
