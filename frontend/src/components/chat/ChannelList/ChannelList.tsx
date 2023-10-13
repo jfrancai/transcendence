@@ -3,7 +3,11 @@ import {
   Contact,
   ContactList
 } from '../../../utils/hooks/useStatus.interfaces';
+import { BanButton, rBanButton } from '../BanButton';
 import { ChanContact } from '../ChanContact/ChanContact';
+import { KickButton } from '../KickButton';
+import { ToggleAdmin } from '../ToggleAdmin';
+import { UnbanButton } from '../UnbanButton';
 
 interface ChannelListProps {
   list: ContactList;
@@ -25,19 +29,41 @@ export function ChannelList({
   adminSection = false
 }: ChannelListProps) {
   const { socket } = useSocketContext();
-  const displayCard = (user: Contact) => (
-    <ChanContact
-      key={user.userID}
-      username={user.username}
-      userID={user.userID}
-      chanID={chanID}
-      url="starwatcher.jpg"
-      isCreator={isCreator}
-      isAdmin={isAdmin && user.userID !== socket.userID}
-      adminSection={adminSection}
-      isBanned={isBanned}
-    />
-  );
+  const displayCard = (user: Contact) => {
+    const isAdm = isAdmin && user.userID !== socket.userID;
+    const { userID } = user;
+    if (isBanned) {
+      return (
+        <ChanContact
+          key={user.userID}
+          username={user.username}
+          url="starwatcher.jpg"
+        >
+          <UnbanButton userID={userID} chanID={chanID} />
+        </ChanContact>
+      );
+    }
+    if (isCreator || isAdm) {
+      return (
+        <ChanContact
+          key={user.userID}
+          username={user.username}
+          url="starwatcher.jpg"
+        >
+          <ToggleAdmin toggle={adminSection} userID={userID} chanID={chanID} />
+          <KickButton userID={userID} chanID={chanID} />
+          <BanButton userID={userID} chanID={chanID} />
+        </ChanContact>
+      );
+    }
+    return (
+      <ChanContact
+        key={user.userID}
+        username={user.username}
+        url="starwatcher.jpg"
+      />
+    );
+  };
 
   if (list.length) {
     return (

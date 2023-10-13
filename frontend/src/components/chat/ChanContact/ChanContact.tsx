@@ -1,67 +1,15 @@
 import ProfilePicture from '../ProfilePicture/ProfilePicture';
-import { BanButton } from '../BanButton';
-import { KickButton } from '../KickButton';
-import { AddAdminButton } from '../AddAdminButton';
-import { RemoveAdminButton } from '../RemoveAdminButton';
-import { UnbanButton } from '../UnbanButton';
-import { ToggleAdmin } from '../ToggleAdmin';
-
-interface ButtonListProps {
-  userID: string;
-  chanID: string;
-  isCreator: boolean;
-  isAdmin: boolean;
-  adminSection: boolean;
-  isBanned: boolean;
-}
-
-function ButtonList({
-  userID,
-  chanID,
-  isCreator,
-  isAdmin,
-  adminSection,
-  isBanned
-}: ButtonListProps) {
-  if (isBanned) {
-    return (
-      <div className="flex flex-row gap-1">
-        <UnbanButton userID={userID} chanID={chanID} />
-      </div>
-    );
-  }
-  if (isCreator || isAdmin) {
-    return (
-      <div className="flex flex-row gap-1">
-        <ToggleAdmin toggle={adminSection} userID={userID} chanID={chanID} />
-        <KickButton userID={userID} chanID={chanID} />
-        <BanButton userID={userID} chanID={chanID} />
-      </div>
-    );
-  }
-  return null;
-}
 
 interface ChanContactProps {
+  children?: React.ReactNode;
   username: string;
-  userID: string;
-  chanID: string;
   url: string;
-  isCreator: boolean;
-  isAdmin: boolean;
-  adminSection: boolean;
-  isBanned: boolean;
 }
 
 export function ChanContact({
+  children: buttons,
   username,
-  userID,
-  chanID,
-  url,
-  isCreator,
-  isAdmin,
-  adminSection,
-  isBanned
+  url
 }: ChanContactProps) {
   return (
     <>
@@ -72,14 +20,7 @@ export function ChanContact({
             {username}
           </p>
         </div>
-        <ButtonList
-          userID={userID}
-          chanID={chanID}
-          isCreator={isCreator}
-          isAdmin={isAdmin}
-          adminSection={adminSection}
-          isBanned={isBanned}
-        />
+        <div className="flex flex-row gap-1">{buttons}</div>
       </div>
       <hr className="border-pong-blue-700" />
     </>
