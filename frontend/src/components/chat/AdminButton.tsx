@@ -15,7 +15,7 @@ export function AdminButton({
   info
 }: AdminButtonProps) {
   return (
-    <>
+    <div>
       <button className="rounded-full" type="button" onClick={onClick}>
         {children}
       </button>
@@ -28,6 +28,6 @@ export function AdminButton({
       >
         <p className="font-semibold">{info}</p>
       </Tooltip>
-    </>
+    </div>
   );
 }

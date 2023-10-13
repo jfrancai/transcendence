@@ -72,6 +72,8 @@ export function ChannelListFeed({
       socket.emit('channelDelete', { chanID });
     }
   };
+
+  const displayButtons = isAdmin(socket.userID) || isCreator(socket.userID);
   return (
     <div className="w-full">
       <Scrollable>
@@ -80,27 +82,25 @@ export function ChannelListFeed({
           <Admins
             list={contactList.filter((c) => isAdmin(c.userID))}
             chanID={channel ? channel.chanID : ''}
-            displayButtons={isAdmin(socket.userID) || isCreator(socket.userID)}
+            displayButtons={displayButtons}
             userID={socket.userID}
           />
           <Members
             list={contactList.filter((c) => isMember(c.userID))}
             chanID={channel ? channel.chanID : ''}
-            displayButtons={isAdmin(socket.userID) || isCreator(socket.userID)}
+            displayButtons={displayButtons}
             userID={socket.userID}
           />
           <Banned
             list={bannedList}
             chanID={channel ? channel.chanID : ''}
-            displayButtons={isAdmin(socket.userID) || isCreator(socket.userID)}
+            displayButtons={displayButtons}
           />
-          {isCreator(socket.userID) ? (
-            <UpdateChannel
-              display={contactList.length !== 0}
-              handler={updateChannel}
-              label="Channel configuration"
-            />
-          ) : null}
+          <UpdateChannel
+            display={contactList.length !== 0 && isCreator(socket.userID)}
+            handler={updateChannel}
+            label="Channel configuration"
+          />
           <LeaveChannel
             display={contactList.length !== 0}
             handler={isCreator(socket.userID) ? handleDelete : handleLeave}

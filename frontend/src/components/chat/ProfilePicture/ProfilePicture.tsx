@@ -20,7 +20,7 @@ function ProfilePicture({
   return (
     <div
       style={{ backgroundImage: `url(${url})` }}
-      className={`min-w-fit ${
+      className={`object-contain ${
         style[size]
       } w-flex-shrink-0 relative flex items-end justify-center rounded-full ${
         select ? 'border-solid border-pong-purple-100' : 'border-none'
