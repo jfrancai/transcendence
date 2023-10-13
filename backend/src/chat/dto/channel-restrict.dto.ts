@@ -1,5 +1,13 @@
 import { IntersectionType } from '@nestjs/swagger';
-import { IsIn, IsNotEmpty, IsString, IsUUID } from 'class-validator';
+import {
+  IsIn,
+  IsNotEmpty,
+  IsNumber,
+  IsPositive,
+  IsString,
+  IsUUID,
+  ValidateIf
+} from 'class-validator';
 import { ChannelIdDto } from './channel-id.dto';
 
 export class ChannelRestrictDto extends IntersectionType(ChannelIdDto) {
@@ -11,6 +19,11 @@ export class ChannelRestrictDto extends IntersectionType(ChannelIdDto) {
   @IsString()
   @IsIn(['BAN', 'MUTE', 'KICK', 'UNBAN'])
   readonly restrictType: 'BAN' | 'MUTE' | 'KICK' | 'UNBAN';
+
+  @ValidateIf((obj, val) => !val && obj.type === 'MUTE')
+  @IsNumber()
+  @IsPositive()
+  readonly muteTime: number | undefined;
 
   @IsNotEmpty()
   @IsString()

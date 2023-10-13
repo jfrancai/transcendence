@@ -702,7 +702,8 @@ export default class ChatGateway
     @MessageBody(new ValidationPipe()) channelRestrictDto: ChannelRestrictDto,
     @ConnectedSocket() socket: ChatSocket
   ) {
-    const { userID, chanID, restrictType, reason } = channelRestrictDto;
+    const { userID, chanID, restrictType, reason, muteTime } =
+      channelRestrictDto;
     const senderID = socket.user.id!;
     this.logger.log(
       `Channel restrict request for ${userID} by ${senderID} for channel ${chanID}. Restrict type: ${restrictType}`
@@ -732,6 +733,19 @@ export default class ChatGateway
         const newMute = channel.mute.concat(userID);
         const muteSet = new Set(newMute);
         await this.channelService.updateMute(chanID, Array.from(muteSet));
+        this.logger.debug(`userID ${userID} muted for ${muteTime} seconds`);
+        setTimeout(
+          async () => {
+            const chan = await this.channelService.getChanById(chanID);
+            if (chan) {
+              const mutes = chan.mute.filter((m) => m !== userID);
+              const s = new Set(mutes);
+              this.channelService.updateMute(chanID, Array.from(s));
+            }
+            this.logger.debug(`userID ${userID} demuted!`);
+          },
+          muteTime ? 1000 * muteTime : 0
+        );
       } else if (restrictType === 'KICK') {
         const admins = channel.admins.filter((id) => id !== userID);
         const adminsSet = new Set(admins);
