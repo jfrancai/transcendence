@@ -2,7 +2,7 @@ import { useEffect } from 'react';
 import { Scrollable } from '../Scrollable/Scrollable';
 import { useSocketContext } from '../../../contexts/socket';
 import { useChanInfo } from '../../../utils/hooks/useChannelInfo';
-import { ChannelList } from '../ChannelList/ChannelList';
+import { ChannelList, Creator } from '../ChannelList/ChannelList';
 import { LeaveChannel } from '../LeaveChannel/LeaveChannel';
 import { useChanUsers } from '../../../utils/hooks/useChanUsers';
 import { UpdateChannel } from '../AddPassword/AddPassword';
@@ -70,13 +70,7 @@ export function ChannelListFeed({
     <div className="w-full">
       <Scrollable>
         <div className="flex flex-col gap-3">
-          <ChannelList
-            list={contactList.filter((c) => isCreator(c.userID))}
-            title="CREATOR"
-            chanID={channel ? channel.chanID : ''}
-            isAdmin={false}
-            isCreator={false}
-          />
+          <Creator list={contactList.filter((c) => isCreator(c.userID))} />
           <ChannelList
             list={contactList.filter((c) => isAdmin(c.userID))}
             title="ADMINS"

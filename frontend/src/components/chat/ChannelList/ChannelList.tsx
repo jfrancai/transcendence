@@ -4,12 +4,9 @@ import {
   ContactList
 } from '../../../utils/hooks/useStatus.interfaces';
 import { AdminContact } from '../AdminContact';
-import { BanButton, rBanButton } from '../BanButton';
 import { BannedContact } from '../BannedContact';
 import { ChanContact } from '../ChanContact/ChanContact';
-import { KickButton } from '../KickButton';
-import { ToggleAdmin } from '../ToggleAdmin';
-import { UnbanButton } from '../UnbanButton';
+import { ListHeader } from '../ListHeader';
 
 interface ChannelListProps {
   list: ContactList;
@@ -63,4 +60,23 @@ export function ChannelList({
     );
   }
   return null;
+}
+
+interface CreatorProps {
+  list: ContactList;
+}
+
+export function Creator({ list }: CreatorProps) {
+  return (
+    <div>
+      <ListHeader>Creator</ListHeader>
+      {list.map((user) => (
+        <ChanContact
+          key={user.userID}
+          username={user.username}
+          url="starwatcher.jpg"
+        />
+      ))}
+    </div>
+  );
 }
