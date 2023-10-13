@@ -2,7 +2,12 @@ import { useEffect } from 'react';
 import { Scrollable } from '../Scrollable/Scrollable';
 import { useSocketContext } from '../../../contexts/socket';
 import { useChanInfo } from '../../../utils/hooks/useChannelInfo';
-import { ChannelList, Creator } from '../ChannelList/ChannelList';
+import {
+  Admins,
+  ChannelList,
+  Creator,
+  Members
+} from '../ChannelList/ChannelList';
 import { LeaveChannel } from '../LeaveChannel/LeaveChannel';
 import { useChanUsers } from '../../../utils/hooks/useChanUsers';
 import { UpdateChannel } from '../AddPassword/AddPassword';
@@ -71,22 +76,18 @@ export function ChannelListFeed({
       <Scrollable>
         <div className="flex flex-col gap-3">
           <Creator list={contactList.filter((c) => isCreator(c.userID))} />
-          <ChannelList
+          <Admins
             list={contactList.filter((c) => isAdmin(c.userID))}
-            title="ADMINS"
             chanID={channel ? channel.chanID : ''}
-            isAdmin={isAdmin(socket.userID)}
-            isCreator={isCreator(socket.userID)}
-            adminSection
+            displayButtons={isAdmin(socket.userID) || isCreator(socket.userID)}
+            userID={socket.userID}
           />
-          <ChannelList
+          <Members
             list={contactList.filter((c) => isMember(c.userID))}
-            title="MEMBER"
             chanID={channel ? channel.chanID : ''}
-            isAdmin={isAdmin(socket.userID)}
-            isCreator={isCreator(socket.userID)}
+            displayButtons={isAdmin(socket.userID) || isCreator(socket.userID)}
+            userID={socket.userID}
           />
-
           {isCreator(socket.userID) || isAdmin(socket.userID) ? (
             <ChannelList
               list={bannedList}

@@ -1,24 +1,24 @@
+import { AddAdminButton } from './AddAdminButton';
 import { BanButton } from './BanButton';
 import { ChanContact } from './ChanContact/ChanContact';
 import { KickButton } from './KickButton';
-import { RemoveAdminButton } from './RemoveAdminButton';
 
-interface AdminContactProps {
+interface MemberContactProps {
   username: string;
   userID: string;
   chanID: string;
   displayButtons: boolean;
 }
 
-export function AdminContact({
+export function MemberContact({
   username,
   userID,
   chanID,
   displayButtons
-}: AdminContactProps) {
+}: MemberContactProps) {
   const buttons = () => (
     <>
-      <RemoveAdminButton userID={userID} chanID={chanID} />
+      <AddAdminButton userID={userID} chanID={chanID} />
       <KickButton userID={userID} chanID={chanID} />
       <BanButton userID={userID} chanID={chanID} />
     </>
