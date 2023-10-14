@@ -6,11 +6,11 @@ export const chatMachine = createMachine(
       '': ''
     },
     id: 'chatMachine',
-    initial: 'opened',
+    initial: 'closed',
     states: {
       opened: {
         description: 'The channel component is open',
-        initial: 'channelSettings',
+        initial: 'messageView',
         states: {
           channelConfigView: {
             description: 'Update channel type, name and picture',
@@ -117,6 +117,9 @@ export const chatMachine = createMachine(
               },
               updateChannel: {
                 target: 'channelConfigView'
+              },
+              inviteChannel: {
+                target: 'inviteChannelView'
               }
             }
           },

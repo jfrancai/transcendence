@@ -605,12 +605,12 @@ export default class ChatGateway
       this.io.to(senderID).emit('channelInvite', {
         userID
       });
-      const pubChatUser: PublicChatUser = {
+      this.io.to(channel.id).emit('channelUserJoin', {
         username: user.username,
         userID: user.id,
-        connected: user.connectedChat
-      };
-      this.io.to(channel.id).emit('channelUserJoin', pubChatUser);
+        connected: user.connectedChat,
+        chanID: channel.id
+      });
     }
   }
 

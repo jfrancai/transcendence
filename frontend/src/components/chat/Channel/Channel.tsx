@@ -1,15 +1,13 @@
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import { ChannelCarrousel } from '../ChannelCarrousel/ChannelCarrousel';
 import { ChannelListFeed } from '../ChannelListFeed.tsx/ChannelListFeed';
 import { CreateChannelView } from '../CreateChannelView/CreateChannelView';
 import RenderIf from '../RenderIf/RenderIf';
-import { Scrollable } from '../Scrollable/Scrollable';
 import { SendMessageInput } from '../SendMessageInput/SendMessageInput';
 import ChanFeed from '../ChatFeed/ChatFeed';
 import { JoinChannelView } from '../JoinChannelView/JoinChannelView';
 import { CreateChannelMenu } from '../CreateChannelMenu/CreateChannelMenu';
 import { InviteChannelView } from '../InviteChannelView';
-import { useSocketContext } from '../../../contexts/socket';
 
 interface ChannelProps {
   toggleChannelView: () => any;
@@ -43,7 +41,6 @@ export function Channel({
   isJoinChannelView,
   isInviteChannelView
 }: ChannelProps) {
-  const { socket } = useSocketContext();
   const [chanID, setChanID] = useState<string>('');
 
   return (
@@ -61,6 +58,7 @@ export function Channel({
             updateChannel={updateChannel}
             chanID={chanID}
             setChanID={setChanID}
+            toggleInviteChannel={toggleInviteChannel}
           />
         </RenderIf>
         <RenderIf some={[isChannelView]}>

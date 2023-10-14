@@ -11,12 +11,14 @@ interface ContactListProps {
   chanID: string;
   setChanID: (arg: string) => any;
   updateChannel: () => any;
+  toggleInviteChannel: () => any;
 }
 
 export function ChannelListFeed({
   chanID,
   setChanID,
-  updateChannel
+  updateChannel,
+  toggleInviteChannel
 }: ContactListProps) {
   const { socket } = useSocketContext();
   const { contactList, bannedList } = useChanUsers(() => setChanID(''), chanID);
@@ -89,6 +91,11 @@ export function ChannelListFeed({
             list={bannedList}
             chanID={channel ? channel.chanID : ''}
             displayButtons={displayButtons}
+          />
+          <UpdateChannel
+            display={contactList.length !== 0}
+            handler={toggleInviteChannel}
+            label="Invite user"
           />
           <UpdateChannel
             display={contactList.length !== 0 && isCreator(socket.userID)}
