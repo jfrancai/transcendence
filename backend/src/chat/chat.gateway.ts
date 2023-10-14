@@ -318,20 +318,18 @@ export default class ChatGateway
     this.logger.log(
       `Incoming private message from ${senderID} to ${userID} with content: ${content}`
     );
+
+    const sender = await this.usersService.getUserById(senderID);
+    const receiver = await this.usersService.getUserById(userID);
+    if (receiver && sender && receiver.blockList.includes(sender.id)) {
+      return;
+    }
     const message = await this.messageService.createMessage({
       content,
       senderID,
       receiverID: userID
     });
-    const sender = await this.usersService.getUserById(senderID);
-    const receiver = await this.usersService.getUserById(userID);
-    if (
-      sender &&
-      receiver &&
-      !receiver.blockList.includes(sender.id) &&
-      message &&
-      message.receiverID
-    ) {
+    if (sender && message && message.receiverID) {
       const publicMessage: PublicMessage = {
         content: message.content,
         sender: sender!.username,
