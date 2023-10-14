@@ -16,6 +16,7 @@ export function Creator({ list }: CreatorProps) {
         <ListHeader>creator</ListHeader>
         {list.map((user) => (
           <ChanContact
+            onContextMenu={(e) => e.preventDefault()}
             key={user.userID}
             username={user.username}
             url="starwatcher.jpg"

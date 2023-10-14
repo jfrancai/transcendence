@@ -5,7 +5,6 @@ import { BanButton } from './BanButton';
 import { ChanContact } from './ChanContact/ChanContact';
 import { KickButton } from './KickButton';
 import { MuteButton } from './MuteButton';
-import { useSocketContext } from '../../contexts/socket';
 
 interface MemberContactProps {
   username: string;
@@ -41,6 +40,7 @@ export function MemberContact({
       username={username}
       url="starwatcher.jpg"
       hideUsername={display && displayButtons}
+      showPointer={displayButtons && !display}
     >
       {displayButtons && display ? buttons() : null}
     </ChanContact>

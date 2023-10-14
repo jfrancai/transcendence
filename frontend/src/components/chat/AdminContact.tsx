@@ -5,7 +5,6 @@ import { KickButton } from './KickButton';
 import { MuteButton } from './MuteButton';
 import { RemoveAdminButton } from './RemoveAdminButton';
 import { useOutsideClick } from '../../utils/hooks/useOutsideClick';
-import { useSocketContext } from '../../contexts/socket';
 
 interface AdminContactProps {
   username: string;
@@ -41,6 +40,7 @@ export function AdminContact({
       username={username}
       url="starwatcher.jpg"
       hideUsername={display && displayButtons}
+      showPointer={displayButtons && !display}
     >
       {displayButtons && display ? buttons() : null}
     </ChanContact>

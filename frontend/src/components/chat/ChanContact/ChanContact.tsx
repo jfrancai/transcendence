@@ -8,6 +8,7 @@ interface ChanContactProps {
   onContextMenu?: MouseEventHandler | undefined;
   innerRef?: LegacyRef<any> | undefined;
   hideUsername?: boolean;
+  showPointer?: boolean;
 }
 
 export function ChanContact({
@@ -16,14 +17,18 @@ export function ChanContact({
   url,
   onContextMenu,
   innerRef,
-  hideUsername
+  hideUsername,
+  showPointer
 }: ChanContactProps) {
   return (
     <>
       <div
         ref={innerRef}
         onContextMenu={onContextMenu}
-        className={`mx-2 my-1 flex flex-shrink-0 items-center justify-between rounded p-3 text-left ${
+        role="presentation"
+        className={`mx-2 ${
+          showPointer ? 'cursor-pointer' : ''
+        } my-1 flex flex-shrink-0 items-center justify-between rounded p-3 text-left ${
           hideUsername ? 'bg-pong-blue-500' : ''
         }`}
       >

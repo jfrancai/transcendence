@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Tooltip } from 'react-tooltip';
 import { BsFillVolumeMuteFill } from 'react-icons/bs';
 import { useSocketContext } from '../../contexts/socket';
@@ -30,6 +30,7 @@ function TimePickerPopover({
 
   const handleSubmit = (e: any) => {
     e.preventDefault();
+    onClick();
     socket.emit('channelRestrict', {
       userID,
       chanID,
@@ -37,7 +38,6 @@ function TimePickerPopover({
       muteTime: selectedMuteTime,
       reason: 'You have been mute'
     });
-    onClick();
   };
 
   return (
