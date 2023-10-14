@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { ChannelCarrousel } from '../ChannelCarrousel/ChannelCarrousel';
 import { ChannelListFeed } from '../ChannelListFeed.tsx/ChannelListFeed';
 import { CreateChannelView } from '../CreateChannelView/CreateChannelView';
@@ -8,6 +8,8 @@ import { SendMessageInput } from '../SendMessageInput/SendMessageInput';
 import ChanFeed from '../ChatFeed/ChatFeed';
 import { JoinChannelView } from '../JoinChannelView/JoinChannelView';
 import { CreateChannelMenu } from '../CreateChannelMenu/CreateChannelMenu';
+import { InviteChannelView } from '../InviteChannelView';
+import { useSocketContext } from '../../../contexts/socket';
 
 interface ChannelProps {
   toggleChannelView: () => any;
@@ -41,6 +43,7 @@ export function Channel({
   isJoinChannelView,
   isInviteChannelView
 }: ChannelProps) {
+  const { socket } = useSocketContext();
   const [chanID, setChanID] = useState<string>('');
 
   return (
@@ -83,22 +86,17 @@ export function Channel({
           toggleInviteChannel={toggleInviteChannel}
           toggleChannelSettings={toggleChannelSettings}
           chanID={chanID}
+          setChanID={setChanID}
         />
       </RenderIf>
       <RenderIf some={[isInviteChannelView]}>
-        <>
-          <Scrollable width={336}>coucou</Scrollable>
-          <div className="h-14 w-[336px]" />
-        </>
+        <InviteChannelView chanID={chanID} />
       </RenderIf>
       <RenderIf some={[isJoinChannelView]}>
-        <Scrollable width={336}>
-          <JoinChannelView
-            toggleChannelView={toggleChannelView}
-            setChanID={setChanID}
-          />
-        </Scrollable>
-        <div className="h-14 w-[336px]" />
+        <JoinChannelView
+          toggleChannelView={toggleChannelView}
+          setChanID={setChanID}
+        />
       </RenderIf>
     </>
   );

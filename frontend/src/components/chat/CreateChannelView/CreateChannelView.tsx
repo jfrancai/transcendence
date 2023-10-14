@@ -28,13 +28,15 @@ interface CreateChannelViewProps {
   toggleChannelSettings: () => any;
   isNameView: boolean;
   chanID: string;
+  setChanID: (arg: any) => any;
 }
 
 export function CreateChannelView({
   toggleInviteChannel,
   toggleChannelSettings,
   isNameView,
-  chanID
+  chanID,
+  setChanID
 }: CreateChannelViewProps) {
   const { socket } = useSocketContext();
   const [chanName, setChanName] = useState(`${socket.username}'s channel`);
@@ -42,6 +44,16 @@ export function CreateChannelView({
   const [password, setPassword] = useState<string>('');
   const [error, setError] = useState<string | undefined>(undefined);
   const channel = useChanInfo();
+
+  useEffect(() => {
+    const onChannelCreate = (data: any) => {
+      setChanID(data.chanID);
+    };
+    socket.on('channelCreate', onChannelCreate);
+    return () => {
+      socket.off('channelCreate', onChannelCreate);
+    };
+  }, [socket, setChanID]);
 
   const handleCreateChannel = () => {
     socket.emit('channelCreate', {

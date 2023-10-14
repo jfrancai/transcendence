@@ -10,7 +10,6 @@ interface ContactCardProps {
   blockUser: () => any;
   unblockUser: () => any;
   noBgColor?: boolean;
-  userID: string;
   username: string;
   url: string;
   blocked: boolean;
@@ -18,7 +17,6 @@ interface ContactCardProps {
 
 export function ContactCard({
   sendMessage,
-  userID,
   username,
   noBgColor,
   url,
@@ -42,7 +40,6 @@ export function ContactCard({
           setClicked(true);
         }}
         onClick={clicked || blocked ? () => {} : sendMessage}
-        key={userID}
       >
         <div className="flex items-center justify-center gap-3">
           <ProfilePicture size="xs" url={url} />
