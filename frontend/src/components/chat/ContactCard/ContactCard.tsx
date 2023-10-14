@@ -31,7 +31,9 @@ export function ContactCard({
   return (
     <>
       <div
-        className={`mx-2 my-1 flex flex-shrink-0 items-center justify-between ${
+        className={`mx-2 my-1 flex ${
+          clicked || blocked ? '' : 'cursor-pointer'
+        } flex-shrink-0 items-center justify-between ${
           noBgColor ? 'bg-pong-blue-400' : ''
         } p-3 text-left`}
         role="presentation"
@@ -39,6 +41,7 @@ export function ContactCard({
           e.preventDefault();
           setClicked(true);
         }}
+        onClick={clicked || blocked ? () => {} : sendMessage}
         key={userID}
       >
         <div className="flex items-center justify-center gap-3">
@@ -48,10 +51,8 @@ export function ContactCard({
           </p>
         </div>
         <div ref={ref} className="flex flex-row gap-4">
-          {!blocked ? (
-            <button type="button" onClick={sendMessage}>
-              <BiMessageDetail className="userMessage h-6 w-6 text-pong-blue-100 " />
-            </button>
+          {!clicked && !blocked ? (
+            <BiMessageDetail className="userMessage h-6 w-6 text-pong-blue-100 " />
           ) : null}
           {clicked || blocked ? (
             <button type="button" onClick={blocked ? unblockUser : blockUser}>
