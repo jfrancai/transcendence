@@ -2,10 +2,15 @@ import { useEffect, useState } from 'react';
 import { useSocketContext } from '../../contexts/socket';
 import { Contact, ContactList, User } from './useStatus.interfaces';
 
-export function useChanUsers(callback: (...arg: any) => any): {
+interface UseChanUsersType {
   contactList: ContactList;
   bannedList: ContactList;
-} {
+}
+
+export function useChanUsers(
+  callback: (...arg: any) => any,
+  chanID: string
+): UseChanUsersType {
   const { socket } = useSocketContext();
   const [contactList, setContactList] = useState<ContactList>([]);
   const [bannedList, setBannedList] = useState<ContactList>([]);
@@ -24,7 +29,9 @@ export function useChanUsers(callback: (...arg: any) => any): {
     };
 
     const onChannelUserJoin = (data: Contact) => {
-      setContactList((list) => list.concat(data));
+      if (chanID === data.chanID) {
+        setContactList((list) => list.concat(data));
+      }
     };
 
     const onChannelLeave = (data: { chanID: string; userID: string }) => {

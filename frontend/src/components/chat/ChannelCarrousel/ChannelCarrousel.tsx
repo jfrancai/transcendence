@@ -63,7 +63,14 @@ export function ChannelCarrousel({
   const channels = useChannels(setChanID, chanID);
 
   useEffect(() => {
-    socket.emit('channels');
+    const onChannelUserJoin = () => {
+      socket.emit('channels');
+    };
+    onChannelUserJoin();
+    socket.on('channelUserJoin', onChannelUserJoin);
+    return () => {
+      socket.off('channelUserJoin', onChannelUserJoin);
+    };
   }, [socket]);
 
   return (

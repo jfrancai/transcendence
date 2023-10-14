@@ -90,7 +90,10 @@ export function Channel({
         />
       </RenderIf>
       <RenderIf some={[isInviteChannelView]}>
-        <InviteChannelView chanID={chanID} />
+        <InviteChannelView
+          chanID={chanID}
+          toggleChannelView={toggleChannelView}
+        />
       </RenderIf>
       <RenderIf some={[isJoinChannelView]}>
         <JoinChannelView

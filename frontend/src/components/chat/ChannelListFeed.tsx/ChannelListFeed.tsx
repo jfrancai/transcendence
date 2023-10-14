@@ -2,13 +2,7 @@ import { useEffect } from 'react';
 import { Scrollable } from '../Scrollable/Scrollable';
 import { useSocketContext } from '../../../contexts/socket';
 import { useChanInfo } from '../../../utils/hooks/useChannelInfo';
-import {
-  Admins,
-  Banned,
-  ChannelList,
-  Creator,
-  Members
-} from '../ChannelList/ChannelList';
+import { Admins, Banned, Creator, Members } from '../ChannelList/ChannelList';
 import { LeaveChannel } from '../LeaveChannel/LeaveChannel';
 import { useChanUsers } from '../../../utils/hooks/useChanUsers';
 import { UpdateChannel } from '../AddPassword/AddPassword';
@@ -25,7 +19,7 @@ export function ChannelListFeed({
   updateChannel
 }: ContactListProps) {
   const { socket } = useSocketContext();
-  const { contactList, bannedList } = useChanUsers(() => setChanID(''));
+  const { contactList, bannedList } = useChanUsers(() => setChanID(''), chanID);
 
   const channel = useChanInfo();
   const isCreator = (userID: string) => channel?.creatorID === userID;

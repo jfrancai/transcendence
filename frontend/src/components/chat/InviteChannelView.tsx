@@ -5,6 +5,7 @@ import { useSocketContext } from '../../contexts/socket';
 import ProfilePicture from './ProfilePicture/ProfilePicture';
 import { Contact } from '../../utils/hooks/useStatus.interfaces';
 import SecondaryButton from '../SecondaryButton/SecondaryButton';
+import { PrimaryButton } from '../PrimaryButton/PrimaryButton';
 
 interface InviteContactProps {
   username: string;
@@ -34,9 +35,13 @@ export function InviteContact({ username, invite }: InviteContactProps) {
 
 interface InviteChannelViewProps {
   chanID: string;
+  toggleChannelView: () => any;
 }
 
-export function InviteChannelView({ chanID }: InviteChannelViewProps) {
+export function InviteChannelView({
+  chanID,
+  toggleChannelView
+}: InviteChannelViewProps) {
   const { socket } = useSocketContext();
   const inviteList = useInviteList();
 
@@ -67,6 +72,9 @@ export function InviteChannelView({ chanID }: InviteChannelViewProps) {
             ))}
           </>
         ) : null}
+        <div className="mt-5 flex w-full items-center justify-center">
+          <PrimaryButton onClick={toggleChannelView}>Continue</PrimaryButton>
+        </div>
       </Scrollable>
       <div className="h-14 w-[336px]" />
     </>

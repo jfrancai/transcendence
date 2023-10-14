@@ -30,6 +30,7 @@ export interface User extends Session {
 
 export interface Contact extends User {
   connected: boolean;
+  chanID?: string | undefined;
 }
 
 export type ContactList = Contact[];
