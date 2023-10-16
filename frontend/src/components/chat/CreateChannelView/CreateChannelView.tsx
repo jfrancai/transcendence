@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { FormEvent, useEffect, useState } from 'react';
 import { AiOutlineCloudUpload } from 'react-icons/ai';
 import { SelectChannelType } from '../SelectChannelType/SelectChannelType';
 import { Scrollable } from '../Scrollable/Scrollable';
@@ -6,6 +6,8 @@ import { PrimaryButton } from '../../PrimaryButton/PrimaryButton';
 import RenderIf from '../RenderIf/RenderIf';
 import { useSocketContext } from '../../../contexts/socket';
 import { useChanInfo } from '../../../utils/hooks/useChannelInfo';
+import axios, { AxiosError, AxiosRequestConfig, AxiosResponse } from 'axios';
+import { CONST_BACKEND_URL } from '@constant';
 
 interface SectionTitleProps {
   title: string;
@@ -43,6 +45,8 @@ export function CreateChannelView({
   const [type, setType] = useState<'PASSWORD' | 'PUBLIC' | 'PRIVATE'>('PUBLIC');
   const [password, setPassword] = useState<string>('');
   const [error, setError] = useState<string | undefined>(undefined);
+  const [imagePreview, setImagePreview] = useState<string | null>(null);
+  const [image, setImage] = useState<File | null>(null);
   const channel = useChanInfo();
 
   useEffect(() => {
@@ -55,13 +59,62 @@ export function CreateChannelView({
     };
   }, [socket, setChanID]);
 
-  const handleCreateChannel = () => {
+  const handleCreateChannel = (e: FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
     socket.emit('channelCreate', {
       chanName,
       type,
       password
     });
     toggleChannelSettings();
+  };
+
+  const handleUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    e.preventDefault();
+    const allowedTypes = ['image/jpeg', 'image/png'];
+    const reader = new FileReader();
+    const file = e.target.files?.[0];
+    if (file) {
+      if (file.size > 20000) {
+        return;
+      }
+      if (!allowedTypes.includes(file.type)) {
+        return;
+      }
+
+      reader.onloadend = () => {
+        setImage(file);
+        setImagePreview(reader.result as string);
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+
+    if (!image) {
+      return;
+    }
+
+    const formData = new FormData();
+    formData.append('image', image);
+
+    const jwt = localStorage.getItem('jwt') as string;
+    const config: AxiosRequestConfig = {
+      withCredentials: true,
+      headers: { Authorization: `Bearer ${jwt}` }
+    };
+
+    await axios
+      .post(`${CONST_BACKEND_URL}/img/upload`, formData, config)
+      .then((response: AxiosResponse) => response.data)
+      .catch((axiosError: AxiosError) => {
+        if (axiosError.response) {
+          const { message } = axiosError.response?.data as { message: string };
+          console.log(message);
+        }
+      });
   };
 
   useEffect(() => {
@@ -72,7 +125,8 @@ export function CreateChannelView({
     }
   }, [chanID, isNameView, socket]);
 
-  const handleUpdateChannel = () => {
+  const handleUpdateChannel = (e: FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
     if (channel) {
       socket.emit('channelMode', {
         chanID,
@@ -97,7 +151,7 @@ export function CreateChannelView({
     };
   }, [socket, toggleInviteChannel, toggleChannelSettings]);
   return (
-    <>
+    <form onSubmit={isNameView ? handleCreateChannel : handleUpdateChannel}>
       <Scrollable width={336}>
         <div className="flex w-full flex-col items-center justify-center gap-10">
           <p className="text-2xl font-bold text-pong-white">
@@ -110,14 +164,24 @@ export function CreateChannelView({
                 <SectionTitle title="CHANNEL PICTURE" />
                 <label
                   htmlFor="UploadChannelImage"
-                  className="flex justify-center rounded border border-dashed border-pong-white text-[50px]"
+                  className="flex justify-center rounded border border-dashed border-pong-white p-3 text-[50px]"
                 >
                   <input
                     id="UploadChannelImage"
                     type="file"
                     className="hidden"
+                    onChange={handleUpload}
                   />
-                  <AiOutlineCloudUpload className="my-4 cursor-pointer rounded-full bg-pong-blue-500 p-1 text-pong-blue-100" />
+                  {image && imagePreview ? (
+                    <img
+                      className="h-24 w-24 cursor-pointer overflow-hidden rounded-full border-[1px] border-blue-pong-1 object-cover"
+                      id="profile-preview"
+                      src={imagePreview}
+                      alt="ImagePreview"
+                    />
+                  ) : (
+                    <AiOutlineCloudUpload className="my-4 cursor-pointer rounded-full bg-pong-blue-500 p-1 text-pong-blue-100" />
+                  )}
                 </label>
               </Section>
 
@@ -169,14 +233,12 @@ export function CreateChannelView({
               </label>
             </Section>
           </RenderIf>
-          <PrimaryButton
-            onClick={isNameView ? handleCreateChannel : handleUpdateChannel}
-          >
+          <PrimaryButton submit>
             {isNameView ? 'Create Channel' : 'Update Channel'}
           </PrimaryButton>
         </div>
       </Scrollable>
       <div className="h-14 w-[336px]" />
-    </>
+    </form>
   );
 }
