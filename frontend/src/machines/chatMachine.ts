@@ -162,7 +162,7 @@ export const chatMachine = createMachine(
           inviteChannelView: {
             on: {
               selectHeader: {
-                target: 'channelView'
+                target: 'channelSettings'
               },
               previousAddChannel: {
                 target: 'channelNameView'
