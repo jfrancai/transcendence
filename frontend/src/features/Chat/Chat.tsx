@@ -4,12 +4,12 @@ import ChatHeader from '../../components/chat/ChatHeader/ChatHeader';
 import RenderIf from '../../components/chat/RenderIf/RenderIf';
 import { chatMachine } from '../../machines/chatMachine';
 import MenuSelector from '../../components/chat/MenuSelector/MenuSelector';
-import { useSocketContext } from '../../contexts/socket';
+import { SocketContextProvider, useSocketContext } from '../../contexts/socket';
 import { useSession } from '../../utils/hooks/useSession';
 import { PrivateMessage } from '../../components/chat/PrivateMessage/PrivateMessage';
 import { Channel } from '../../components/chat/Channel/Channel';
 
-function Chat() {
+function ChatWrapped() {
   const { socket } = useSocketContext();
   const [state, send] = useMachine(chatMachine);
 
@@ -103,6 +103,14 @@ function Chat() {
         />
       </RenderIf>
     </div>
+  );
+}
+
+function Chat() {
+  return (
+    <SocketContextProvider>
+      <ChatWrapped />
+    </SocketContextProvider>
   );
 }
 
