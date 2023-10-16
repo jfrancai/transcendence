@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import { Tooltip } from 'react-tooltip';
 import { BsFillVolumeMuteFill } from 'react-icons/bs';
 import { useSocketContext } from '../../contexts/socket';

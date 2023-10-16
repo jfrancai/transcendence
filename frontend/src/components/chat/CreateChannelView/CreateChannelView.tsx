@@ -50,14 +50,41 @@ export function CreateChannelView({
   const channel = useChanInfo();
 
   useEffect(() => {
+    const handleSubmit = async (id: string, img: File | null) => {
+      if (!img) return;
+      const formData = new FormData();
+      formData.append('image', img);
+
+      const jwt = localStorage.getItem('jwt') as string;
+      const config: AxiosRequestConfig = {
+        withCredentials: true,
+        headers: { Authorization: `Bearer ${jwt}` }
+      };
+
+      try {
+        await axios.post(
+          `${CONST_BACKEND_URL}/img/upload/${id}`,
+          formData,
+          config
+        );
+      } catch (e: any) {
+        if (e.message) {
+          console.log(e.message);
+        } else {
+          console.log(e);
+        }
+      }
+    };
+
     const onChannelCreate = (data: any) => {
       setChanID(data.chanID);
+      handleSubmit(data.chanID, image);
     };
     socket.on('channelCreate', onChannelCreate);
     return () => {
       socket.off('channelCreate', onChannelCreate);
     };
-  }, [socket, setChanID]);
+  }, [socket, setChanID, image]);
 
   const handleCreateChannel = (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -88,33 +115,6 @@ export function CreateChannelView({
       };
       reader.readAsDataURL(file);
     }
-  };
-
-  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
-
-    if (!image) {
-      return;
-    }
-
-    const formData = new FormData();
-    formData.append('image', image);
-
-    const jwt = localStorage.getItem('jwt') as string;
-    const config: AxiosRequestConfig = {
-      withCredentials: true,
-      headers: { Authorization: `Bearer ${jwt}` }
-    };
-
-    await axios
-      .post(`${CONST_BACKEND_URL}/img/upload`, formData, config)
-      .then((response: AxiosResponse) => response.data)
-      .catch((axiosError: AxiosError) => {
-        if (axiosError.response) {
-          const { message } = axiosError.response?.data as { message: string };
-          console.log(message);
-        }
-      });
   };
 
   useEffect(() => {

@@ -18,7 +18,6 @@ import { ImgService } from './img.service';
 import { FileValidationPipe } from './pipe/file-validation.pipe';
 import { IUsers } from '../database/service/interface/users';
 import { ChannelService } from '../database/service/channel.service';
-import * as fs from 'node:fs';
 
 @Controller('img')
 export class ImgController {
@@ -41,7 +40,7 @@ export class ImgController {
     @UploadedFile(FileValidationPipe) file: Express.Multer.File
   ) {
     const jwt = req.headers.authorization.replace('Bearer ', '');
-    const user = await this.authService.findUser(jwt);
+    const user = await this.authService.findUserByJWT(jwt);
     if (!user) return;
 
     const fileName = this.imgService.writeFile(file);
@@ -67,11 +66,17 @@ export class ImgController {
   @UseInterceptors(FileInterceptor('image'))
   async uploadChannelPicture(
     @Param('id') chanID: string,
+    @Req() req: any,
     @Res() res: any,
     @UploadedFile(FileValidationPipe) file: Express.Multer.File
   ) {
+    const jwt = req.headers.authorization.replace('Bearer ', '');
+    const user = await this.authService.findUserByJWT(jwt);
+    if (!user) return;
+
     const channel = await this.chanService.getChanById(chanID);
-    if (!channel) return;
+    this.logger.debug(user, chanID);
+    if (!channel || user.id !== channel.creatorID) return;
 
     const fileName = this.imgService.writeFile(file);
     if (!fileName) return;

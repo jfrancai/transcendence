@@ -7,17 +7,10 @@ interface ChatMessageProps {
   message: string;
   time: string;
   username: string;
-  profilePictureUrl: string;
   noBgColor?: boolean;
 }
 
-function ChatMessage({
-  message,
-  time,
-  username,
-  profilePictureUrl,
-  noBgColor
-}: ChatMessageProps) {
+function ChatMessage({ message, time, username, noBgColor }: ChatMessageProps) {
   const [clicked, setClicked] = useState(false);
   return (
     <div
@@ -26,7 +19,7 @@ function ChatMessage({
       onClick={() => setClicked(!clicked)}
       role="presentation"
     >
-      <ProfilePicture size="xs" url={profilePictureUrl} />
+      <ProfilePicture size="xs" />
       <div className="w-1 flex-grow cursor-pointer break-words px-2">
         <div className="flex items-center justify-between">
           <p className="text-sm font-bold text-pong-blue-100">{username}</p>

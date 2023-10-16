@@ -64,7 +64,6 @@ function ChanFeed({ userID, event, toggleChannelSettings }: ChanFeedProps) {
               message={chat.message}
               time={chat.time}
               username={chat.username}
-              profilePictureUrl={chat.profilePictureUrl}
               noBgColor
             />
           );
@@ -75,7 +74,6 @@ function ChanFeed({ userID, event, toggleChannelSettings }: ChanFeedProps) {
             message={chat.message}
             time={chat.time}
             username={chat.username}
-            profilePictureUrl={chat.profilePictureUrl}
           />
         );
       })}
