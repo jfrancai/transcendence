@@ -1,25 +1,9 @@
-import {
-  IsIn,
-  IsNotEmpty,
-  IsOptional,
-  IsString,
-  IsStrongPassword
-} from 'class-validator';
+import { IntersectionType } from '@nestjs/swagger';
+import { ChannelDto } from './channel.dto';
 
 const channelTypes = ['PUBLIC', 'PRIVATE', 'PASSWORD'] as const;
 export type CreateChannelType = (typeof channelTypes)[number];
 
-export class CreateChannelDto {
-  @IsNotEmpty()
-  @IsString()
-  readonly displayName: string;
-
-  @IsOptional()
-  @IsIn(channelTypes)
-  readonly type: CreateChannelType = 'PRIVATE';
-
-  @IsOptional()
-  @IsString()
-  @IsStrongPassword()
-  readonly password: string | undefined;
+export class CreateChannelDto extends IntersectionType(ChannelDto) {
+  readonly img: string;
 }
