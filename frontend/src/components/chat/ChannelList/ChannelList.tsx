@@ -19,7 +19,6 @@ export function Creator({ list }: CreatorProps) {
             onContextMenu={(e) => e.preventDefault()}
             key={user.userID}
             username={user.username}
-            url="starwatcher.jpg"
           />
         ))}
       </div>

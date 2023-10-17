@@ -32,7 +32,7 @@ export default function UploadImg() {
     const reader = new FileReader();
     const file = e.target.files?.[0];
     if (file) {
-      if (file.size > 20000) {
+      if (file.size > 50000) {
         setErrorMsg('Invalid size image should be under 20KB');
         setTimeout(() => {
           setErrorMsg(null);

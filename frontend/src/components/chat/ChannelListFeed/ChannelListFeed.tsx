@@ -74,7 +74,10 @@ export function ChannelListFeed({
     <div className="w-full">
       <Scrollable>
         <div className="flex flex-col gap-3">
-          <Creator list={contactList.filter((c) => isCreator(c.userID))} />
+          <Creator
+            list={contactList.filter((c) => isCreator(c.userID))}
+            chanID={chanID}
+          />
           <Admins
             list={contactList.filter((c) => isAdmin(c.userID))}
             chanID={channel ? channel.chanID : ''}

@@ -5,6 +5,7 @@ import ProfilePicture from '../ProfilePicture/ProfilePicture';
 import { Scrollable } from '../Scrollable/Scrollable';
 import { useChannels } from '../../../utils/hooks/useChannels';
 import { useSocketContext } from '../../../contexts/socket';
+import { ChanPicture } from '../ChanPicture';
 
 interface ChannelCarrouselCardProps {
   onPrimaryClick: () => any;
@@ -29,7 +30,7 @@ export function ChannelCarrouselCard({
       }}
     >
       <button type="button" onClick={onPrimaryClick} className={`id-${id}`}>
-        <ProfilePicture select={select} size="s" url="starwatcher.jpg" />
+        <ChanPicture select={select} size="s" chanID={id} />
       </button>
       <Tooltip
         disableStyleInjection

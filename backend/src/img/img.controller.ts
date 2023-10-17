@@ -75,7 +75,6 @@ export class ImgController {
     if (!user) return;
 
     const channel = await this.chanService.getChanById(chanID);
-    this.logger.debug(user, chanID);
     if (!channel || user.id !== channel.creatorID) return;
 
     const fileName = this.imgService.writeFile(file);
@@ -97,5 +96,19 @@ export class ImgController {
       return { username: user.username, ...imgValue };
     }
     return null;
+  }
+
+  @Get('download/:id')
+  @UseGuards(JwtAuthGuard)
+  async getChannelImage(@Req() req: any, @Param('id') chanID: string) {
+    const jwt = req.headers.authorization.replace('Bearer ', '');
+    const user = await this.authService.findUserByJWT(jwt);
+    if (!user) return null;
+
+    const channel = await this.chanService.getChanById(chanID);
+    if (!channel) return null;
+
+    const imgValue = this.imgService.imageToBase64(channel.img);
+    return { chanName: channel.chanName, ...imgValue };
   }
 }

@@ -1,10 +1,10 @@
 import { LegacyRef, MouseEventHandler } from 'react';
+import { ChanPicture } from '../ChanPicture';
 import ProfilePicture from '../ProfilePicture/ProfilePicture';
 
 interface ChanContactProps {
   children?: React.ReactNode;
   username: string;
-  url: string;
   onContextMenu?: MouseEventHandler | undefined;
   innerRef?: LegacyRef<any> | undefined;
   hideUsername?: boolean;
@@ -14,7 +14,6 @@ interface ChanContactProps {
 export function ChanContact({
   children: buttons,
   username,
-  url,
   onContextMenu,
   innerRef,
   hideUsername,
@@ -33,7 +32,7 @@ export function ChanContact({
         }`}
       >
         <div className="flex items-center justify-center gap-3">
-          <ProfilePicture size="xs" url={url} />
+          <ProfilePicture size="xs" />
           {hideUsername ? null : (
             <p className="semibold max-w-[200px] break-all text-base text-pong-white">
               {username}

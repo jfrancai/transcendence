@@ -38,7 +38,6 @@ export function MemberContact({
       }}
       key={userID}
       username={username}
-      url="starwatcher.jpg"
       hideUsername={display && displayButtons}
       showPointer={displayButtons && !display}
     >

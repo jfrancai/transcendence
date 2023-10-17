@@ -1,3 +1,5 @@
+import axios, { AxiosRequestConfig } from 'axios';
+import { CONST_BACKEND_URL } from '@constant';
 import { FormEvent, useEffect, useState } from 'react';
 import { AiOutlineCloudUpload } from 'react-icons/ai';
 import { SelectChannelType } from '../SelectChannelType/SelectChannelType';
@@ -6,8 +8,6 @@ import { PrimaryButton } from '../../PrimaryButton/PrimaryButton';
 import RenderIf from '../RenderIf/RenderIf';
 import { useSocketContext } from '../../../contexts/socket';
 import { useChanInfo } from '../../../utils/hooks/useChannelInfo';
-import axios, { AxiosError, AxiosRequestConfig, AxiosResponse } from 'axios';
-import { CONST_BACKEND_URL } from '@constant';
 
 interface SectionTitleProps {
   title: string;
@@ -102,7 +102,7 @@ export function CreateChannelView({
     const reader = new FileReader();
     const file = e.target.files?.[0];
     if (file) {
-      if (file.size > 20000) {
+      if (file.size > 50000) {
         return;
       }
       if (!allowedTypes.includes(file.type)) {
