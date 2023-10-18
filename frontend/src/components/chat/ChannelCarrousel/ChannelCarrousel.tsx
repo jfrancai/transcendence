@@ -1,7 +1,6 @@
 import { Tooltip } from 'react-tooltip';
 import { useEffect } from 'react';
 import { AiOutlinePlusCircle } from 'react-icons/ai';
-import ProfilePicture from '../ProfilePicture/ProfilePicture';
 import { Scrollable } from '../Scrollable/Scrollable';
 import { useChannels } from '../../../utils/hooks/useChannels';
 import { useSocketContext } from '../../../contexts/socket';

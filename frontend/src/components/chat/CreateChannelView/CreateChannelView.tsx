@@ -50,7 +50,7 @@ export function CreateChannelView({
   const channel = useChanInfo();
 
   useEffect(() => {
-    const handleSubmit = async (id: string, img: File | null) => {
+    const handleSubmit = (id: string, img: File | null) => {
       if (!img) return;
       const formData = new FormData();
       formData.append('image', img);
@@ -61,19 +61,9 @@ export function CreateChannelView({
         headers: { Authorization: `Bearer ${jwt}` }
       };
 
-      try {
-        await axios.post(
-          `${CONST_BACKEND_URL}/img/upload/${id}`,
-          formData,
-          config
-        );
-      } catch (e: any) {
-        if (e.message) {
-          console.log(e.message);
-        } else {
-          console.log(e);
-        }
-      }
+      axios
+        .post(`${CONST_BACKEND_URL}/img/upload/${id}`, formData, config)
+        .catch(() => {});
     };
 
     const onChannelCreate = (data: any) => {

@@ -1,5 +1,4 @@
 import { LegacyRef, MouseEventHandler } from 'react';
-import { ChanPicture } from '../ChanPicture';
 import ProfilePicture from '../ProfilePicture/ProfilePicture';
 
 interface ChanContactProps {

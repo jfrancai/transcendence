@@ -1,5 +1,5 @@
 import { CONST_BACKEND_URL } from '@constant';
-import axios, { AxiosError } from 'axios';
+import axios from 'axios';
 import { useEffect, useState } from 'react';
 
 interface ProfilePictureProps {
@@ -21,21 +21,17 @@ function ProfilePicture({ size = 'xl', select = false }: ProfilePictureProps) {
     ext: string;
   }>({ img: '', ext: '' });
   useEffect(() => {
-    const fetchData = async () => {
+    const fetchData = () => {
       const jwt = localStorage.getItem('jwt');
-      try {
-        const response = await axios.get(`${CONST_BACKEND_URL}/img/download`, {
+      axios
+        .get(`${CONST_BACKEND_URL}/img/download`, {
           withCredentials: true,
           headers: { Authorization: `Bearer ${jwt!}` }
-        });
-        setData(response.data);
-      } catch (e: any) {
-        if (e.message) {
-          console.log(e.message);
-        } else {
-          console.log(e);
-        }
-      }
+        })
+        .then((response) => {
+          setData(response.data);
+        })
+        .catch(() => {});
     };
     fetchData();
   }, []);
@@ -43,13 +39,16 @@ function ProfilePicture({ size = 'xl', select = false }: ProfilePictureProps) {
   return (
     <img
       alt="pp"
-      src={`${data.ext === '.jpeg'
-        ? 'data:image/jpeg;base64'
-        : 'data:image/png;base64'
-        },${data.img}`}
-      className={`object-contain ${style[size]
-        } w-flex-shrink-0 relative flex items-end justify-center rounded-full ${select ? 'border-solid border-pong-purple-100' : 'border-none'
-        } bg-cover bg-no-repeat`}
+      src={`${
+        data.ext === '.jpeg'
+          ? 'data:image/jpeg;base64'
+          : 'data:image/png;base64'
+      },${data.img}`}
+      className={`object-contain ${
+        style[size]
+      } w-flex-shrink-0 relative flex items-end justify-center rounded-full ${
+        select ? 'border-solid border-pong-purple-100' : 'border-none'
+      } bg-cover bg-no-repeat`}
     />
   );
 }

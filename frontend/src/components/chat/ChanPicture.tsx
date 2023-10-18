@@ -23,25 +23,18 @@ export function ChanPicture({ size = 'xl', select = false, chanID }: Props) {
   }>({ img: '', ext: '' });
 
   useEffect(() => {
-    const fetchData = async (id: string) => {
+    const fetchData = (id: string) => {
       if (!chanID) return;
       const jwt = localStorage.getItem('jwt');
-      try {
-        const response = await axios.get(
-          `${CONST_BACKEND_URL}/img/download/${id}`,
-          {
-            withCredentials: true,
-            headers: { Authorization: `Bearer ${jwt!}` }
-          }
-        );
-        setData(response.data);
-      } catch (e: any) {
-        if (e.message) {
-          console.log(e.message);
-        } else {
-          console.log(e);
-        }
-      }
+      axios
+        .get(`${CONST_BACKEND_URL}/img/download/${id}`, {
+          withCredentials: true,
+          headers: { Authorization: `Bearer ${jwt!}` }
+        })
+        .then((response) => {
+          setData(response.data);
+        })
+        .catch(() => {});
     };
     fetchData(chanID);
   }, [chanID]);
