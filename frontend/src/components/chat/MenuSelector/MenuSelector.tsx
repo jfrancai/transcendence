@@ -1,10 +1,10 @@
+import { Tooltip } from 'react-tooltip';
 import { BiBell, BiMessageDetail } from 'react-icons/bi';
 import { MdOutlineGroups } from 'react-icons/md';
 import { AiOutlineSearch } from 'react-icons/ai';
 import ProfilePicture from '../ProfilePicture/ProfilePicture';
 import RenderIf from '../RenderIf/RenderIf';
 import { useStateContext } from '../../../contexts/state';
-import { Tooltip } from 'react-tooltip';
 
 export default function MenuSelector() {
   const {

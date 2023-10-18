@@ -46,7 +46,6 @@ export function PrivateFeed({ userID, event }: PrivateFeedProps) {
               message={chat.message}
               time={chat.time}
               username={chat.username}
-              profilePictureUrl={chat.profilePictureUrl}
               noBgColor
             />
           );
@@ -57,7 +56,6 @@ export function PrivateFeed({ userID, event }: PrivateFeedProps) {
             message={chat.message}
             time={chat.time}
             username={chat.username}
-            profilePictureUrl={chat.profilePictureUrl}
           />
         );
       })}

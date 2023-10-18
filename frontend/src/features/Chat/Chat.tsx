@@ -1,6 +1,5 @@
 import { useEffect } from 'react';
 import ChatHeader from '../../components/chat/ChatHeader/ChatHeader';
-import RenderIf from '../../components/chat/RenderIf/RenderIf';
 import MenuSelector from '../../components/chat/MenuSelector/MenuSelector';
 import { SocketContextProvider, useSocketContext } from '../../contexts/socket';
 import { useSession } from '../../utils/hooks/useSession';
@@ -22,7 +21,7 @@ function ChatWrapped() {
   }, [socket]);
 
   return (
-    <div className="absolute bottom-2 right-2 z-30 w-[336px] overflow-hidden rounded-3xl bg-pong-blue-300">
+    <div className="absolute bottom-2 right-2 z-30 overflow-hidden rounded-3xl bg-pong-blue-300">
       <ChatHeader />
       <PrivateMessage />
       <Channel />
