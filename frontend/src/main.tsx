@@ -16,7 +16,6 @@ import { loader as loaderProfile } from './components/Profile/profile.loader';
 import Pong from './components/Pong/Pong';
 import Profile from './components/Profile/Profile';
 import './index.css';
-import Chat from './features/Chat/Chat';
 
 const router = createBrowserRouter([
   {
@@ -66,10 +65,6 @@ const router = createBrowserRouter([
     path: '/profile',
     element: <Profile />,
     loader: loaderProfile
-  },
-  {
-    path: 'chat-dev',
-    element: <Chat />
   }
 ]);
 

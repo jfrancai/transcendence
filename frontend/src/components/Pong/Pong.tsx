@@ -1,4 +1,5 @@
 import { useRef, useEffect } from 'react';
+import Chat from '../../features/Chat/Chat';
 
 const PADDLE_WIDTH = 10;
 const PADDLE_HEIGHT = 100;
@@ -226,13 +227,16 @@ export default function Pong() {
   }, []);
 
   return (
-    <div className="flex h-screen items-center justify-center bg-[url('./images/background.png')] bg-cover">
-      <canvas
-        className="flex items-center rounded-lg shadow-lg"
-        ref={canvasRef}
-        width={1200}
-        height={700}
-      />
-    </div>
+    <>
+      <div className="flex h-screen items-center justify-center bg-[url('./images/background.png')] bg-cover">
+        <canvas
+          className="flex items-center rounded-lg shadow-lg"
+          ref={canvasRef}
+          width={1200}
+          height={700}
+        />
+      </div>
+      <Chat />
+    </>
   );
 }

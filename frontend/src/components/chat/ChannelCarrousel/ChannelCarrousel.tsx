@@ -5,6 +5,7 @@ import { Scrollable } from '../Scrollable/Scrollable';
 import { useChannels } from '../../../utils/hooks/useChannels';
 import { useSocketContext } from '../../../contexts/socket';
 import { ChanPicture } from '../ChanPicture';
+import { useStateContext } from '../../../contexts/state';
 
 interface ChannelCarrouselCardProps {
   onPrimaryClick: () => any;
@@ -45,22 +46,15 @@ export function ChannelCarrouselCard({
 }
 
 interface ChannelCarrouselProps {
-  toggleCreateChannelView: () => any;
-  toggleChannelSettings: () => any;
-  toggleChannelView: () => any;
   setChanID: (arg: string) => any;
   chanID: string;
 }
 
-export function ChannelCarrousel({
-  toggleCreateChannelView,
-  toggleChannelSettings,
-  toggleChannelView,
-  setChanID,
-  chanID
-}: ChannelCarrouselProps) {
+export function ChannelCarrousel({ setChanID, chanID }: ChannelCarrouselProps) {
   const { socket } = useSocketContext();
   const channels = useChannels(setChanID, chanID);
+  const { toggleChannelView, toggleChannelSettings, toggleCreateChannelView } =
+    useStateContext();
 
   useEffect(() => {
     const onChannelUserJoin = () => {

@@ -8,6 +8,7 @@ import { PrimaryButton } from '../../PrimaryButton/PrimaryButton';
 import RenderIf from '../RenderIf/RenderIf';
 import { useSocketContext } from '../../../contexts/socket';
 import { useChanInfo } from '../../../utils/hooks/useChannelInfo';
+import { useStateContext } from '../../../contexts/state';
 
 interface SectionTitleProps {
   title: string;
@@ -26,21 +27,17 @@ function Section({ children }: SectionProps) {
 }
 
 interface CreateChannelViewProps {
-  toggleInviteChannel: () => any;
-  toggleChannelSettings: () => any;
-  isNameView: boolean;
   chanID: string;
   setChanID: (arg: any) => any;
 }
 
 export function CreateChannelView({
-  toggleInviteChannel,
-  toggleChannelSettings,
-  isNameView,
   chanID,
   setChanID
 }: CreateChannelViewProps) {
   const { socket } = useSocketContext();
+  const { toggleChannelSettings, isChannelNameView, toggleInviteChannel } =
+    useStateContext();
   const [chanName, setChanName] = useState(`${socket.username}'s channel`);
   const [type, setType] = useState<'PASSWORD' | 'PUBLIC' | 'PRIVATE'>('PUBLIC');
   const [password, setPassword] = useState<string>('');
@@ -108,12 +105,12 @@ export function CreateChannelView({
   };
 
   useEffect(() => {
-    if (!isNameView && chanID) {
+    if (!isChannelNameView && chanID) {
       socket.emit('channelInfo', {
         chanID
       });
     }
-  }, [chanID, isNameView, socket]);
+  }, [chanID, isChannelNameView, socket]);
 
   const handleUpdateChannel = (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -141,14 +138,16 @@ export function CreateChannelView({
     };
   }, [socket, toggleInviteChannel, toggleChannelSettings]);
   return (
-    <form onSubmit={isNameView ? handleCreateChannel : handleUpdateChannel}>
+    <form
+      onSubmit={isChannelNameView ? handleCreateChannel : handleUpdateChannel}
+    >
       <Scrollable width={336}>
         <div className="flex w-full flex-col items-center justify-center gap-10">
           <p className="text-2xl font-bold text-pong-white">
-            {isNameView ? 'Create your Channel' : 'Update Channel'}
+            {isChannelNameView ? 'Create your Channel' : 'Update Channel'}
           </p>
 
-          {isNameView ? (
+          {isChannelNameView ? (
             <>
               <Section>
                 <SectionTitle title="CHANNEL PICTURE" />
@@ -224,7 +223,7 @@ export function CreateChannelView({
             </Section>
           </RenderIf>
           <PrimaryButton submit>
-            {isNameView ? 'Create Channel' : 'Update Channel'}
+            {isChannelNameView ? 'Create Channel' : 'Update Channel'}
           </PrimaryButton>
         </div>
       </Scrollable>

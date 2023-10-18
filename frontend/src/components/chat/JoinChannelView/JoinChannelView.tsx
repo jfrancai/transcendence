@@ -5,17 +5,15 @@ import RenderIf from '../RenderIf/RenderIf';
 import { useSocketContext } from '../../../contexts/socket';
 import { Section, SectionTitle } from '../Section';
 import { Scrollable } from '../Scrollable/Scrollable';
+import { useStateContext } from '../../../contexts/state';
 
 interface JoinChannelViewProps {
-  toggleChannelView: () => any;
   setChanID: (arg: string) => any;
 }
 
-export function JoinChannelView({
-  toggleChannelView,
-  setChanID
-}: JoinChannelViewProps) {
+export function JoinChannelView({ setChanID }: JoinChannelViewProps) {
   const { socket } = useSocketContext();
+  const { toggleChannelView } = useStateContext();
   const [chanName, setChanName] = useState(`${socket.username}'s channel`);
   const [type, setType] = useState<'PASSWORD' | 'PUBLIC' | 'PRIVATE'>('PUBLIC');
   const [password, setPassword] = useState<string>('');

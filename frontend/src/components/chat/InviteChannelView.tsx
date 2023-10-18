@@ -6,6 +6,7 @@ import ProfilePicture from './ProfilePicture/ProfilePicture';
 import { Contact } from '../../utils/hooks/useStatus.interfaces';
 import SecondaryButton from '../SecondaryButton/SecondaryButton';
 import { PrimaryButton } from '../PrimaryButton/PrimaryButton';
+import { useStateContext } from '../../contexts/state';
 
 interface InviteContactProps {
   username: string;
@@ -21,7 +22,7 @@ export function InviteContact({ username, invite }: InviteContactProps) {
         role="presentation"
       >
         <div className="flex items-center justify-center gap-3">
-          <ProfilePicture size="xs" url="starwatcher.jpg" />
+          <ProfilePicture size="xs" />
           <p className="semibold max-w-[200px] break-all text-base text-pong-white">
             {username}
           </p>
@@ -35,14 +36,11 @@ export function InviteContact({ username, invite }: InviteContactProps) {
 
 interface InviteChannelViewProps {
   chanID: string;
-  toggleChannelView: () => any;
 }
 
-export function InviteChannelView({
-  chanID,
-  toggleChannelView
-}: InviteChannelViewProps) {
+export function InviteChannelView({ chanID }: InviteChannelViewProps) {
   const { socket } = useSocketContext();
+  const { toggleChannelView } = useStateContext();
   const inviteList = useInviteList();
 
   useEffect(() => {

@@ -4,17 +4,18 @@ import { useMessages } from '../../../utils/hooks/useMessages';
 import { useScroll } from '../../../utils/hooks/useScroll';
 import { Scrollable } from '../Scrollable/Scrollable';
 import { useSocketContext } from '../../../contexts/socket';
+import { useStateContext } from '../../../contexts/state';
 
 interface ChanFeedProps {
   event: 'channelMessages' | 'messages';
   userID: string;
-  toggleChannelSettings: () => any;
 }
 
-function ChanFeed({ userID, event, toggleChannelSettings }: ChanFeedProps) {
+function ChanFeed({ userID, event }: ChanFeedProps) {
   const { socket } = useSocketContext();
   const messages = useMessages(userID);
   const messageEndRef = useScroll(messages);
+  const { toggleChannelSettings } = useStateContext();
 
   useEffect(() => {
     const onChannelRestrict = (data: {

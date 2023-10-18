@@ -1,8 +1,8 @@
-import React, { useContext, useMemo } from 'react';
+import React, { createContext, useContext, useMemo } from 'react';
 import { PongSocket } from '../utils/hooks/useStatus.interfaces';
 import { socket } from '../utils/functions/socket';
 
-const SocketContext = React.createContext<{
+const SocketContext = createContext<{
   socket: PongSocket;
 } | null>(null);
 

@@ -7,18 +7,15 @@ import {
   connectSocket,
   disconnectSocket
 } from '../../../utils/functions/socket';
+import { useStateContext } from '../../../contexts/state';
 
 interface ChatHeaderProps {
   className?: string;
-  isChatClosed: boolean;
-  handleClick: {
-    toggleArrow: () => any;
-    changeView: () => any;
-  };
 }
 
-function ChatHeader({ className, isChatClosed, handleClick }: ChatHeaderProps) {
+function ChatHeader({ className }: ChatHeaderProps) {
   const isConnected = useConnected();
+  const { changeView, toggleArrow, isChatClosed } = useStateContext();
 
   useEffect(() => {
     connectSocket();
@@ -29,8 +26,8 @@ function ChatHeader({ className, isChatClosed, handleClick }: ChatHeaderProps) {
       className={`${className} flex w-[336px] items-center justify-center rounded-3xl`}
     >
       <div className="flex flex-wrap content-center items-center justify-center gap-x-24 gap-y-2 rounded-3xl py-5">
-        <Category onClick={handleClick.changeView} type="chat" />
-        <ArrowToggler up={isChatClosed} onClick={handleClick.toggleArrow} />
+        <Category onClick={changeView} type="chat" />
+        <ArrowToggler up={isChatClosed} onClick={toggleArrow} />
         <Status
           position="start"
           severity={isConnected ? 'ok' : 'err'}

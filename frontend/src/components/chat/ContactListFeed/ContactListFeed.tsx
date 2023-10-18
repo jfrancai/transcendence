@@ -7,18 +7,16 @@ import { useUsers } from '../../../utils/hooks/useUsers';
 import { ContactCard } from '../ContactCard/ContactCard';
 import { Scrollable } from '../Scrollable/Scrollable';
 import { useSocketContext } from '../../../contexts/socket';
+import { useStateContext } from '../../../contexts/state';
 
 interface ContactListProps {
-  toggleConversationView: () => any;
   setUserID: (p: any) => any;
 }
 
-export function ContactListFeed({
-  setUserID,
-  toggleConversationView
-}: ContactListProps) {
+export function ContactListFeed({ setUserID }: ContactListProps) {
   const { socket } = useSocketContext();
   const { contactList, blockedList } = useUsers();
+  const { toggleConversationView } = useStateContext();
 
   useEffect(() => {
     socket.emit('users');
@@ -63,7 +61,6 @@ export function ContactListFeed({
                   userID: user.userID
                 });
               }}
-              url="starwatcher.jpg"
               blocked={false}
             />
           ))}
@@ -92,7 +89,6 @@ export function ContactListFeed({
                   userID: user.userID
                 });
               }}
-              url="starwatcher.jpg"
               blocked={false}
             />
           ))}
@@ -121,7 +117,6 @@ export function ContactListFeed({
                   userID: user.userID
                 });
               }}
-              url="starwatcher.jpg"
               blocked
             />
           ))}
