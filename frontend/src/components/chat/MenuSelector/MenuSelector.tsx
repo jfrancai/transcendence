@@ -4,6 +4,7 @@ import { AiOutlineSearch } from 'react-icons/ai';
 import ProfilePicture from '../ProfilePicture/ProfilePicture';
 import RenderIf from '../RenderIf/RenderIf';
 import { useStateContext } from '../../../contexts/state';
+import { Tooltip } from 'react-tooltip';
 
 export default function MenuSelector() {
   const {
@@ -13,9 +14,7 @@ export default function MenuSelector() {
     isChannelSettings,
     isChannelView,
     toggleMessageView,
-    toggleChannelView,
-    toggleSearchView,
-    toggleNotificationView
+    toggleChannelView
   } = useStateContext();
   return (
     <RenderIf
@@ -44,19 +43,28 @@ export default function MenuSelector() {
             }`}
           />
         </button>
-        <button type="button" onClick={toggleSearchView}>
+        <button type="button" onClick={() => {}}>
           <AiOutlineSearch
-            className={`h-6 w-6 ${
+            className={`comingsoon h-6 w-6 ${
               isSearchView ? 'text-pong-white' : 'text-pong-blue-100'
             }`}
           />
         </button>
-        <button type="button" onClick={toggleNotificationView}>
+        <button type="button" onClick={() => {}}>
           <BiBell
-            className={`h-6 w-6
+            className={`comingsoon h-6 w-6
           ${isNotificationView ? 'text-pong-white' : 'text-pong-blue-100'}`}
           />
         </button>
+        <Tooltip
+          disableStyleInjection
+          className="z-50 flex flex-col rounded border-pong-blue-100 bg-pong-blue-500 bg-opacity-100 p-2 text-pong-white text-opacity-100"
+          anchorSelect=".comingsoon"
+          clickable
+          place="bottom"
+        >
+          <p className="font-semibold">coming soon</p>
+        </Tooltip>
         <button type="button">
           <ProfilePicture size="xs" />
         </button>
