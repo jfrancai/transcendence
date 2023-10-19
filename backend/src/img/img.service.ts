@@ -54,9 +54,9 @@ export class ImgService {
     if (path && fs.existsSync(path)) {
       const data: string = fs.readFileSync(path, 'base64');
       if (path.includes('.jpeg') || path.includes('.jpg')) {
-        return { img: data, ext: '.jpeg' };
+        return { img: `data:image/jpeg;base64,${data}` };
       }
-      return { img: data, ext: '.png' };
+      return { img: `data:image/png;base64,${data}` };
     }
     return null;
   }

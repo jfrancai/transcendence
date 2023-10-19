@@ -2,9 +2,10 @@ export default function InputField(props: {
   label: string;
   type: string;
   name?: string;
+  placeholder?: string;
   handleInput?: (e: React.KeyboardEvent<HTMLInputElement>) => void;
 }) {
-  const { label, type, name, handleInput } = props;
+  const { label, type, name, handleInput, placeholder } = props;
   if (type === 'checkbox') {
     return (
       <div className="p-[1px]">
@@ -37,6 +38,7 @@ export default function InputField(props: {
         name={name !== undefined ? name : type}
         id={label}
         onKeyDown={handleInput}
+        placeholder={placeholder}
         className="h-[50px] w-full rounded-[15px] bg-blue-pong-3 p-2 text-white"
         style={{ boxShadow: 'inset 0 0 7px rgba(0,0,0,0.4)' }}
       />

@@ -2,7 +2,8 @@ import {
   ExceptionFilter,
   Catch,
   ArgumentsHost,
-  HttpException
+  HttpException,
+  Logger
 } from '@nestjs/common';
 import { Request, Response } from 'express';
 import { RedirectionException } from 'src/exception/redirect-execption';
@@ -11,6 +12,8 @@ import { RedirectionException } from 'src/exception/redirect-execption';
 
 @Catch(HttpException)
 export class HttpExceptionFilter implements ExceptionFilter {
+  private readonly logger = new Logger('HttpExceptionFilter');
+
   catch(exception: any, host: ArgumentsHost) {
     const ctx = host.switchToHttp();
     const request = ctx.getRequest<Request>();

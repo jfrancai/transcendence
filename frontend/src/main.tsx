@@ -13,9 +13,11 @@ import ErrorValidation from '@login/ErrorValidation';
 import ValidationTwoAuth from '@login/ValidationTwoAuth';
 import UploadImg from '@login/UploadImg';
 import { loader as loaderProfile } from './components/Profile/profile.loader';
+import { action as actionProfile } from './components/Profile/profile.action';
 import { loader as loaderSearchProfile } from './components/Profile/profileSearch.loader';
 import Pong from './components/Pong/Pong';
 import Profile from './components/Profile/Profile';
+import ProfileSearch from './components/Profile/ProfileSearch';
 import './index.css';
 
 const router = createBrowserRouter([
@@ -65,11 +67,12 @@ const router = createBrowserRouter([
   {
     path: '/profile',
     element: <Profile />,
-    loader: loaderProfile
+    loader: loaderProfile,
+    action: actionProfile
   },
   {
     path: '/profile/:username',
-    element: <Profile />,
+    element: <ProfileSearch />,
     loader: loaderSearchProfile
   }
 ]);

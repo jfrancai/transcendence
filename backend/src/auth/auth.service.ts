@@ -26,6 +26,7 @@ type UpdateUserDto = {
   apiToken?: string;
   twoAuthSecret?: string;
   twoAuthOn?: boolean;
+  maxAge?: number;
 };
 
 export enum MethodCookie {
@@ -167,7 +168,6 @@ export class AuthService {
       headers: { Authorization: `Bearer ${token}` }
     };
 
-    this.logger.debug('in findUserWithToken()');
     const info$ = this.httpService
       .get('https://api.intra.42.fr/v2/me', config)
       .pipe(map((response: AxiosResponse) => response.data));
@@ -183,7 +183,6 @@ export class AuthService {
 
     if (clientId !== undefined && clientSecret !== undefined) {
       try {
-        this.logger.debug('in callbackToken()');
         const promise = await this.httpService.axiosRef
           .postForm(CONST_URL, {
             grant_type: 'authorization_code',

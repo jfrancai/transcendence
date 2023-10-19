@@ -15,6 +15,7 @@ export class RedirectionFilter implements ExceptionFilter {
     const response = ctx.getResponse<Response>();
     const status = exception.getStatus();
 
+    response.setHeader('location', CONST_FRONTEND_URL);
     response.status(status).redirect(CONST_FRONTEND_URL);
   }
 }

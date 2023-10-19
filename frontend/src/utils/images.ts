@@ -6,7 +6,15 @@ const IMAGES = {
     '../../images/background_profile.png',
     import.meta.url
   ).href,
-  upload: new URL('../../images/upload.png', import.meta.url).href
+  upload: new URL('../../images/upload.png', import.meta.url).href,
+  option_wheel: new URL('../../images/icons/option.png', import.meta.url).href,
+  cross: new URL('../../images/icons/cross.png', import.meta.url).href,
+  add_friends: new URL('../../images/icons/add-friends.png', import.meta.url)
+    .href,
+  remove_friends: new URL(
+    '../../images/icons/remove-friends.png',
+    import.meta.url
+  ).href
 };
 
 export default IMAGES;

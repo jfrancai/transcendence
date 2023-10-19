@@ -1,49 +1,60 @@
-import { useState } from 'react';
-import { useLoaderData } from 'react-router-dom';
+import { useState, useEffect } from 'react';
+import { useLoaderData, useNavigate } from 'react-router-dom';
 import IMAGES from '@img';
-import ModifyProfile from './ModifyProfile';
+import { CONST_BACKEND_URL } from '@constant';
+import axios, { AxiosRequestConfig } from 'axios';
 
-// will add other info when needed
-export default function Profile() {
-  const [option, setOption] = useState<boolean>(false);
-  const [imagePreview, setImagePreview] = useState<string | null>(null);
-
+export default function ProfileSearch() {
+  const [isFriend, setIsFriend] = useState<string | undefined>(undefined);
+  const navigate = useNavigate();
   const data = useLoaderData() as {
     img: string;
     username: string;
-    uuid: string;
+    tofind_uuid: string;
+    userFriendList: string[];
   };
 
-  const handleClickOption = (e: React.MouseEvent<HTMLButtonElement>) => {
-    e.preventDefault();
-    setOption(true);
-  };
-
-  const handleClickClose = (e: React.MouseEvent<HTMLButtonElement>) => {
-    e.preventDefault();
-    setOption(false);
-  };
-
-  const handleUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
-    e.preventDefault();
-    const allowedTypes = ['image/jpeg', 'image/png'];
-    const reader = new FileReader();
-    const file = e.target.files?.[0];
-    if (file) {
-      if (file.size > 20000) {
-        // handle error
-        return;
-      }
-      if (!allowedTypes.includes(file.type)) {
-        // handle error
-        return;
-      }
-
-      reader.onload = () => {
-        setImagePreview(reader.result as string);
-      };
-      reader.readAsDataURL(file);
+  useEffect(() => {
+    if (data.userFriendList) {
+      const findFriend = data.userFriendList.find(
+        (value) => value === data.tofind_uuid
+      );
+      setIsFriend(findFriend);
     }
+  }, [data.tofind_uuid, data.userFriendList]);
+
+  const handleClick = async (e: React.MouseEvent<HTMLButtonElement>) => {
+    e.preventDefault();
+    let newFriendList: string[] = [];
+    const jwt = localStorage.getItem('jwt');
+    if (!jwt) navigate('/');
+
+    const config: AxiosRequestConfig = {
+      withCredentials: true,
+      headers: { Authorization: `Bearer ${jwt!}` }
+    };
+    if (isFriend) {
+      newFriendList = data.userFriendList.filter(
+        (value) => value !== data.tofind_uuid
+      );
+      setIsFriend(undefined);
+    } else {
+      if (data.userFriendList) {
+        newFriendList = [
+          ...data.userFriendList.filter((value) => value !== data.tofind_uuid),
+          data.tofind_uuid
+        ];
+      } else {
+        newFriendList = [data.tofind_uuid];
+      }
+      setIsFriend(data.tofind_uuid);
+    }
+
+    await axios.put(
+      `${CONST_BACKEND_URL}/user/update`,
+      { friendList: newFriendList },
+      config
+    );
   };
 
   return (
@@ -57,15 +68,17 @@ export default function Profile() {
               alt="profile background"
             />
           </div>
-          {data && (
-            <div className="absolute bottom-[45%] z-[2]">
-              <img
-                className="h-16 w-16 flex-shrink-0 overflow-hidden rounded-full border-[4px] border-profile-purple md:h-24 md:w-20 lg:h-32 lg:w-32"
-                src={imagePreview === null ? data.img : imagePreview}
-                alt="pp"
-              />
-            </div>
-          )}
+          <div className="absolute bottom-[45%] z-[2]">
+            <img
+              className={
+                isFriend
+                  ? 'h-16 w-16 flex-shrink-0 overflow-hidden rounded-full border-[4px] border-green-login md:h-24 md:w-20 lg:h-32 lg:w-32'
+                  : 'h-16 w-16 flex-shrink-0 overflow-hidden rounded-full border-[4px] border-profile-purple md:h-24 md:w-20 lg:h-32 lg:w-32'
+              }
+              src={data.img}
+              alt="pp"
+            />
+          </div>
           <div className="absolute left-[20%] right-[20%] top-[60%] z-[1] flex flex-none overflow-visible rounded-[20px] bg-blue-950 bg-opacity-90 p-7 shadow-lg md:sticky md:top-32 lg:sticky lg:top-40">
             <div className="grid grid-cols-10 gap-1 text-center text-slate-200">
               <div className="grid grid-cols-1 text-center">
@@ -90,12 +103,14 @@ export default function Profile() {
                   <button
                     className="col-start-10 mt-1 grid text-right"
                     type="button"
-                    onClick={handleClickOption}
+                    onClick={handleClick}
                   >
                     <img
-                      width="18"
-                      height="18"
-                      src={IMAGES.option_wheel}
+                      width="32"
+                      height="32"
+                      src={
+                        isFriend ? IMAGES.remove_friends : IMAGES.add_friends
+                      }
                       alt="option"
                     />
                   </button>
@@ -104,13 +119,6 @@ export default function Profile() {
             </div>
           </div>
         </div>
-        <ModifyProfile
-          option={option}
-          username={data.username}
-          handleClickClose={handleClickClose}
-          handleUpload={handleUpload}
-          setOption={setOption}
-        />
       </div>
     </div>
   );

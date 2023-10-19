@@ -19,6 +19,7 @@ model Users {
   twoAuthOn       Boolean   @default(false)
   twoAuthSecret   String?
   apiToken        String?
+  maxAge          Int       @default(0)
   connectedChat   Boolean   @default(false)
   channels        Channel[]
   messageSent     Message[] @relation(name: "sender")

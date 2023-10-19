@@ -17,15 +17,17 @@ export async function loader(props: { request: Request }) {
   let username = path.substring(index[1]! + 1);
   if (username.includes('/')) username = username.replace('/', '');
 
-  const fetchUser = await axios
-    .get(`${CONST_BACKEND_URL}/user/${username}`, config)
-    .then((res: AxiosResponse) => res.data);
-
-  console.log(fetchUser);
   const result = await axios
     .get(`${CONST_BACKEND_URL}/img/download/${username}`, config)
     .then((res: AxiosResponse) => res.data);
 
-  console.log(result);
-  return result;
+  const fetchUser = await axios
+    .post(`${CONST_BACKEND_URL}/user/jwt`, { jwt }, config)
+    .then((res: AxiosResponse) => res.data);
+
+  const userInfo = {
+    ...result,
+    userFriendList: fetchUser.friendList
+  };
+  return userInfo;
 }

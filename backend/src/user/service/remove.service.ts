@@ -10,8 +10,14 @@ export class RemoveService {
     const result = await this.usersService.getUser(user);
 
     if (result) {
-      const { password, twoAuthOn, twoAuthSecret, apiToken, ...stripedData } =
-        result;
+      const {
+        password,
+        twoAuthOn,
+        twoAuthSecret,
+        apiToken,
+        maxAge,
+        ...stripedData
+      } = result;
       return stripedData;
     }
     return null;

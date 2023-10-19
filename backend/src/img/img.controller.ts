@@ -20,6 +20,7 @@ import { FileValidationPipe } from './pipe/file-validation.pipe';
 import { IUsers } from '../database/service/interface/users';
 
 @Controller('img')
+@UseGuards(ApiGuard, JwtAuthGuard)
 export class ImgController {
   private logger = new Logger('ImgController');
 
@@ -31,7 +32,6 @@ export class ImgController {
   }
 
   @Post('upload')
-  @UseGuards(ApiGuard, JwtAuthGuard)
   @UseInterceptors(FileInterceptor('image'))
   async uploadFile(
     @Req() req: any,
@@ -65,19 +65,18 @@ export class ImgController {
     const user = await this.authService.findUser(req.user);
     if (user) {
       const imgValue = this.imgService.imageToBase64(user?.img);
-      return { username: user.username, ...imgValue };
+      return { username: user.username, uuid: user.id, ...imgValue };
     }
     return null;
   }
 
   // use this route for fetching on specific user
   @Get('download/:username')
-  @UseGuards(ApiGuard, JwtAuthGuard)
   async findUserImage(@Param('username') toFind: string) {
     const user = await this.authService.findUser({ username: toFind });
     if (user) {
       const imgValue = this.imgService.imageToBase64(user?.img);
-      return { username: user.username, ...imgValue };
+      return { username: user.username, tofind_uuid: user.id, ...imgValue };
     }
     return null;
   }
