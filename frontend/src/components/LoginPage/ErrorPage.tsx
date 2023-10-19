@@ -6,7 +6,7 @@ export default function ErrorPage() {
   let errorCode: string = '';
 
   if (isRouteErrorResponse(error)) {
-    errorMessage = error.error?.message!;
+    errorMessage = error.data?.message;
     errorCode = error.status.toString(10);
   }
 

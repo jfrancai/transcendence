@@ -18,7 +18,7 @@ export default function ValidationTwoAuth() {
             className="mt-3 h-[40px] w-full items-center justify-items-center rounded-[15px] border border-blue-pong-1 bg-blue-pong-4 p-1 text-center"
           >
             <button
-              className="pt-1 font-roboto text-[14px] font-bold text-white"
+              className="custom-button custom-button-hover pt-1 font-roboto text-[14px] font-bold text-white hover:border-white"
               type="button"
             >
               FINISH

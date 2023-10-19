@@ -140,14 +140,14 @@ export default function UploadImg() {
             />
             {imagePreview !== null ? (
               <button
-                className="mt-2 h-[40px] w-full rounded-[15px] border border-blue-pong-1 bg-blue-pong-4 p-1 font-roboto text-[14px] font-bold text-white"
+                className="custom-button custom-button-hover mt-2 h-[40px] w-full rounded-[15px] border border-blue-pong-1 bg-blue-pong-4 p-1 font-roboto text-[14px] font-bold text-white hover:border-white"
                 type="submit"
               >
                 Submit
               </button>
             ) : (
               <button
-                className="mt-2 h-[40px] w-full rounded-[15px] border border-blue-pong-1 bg-blue-pong-4 p-1 font-roboto text-[14px] font-bold text-white"
+                className="custom-button custom-button-hover mt-2 h-[40px] w-full rounded-[15px] border border-blue-pong-1 bg-blue-pong-4 p-1 font-roboto text-[14px] font-bold text-white hover:border-white"
                 type="button"
                 onClick={handleNextClick}
               >

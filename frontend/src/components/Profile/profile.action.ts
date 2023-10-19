@@ -1,11 +1,12 @@
-import axios, { AxiosResponse, AxiosRequestConfig } from 'axios';
 import { redirect } from 'react-router-dom';
+import axios, { AxiosResponse, AxiosRequestConfig } from 'axios';
 import { CONST_BACKEND_URL } from '@constant';
 
 export async function action(props: { request: Request }) {
   const jwt = localStorage.getItem('jwt');
   if (!jwt) redirect('/');
 
+  let updateObject;
   const { request } = props;
   const imageForm = new FormData();
   const formData = await request.formData();
@@ -26,32 +27,33 @@ export async function action(props: { request: Request }) {
     const checkUsername = await axios
       .post(
         `${CONST_BACKEND_URL}/user/check`,
-        { username: tmp.username },
+        { username: tmp.username.toString() },
         config
       )
       .then((res: AxiosResponse) => res.data);
 
     if (!checkUsername) {
-      // handle error
+      throw new Error('Username already exist.');
     }
 
-    const updateObject = {
+    updateObject = {
       username: tmp.username.toString()
     };
-
-    await axios.put(`${CONST_BACKEND_URL}/user/update`, updateObject, config);
   }
 
   if (tmp.password.toString().length !== 0) {
     if (tmp.password.toString() !== tmp.confirm.toString()) {
-      // handle error
+      throw new Error("Password doesn't match.");
     }
-    const updateObject = {
+    updateObject = {
+      ...updateObject,
       password: tmp.password.toString()
     };
-    await axios.put(`${CONST_BACKEND_URL}/user/update`, updateObject, config);
   }
 
+  if (updateObject) {
+    await axios.put(`${CONST_BACKEND_URL}/user/update`, updateObject, config);
+  }
   if (tmp.password.length === 0 && tmp.username.length === 0) {
     return redirect('/profile');
   }

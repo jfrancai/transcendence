@@ -35,7 +35,7 @@ export default function LoginTwoAuthForm() {
   };
 
   if (isRouteErrorResponse(error)) {
-    const errorMessage = error.error?.message!;
+    const errorMessage = error.data?.message;
     errorCode = error.status.toString(10);
     return (
       <div className="flex h-screen items-center justify-center bg-default bg-cover">
@@ -74,7 +74,7 @@ export default function LoginTwoAuthForm() {
             handleInput={handleKeyPress}
           />
           <button
-            className="mt-7 h-[40px] w-full rounded-[15px] border border-blue-pong-1 bg-blue-pong-4 p-1 font-roboto text-[14px] font-bold text-white"
+            className="custom-button custom-button-hover mt-7 h-[40px] w-full rounded-[15px] border border-blue-pong-1 bg-blue-pong-4 p-1 font-roboto text-[14px] font-bold text-white hover:border-white"
             type="submit"
           >
             Submit

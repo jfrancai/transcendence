@@ -1,23 +1,26 @@
-import IMAGES from '@img';
 import { Form } from 'react-router-dom';
+import IMAGES from '@img';
 import InputField from '@login/InputField';
 
 export default function ModifyProfile(props: {
   option: boolean;
-  setOption: React.Dispatch<React.SetStateAction<boolean>>;
+  error: string | null;
   username: string;
+  setOption: React.Dispatch<React.SetStateAction<boolean>>;
   handleClickClose: (e: React.MouseEvent<HTMLButtonElement>) => void;
   handleUpload: (e: React.ChangeEvent<HTMLInputElement>) => void;
 }) {
-  const { option, setOption, username, handleClickClose, handleUpload } = props;
+  const { option, error, username, setOption, handleClickClose, handleUpload } =
+    props;
+
+  if (!option) return null;
 
   const handleSubmit = () => {
     setOption(false);
   };
-  if (!option) return null;
 
   return (
-    <div className="flex flex-col rounded-[25px] border border-blue-pong-1 bg-blue-pong-2 px-6">
+    <div className="flex flex-col rounded-[25px] border border-blue-pong-1 bg-blue-pong-2 px-6 shadow-none">
       <div className="grid grid-cols-10">
         <button
           type="button"
@@ -27,6 +30,11 @@ export default function ModifyProfile(props: {
           <img src={IMAGES.cross} width="16" height="16" alt="cross" />
         </button>
       </div>
+      {error && (
+        <div className="flex items-center justify-center rounded-[18px] border border-blue-pong-1 bg-blue-pong-3 py-4 shadow-none">
+          <p className="font-roboto text-sm font-bold text-red-500">{error}</p>
+        </div>
+      )}
       <Form
         method="post"
         encType="multipart/form-data"
@@ -59,7 +67,7 @@ export default function ModifyProfile(props: {
             />
           </label>
           <button
-            className="mt-7 h-[40px] w-full rounded-[15px] border border-blue-pong-1 bg-blue-pong-4 p-1 font-roboto text-[14px] font-bold text-white"
+            className="custom-button custom-button-hover mt-7 h-[40px] w-full rounded-[15px] border border-blue-pong-1 bg-blue-pong-4 p-1 font-roboto text-[14px] font-bold text-white hover:border-white"
             type="submit"
           >
             Submit

@@ -17,7 +17,7 @@ export default function Authorize42() {
     <div>
       <a href={`${CONST_AUTHORIZE_URL}&state=${generateRandomString(32)}`}>
         <button
-          className="mt-4 flex h-[40px] w-full items-center justify-center rounded-[15px] border border-blue-pong-1 bg-green-login px-6 py-1 font-roboto text-[14px] font-bold text-white"
+          className="custom-button custom-button-hover mt-4 flex h-[40px] w-full items-center justify-center rounded-[15px] border-[1px] border-blue-pong-1 bg-green-login px-6 py-1 font-roboto text-[14px] font-bold text-white"
           type="button"
         >
           <span className="pr-2">Authorized </span>

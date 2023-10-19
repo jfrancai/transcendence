@@ -60,7 +60,6 @@ export class ImgController {
   }
 
   @Get('download')
-  @UseGuards(ApiGuard, JwtAuthGuard)
   async getUserImage(@Req() req: any) {
     const user = await this.authService.findUser(req.user);
     if (user) {

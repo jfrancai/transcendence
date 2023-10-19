@@ -18,6 +18,7 @@ import { loader as loaderSearchProfile } from './components/Profile/profileSearc
 import Pong from './components/Pong/Pong';
 import Profile from './components/Profile/Profile';
 import ProfileSearch from './components/Profile/ProfileSearch';
+import Home from './components/Home/Home';
 import './index.css';
 
 const router = createBrowserRouter([
@@ -67,13 +68,19 @@ const router = createBrowserRouter([
   {
     path: '/profile',
     element: <Profile />,
+    errorElement: <Profile />,
     loader: loaderProfile,
     action: actionProfile
   },
   {
     path: '/profile/:username',
     element: <ProfileSearch />,
+    errorElement: <ErrorPage />,
     loader: loaderSearchProfile
+  },
+  {
+    path: '/home',
+    element: <Home />
   }
 ]);
 
