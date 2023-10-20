@@ -44,11 +44,13 @@ export class AuthController {
     this.logger.log('AuthController Init...');
   }
 
-  @Get('login_only')
+  @Get('logout')
   @UseGuards(ApiGuard, JwtAuthGuard)
   @HttpCode(200)
-  getLogedUser(@Req() req: any) {
-    return req.user;
+  async logoutUser(@Res({ passthrough: true }) res: Response) {
+    res.clearCookie('api_token');
+    res.setHeader('Authorization', '');
+    res.setHeader('Location', `${CONST_FRONTEND_URL}`);
   }
 
   @Post('2fa-generate')
@@ -57,13 +59,6 @@ export class AuthController {
   async generate2Fa(@Req() req: any) {
     const { optAuthUrl } = await this.authService.generate2FASecret(req.user);
     return this.authService.generateQrCodeDataUrl(optAuthUrl);
-  }
-
-  @Get('2fa-login')
-  @UseGuards(ApiGuard)
-  @HttpCode(200)
-  async authenticatePage(@Res() res: Response) {
-    res.status(200).json({ message: 'ok' });
   }
 
   @Post('2fa-login')
@@ -84,13 +79,6 @@ export class AuthController {
     const jsonWebToken = await this.authService.loginWith2Fa(req.user);
     res.setHeader('Authorization', `Bearer ${jsonWebToken.access_token}`);
     return jsonWebToken;
-  }
-
-  @Get('login')
-  @UseGuards(ApiGuard)
-  @HttpCode(200)
-  getLogin(@Res() res: Response) {
-    res.json({ message: 'ok' });
   }
 
   @Post('login')
@@ -146,13 +134,6 @@ export class AuthController {
       return;
     }
     res.status(301).redirect(`${CONST_FRONTEND_URL}/login`);
-  }
-
-  // this might change in the future.
-  @Get('create_profile')
-  @UseGuards(ApiGuard)
-  returnCreate(@Res() res: Response) {
-    res.status(200).json({ message: 'ok' });
   }
 
   // create user profile
@@ -229,12 +210,5 @@ export class AuthController {
     } catch (e) {
       throw new HttpException(`${e.message}`, e.code);
     }
-  }
-
-  // will be replaced with the actual profile information
-  @Get('profile')
-  @UseGuards(ApiGuard)
-  profile() {
-    return 'profile';
   }
 }

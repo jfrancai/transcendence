@@ -13,14 +13,16 @@ export default function ModifyProfile(props: {
   const { option, error, username, setOption, handleClickClose, handleUpload } =
     props;
 
-  if (!option) return null;
-
   const handleSubmit = () => {
     setOption(false);
   };
 
   return (
-    <div className="flex flex-col rounded-[25px] border border-blue-pong-1 bg-blue-pong-2 px-6 shadow-none">
+    <div
+      className={`slide-in-from-top flex flex-col rounded-[25px] border border-blue-pong-1 bg-blue-pong-2 px-6 ${
+        option ? 'visible' : 'fade-out pointer-events-none'
+      }`}
+    >
       <div className="grid grid-cols-10">
         <button
           type="button"
@@ -42,22 +44,34 @@ export default function ModifyProfile(props: {
         onSubmit={handleSubmit}
       >
         <InputField
+          readOnly={!option}
           type="username"
           label="Username"
           placeholder={username}
           name="username"
         />
-        <InputField type="password" label="Password" name="password" />
-        <InputField type="password" label="Confirm Password" name="confirm" />
+        <InputField
+          readOnly={!option}
+          type="password"
+          label="Password"
+          name="password"
+        />
+        <InputField
+          readOnly={!option}
+          type="password"
+          label="Confirm Password"
+          name="confirm"
+        />
         <input name="hiddenInput" readOnly hidden value={username} />
         <div className="p-[1px]">
           <label
             className="font-roboto text-[15px] text-sm font-bold text-blue-pong-1"
-            htmlFor="Profile Pictures"
+            htmlFor="pp"
           >
             Profile Pictures
             <br />
             <input
+              disabled={!option}
               className="text-sm text-white"
               type="file"
               name="pp"

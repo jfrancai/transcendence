@@ -3,28 +3,35 @@
 @tailwind utilities;
 
 @layer base {
-  .font-outline-black-2 {
-    -webkit-text-stroke: 2px black;
-  }
-
-  .font-outline-black-4 {
-    -webkit-text-stroke: 4px black;
-  }
-
-  .font-outline-white-2 {
-    -webkit-text-stroke: 2px white;
-  }
-
-  .font-outline-white-4 {
-    -webkit-text-stroke: 4px white;
-  }
-
   .custom-button {
     @apply transition duration-300 ease-in-out;
   }
 
   .custom-button-hover:hover {
     @apply scale-105 transform;
+  }
+
+  .slide-in-from-top {
+    transform: translateY(-100%);
+    transition: transform 0.3s ease-in-out;
+  }
+
+  .slide-in-from-top.visible {
+    transform: translateY(0);
+  }
+
+  .fade-out {
+    opacity: 1;
+    animation: fadeOut 0.3s ease-in-out forwards;
+  }
+
+  @keyframes fadeOut {
+    from {
+      opacity: 1;
+    }
+    to {
+      opacity: 0;
+    }
   }
 }
 
@@ -50,4 +57,21 @@ html {
 
 body {
   background-color: white;
+}
+
+/* to avoid any animation to render before the page load 
+ * need to add a little <script> tag containing this:
+ * setTimeout(() => {
+ *  document.body.className = '';
+ *  }, 800);
+ *
+ *  this wil have as effect, to not render any animation on the page until,
+ *  the page is loaded and setTimeout callback executed.
+ *  */
+
+body.preload * {
+  animation-duration: 0s !important;
+  -webkit-animation-duration: 0s !important;
+  transition: background-color 0s, opacity 0s, color 0s, width 0s, height 0s,
+    padding 0s, margin 0s !important;
 }

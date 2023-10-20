@@ -1,11 +1,12 @@
 export default function InputField(props: {
   label: string;
   type: string;
+  readOnly: boolean;
   name?: string;
   placeholder?: string;
   handleInput?: (e: React.KeyboardEvent<HTMLInputElement>) => void;
 }) {
-  const { label, type, name, handleInput, placeholder } = props;
+  const { label, type, readOnly, name, handleInput, placeholder } = props;
   if (type === 'checkbox') {
     return (
       <div className="p-[1px]">
@@ -34,6 +35,8 @@ export default function InputField(props: {
         {label}
       </label>
       <input
+        readOnly={readOnly}
+        disabled={readOnly}
         type={type}
         name={name !== undefined ? name : type}
         id={label}
