@@ -15,7 +15,7 @@ const WALL_OFFSET = 10; // distance of the paddle from the wall
 
 // ClassicBall params
 const BALL_SPEED = 5;
-const BALLSIZE = 20;
+const BALLSIZE = 10;
 
 export {
   BALL_SPEED,
