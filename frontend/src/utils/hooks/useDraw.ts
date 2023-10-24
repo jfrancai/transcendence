@@ -124,8 +124,8 @@ export function useDraw(): {
     } else if (gameState) {
       drawScore(context);
       drawNet(context);
-      //drawUpperLine(context);
-      //drawLowerLine(context);
+      drawUpperLine(context);
+      drawLowerLine(context);
       drawPaddle(
         context,
         gameState.leftPaddle.x,

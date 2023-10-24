@@ -9,13 +9,13 @@ const CANVA_HEIGHT = 700;
 const PADDLE_SPEED = 8;
 
 const PADDLE_WIDTH = 10;
-const PADDLE_HEIGHT = 200;
+const PADDLE_HEIGHT = 100;
 
-const WALL_OFFSET = 0; // distance of the paddle from the wall
+const WALL_OFFSET = 10; // distance of the paddle from the wall
 
 // ClassicBall params
-const BALL_SPEED = 2;
-const BALLSIZE = 50;
+const BALL_SPEED = 5;
+const BALLSIZE = 20;
 
 export {
   BALL_SPEED,
