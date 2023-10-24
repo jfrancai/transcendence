@@ -9,7 +9,7 @@ import {
 } from '@nestjs/websockets';
 import { Server } from 'socket.io';
 import { PongSocket } from './pong.interface';
-import { PartyClassic } from './party/party';
+import { ClassicParty } from './party/party';
 import { PongService } from './pong.service';
 
 @WebSocketGateway()
@@ -58,7 +58,7 @@ export class PongGateway
 
   @SubscribeMessage('initialState')
   handleInitialState(client: PongSocket) {
-    client.emit('gameState', PartyClassic.getInitGameState());
+    client.emit('gameState', ClassicParty.getInitGameState());
   }
 
   @SubscribeMessage('playerReady')

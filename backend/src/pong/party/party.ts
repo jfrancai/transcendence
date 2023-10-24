@@ -24,13 +24,17 @@ interface PaddleShape extends Position {
   height: number;
 }
 
+interface BallShape extends Position {
+  radius: number;
+}
+
 interface CanvaShape {
   width: number;
   height: number;
 }
 
 interface GameState {
-  ball: Position;
+  ball: BallShape;
   leftPaddle: PaddleShape;
   rightPaddle: PaddleShape;
   canva: CanvaShape;
@@ -39,7 +43,7 @@ interface GameState {
   maxScore: number;
 }
 
-export class PartyClassic extends Game {
+export class ClassicParty extends Game {
   private ball: Ball;
 
   private paddle2: Paddle;
@@ -48,19 +52,11 @@ export class PartyClassic extends Game {
 
   private canva: Canva;
 
-  private io: Server;
-
-  constructor(p1: Player, p2: Player, name: string, io: Server) {
-    super(p1, p2, name);
-    this.io = io;
+  constructor(p1: Player, p2: Player, ball: Ball, name: string, io: Server) {
+    super(p1, p2, name, io);
     this.canva = new Canva(0, 0, CANVA_WIDTH, CANVA_HEIGHT);
 
-    this.ball = new Ball(
-      CANVA_WIDTH / 2 - BALLSIZE / 2,
-      CANVA_HEIGHT / 2 - BALLSIZE / 2,
-      BALLSIZE,
-      BALLSIZE
-    );
+    this.ball = ball;
     this.paddle1 = new Paddle(
       WALL_OFFSET,
       CANVA_HEIGHT / 2 - PADDLE_HEIGHT / 2,
@@ -116,8 +112,9 @@ export class PartyClassic extends Game {
   public static getInitGameState(): GameState {
     return {
       ball: {
-        x: CANVA_WIDTH / 2 - BALLSIZE / 2,
-        y: CANVA_HEIGHT / 2 - BALLSIZE / 2
+        x: CANVA_WIDTH / 2,
+        y: CANVA_HEIGHT / 2,
+        radius: BALLSIZE / 2
       },
       leftPaddle: {
         x: WALL_OFFSET,
@@ -175,7 +172,8 @@ export class PartyClassic extends Game {
       const gameState: GameState = {
         ball: {
           x: this.ball.x,
-          y: this.ball.y
+          y: this.ball.y,
+          radius: this.ball.radius
         },
         rightPaddle: {
           x: this.paddle1.x,

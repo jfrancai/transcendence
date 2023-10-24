@@ -73,7 +73,7 @@ export default function Pong() {
         onClick={handler}
         className={`absolute ${isGameStarted ? 'hidden' : ''} ${
           isGameOver ? 'mt-60' : ''
-        } mb-4 rounded bg-blue-500 px-4 py-2 font-bold text-white hover:bg-blue-600`}
+        } rounded bg-blue-500 px-4 py-2 font-bold text-white hover:bg-blue-600`}
       >
         {hasText}
       </button>

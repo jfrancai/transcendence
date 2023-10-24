@@ -1,3 +1,4 @@
+import { Server } from 'socket.io';
 import { Player } from './player';
 
 export abstract class Game {
@@ -6,6 +7,8 @@ export abstract class Game {
   isStarted: boolean = false;
 
   isOver: boolean = false;
+
+  protected io: Server;
 
   // Player1
   player1: Player;
@@ -17,10 +20,11 @@ export abstract class Game {
 
   public scorePlayer2: number = 0;
 
-  constructor(p1: Player, p2: Player, name: string) {
+  constructor(p1: Player, p2: Player, name: string, io: Server) {
     this.player1 = p1;
     this.player2 = p2;
     this.partyName = name;
+    this.io = io;
   }
 
   abstract movePaddle(
