@@ -2,7 +2,7 @@ import { Server } from 'socket.io';
 import { Injectable } from '@nestjs/common';
 import { PongSocket, RoomName, UserID } from '../pong.interface';
 import { Player } from '../party/player';
-import { ClassicParty } from '../party/classic-party/classic-party';
+import { SpeedParty } from '../party/speed-ball-party/speed-party';
 
 @Injectable()
 export class ClassicWaitingRoom {
@@ -12,7 +12,7 @@ export class ClassicWaitingRoom {
 
   private waitingPlayer: Player | undefined;
 
-  private parties: Map<RoomName | UserID, ClassicParty> = new Map();
+  private parties: Map<RoomName | UserID, SpeedParty> = new Map();
 
   public hasWaitingPlayer() {
     if (this.waitingPlayer) {
@@ -51,7 +51,7 @@ export class ClassicWaitingRoom {
     if (this.waitingPlayer) {
       const player2 = new Player(client, 2);
 
-      const party = new ClassicParty(
+      const party = new SpeedParty(
         this.waitingPlayer,
         player2,
         this.roomName,
