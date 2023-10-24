@@ -1,12 +1,11 @@
-import { Canva } from './canva';
+import { ClassicCanva } from './classic-party/classic-canva';
 import {
   BALLSIZE,
   BALL_SPEED,
   CANVA_HEIGHT,
   CANVA_WIDTH
-} from './classic-game-param';
-import { Game } from './game';
-import { Paddle } from './paddle';
+} from './classic-party/classic-game-param';
+import { Paddle } from './paddle.abstract';
 import { PositionClass } from './position';
 
 export abstract class Ball extends PositionClass {
@@ -27,7 +26,6 @@ export abstract class Ball extends PositionClass {
   abstract updatePosition(
     paddle1: Paddle,
     paddle2: Paddle,
-    canva: Canva,
-    game: Game
+    canva: ClassicCanva
   ): void;
 }

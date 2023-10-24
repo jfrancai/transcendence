@@ -1,12 +1,8 @@
-import {
-  ACCELERATION,
-  BALLSIZE,
-  SPEED_BALL_BALL_SPEED
-} from './classic-game-param';
-import { Ball } from './ball';
-import { Canva } from './canva';
-import { Game } from './game';
-import { Paddle } from './paddle';
+import { Ball } from '../ball.abstract';
+import { Game } from '../game.abstract';
+import { Paddle } from '../paddle.abstract';
+import { PositionClass } from '../position';
+import { ACCELERATION, BALLSIZE, BALL_SPEED } from './speed-ball-game-param';
 
 // This ball can be used inside ClassicParty. It has
 // default behavior and an increasing speed of ACCELERATION on
@@ -15,14 +11,17 @@ import { Paddle } from './paddle';
 export class SpeedBall extends Ball {
   private defaultSpeed: number;
 
-  constructor() {
-    super(BALLSIZE / 2, SPEED_BALL_BALL_SPEED);
-    this.defaultSpeed = SPEED_BALL_BALL_SPEED;
+  private game: Game;
+
+  constructor(game: Game) {
+    super(BALLSIZE / 2, BALL_SPEED);
+    this.game = game;
+    this.defaultSpeed = BALL_SPEED;
     this.dy = Math.random() < 0.5 ? -1 : 1;
     this.dx = Math.random() < 0.5 ? -1 : 1;
   }
 
-  updatePosition(paddle1: Paddle, paddle2: Paddle, canva: Canva, game: Game) {
+  updatePosition(paddle1: Paddle, paddle2: Paddle, canva: PositionClass) {
     // gere la collision des parois hautes et basses
     if (this.y + this.radius >= canva.height || this.y - this.radius <= 0) {
       this.dy = -this.dy;
@@ -37,7 +36,7 @@ export class SpeedBall extends Ball {
         this.speed *= ACCELERATION;
         this.dx = 1;
       } else {
-        game.incScore1();
+        this.game.incScore1();
         this.x = canva.width / 2;
         this.y = canva.height / 2;
         this.speed = this.defaultSpeed;
@@ -53,7 +52,7 @@ export class SpeedBall extends Ball {
         this.speed *= ACCELERATION;
         this.dx = -1;
       } else {
-        game.incScore2();
+        this.game.incScore2();
         this.x = canva.width / 2;
         this.y = canva.height / 2;
         this.speed = this.defaultSpeed;

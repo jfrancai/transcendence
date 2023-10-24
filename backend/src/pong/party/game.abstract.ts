@@ -1,74 +1,53 @@
 import { Server } from 'socket.io';
-import { Canva } from './canva';
+import { Ball } from './ball.abstract';
 import { Player } from './player';
-import { Game } from './game';
-import { Paddle } from './paddle';
-import { Ball } from './ball';
-import {
-  BALLSIZE,
-  CANVA_HEIGHT,
-  CANVA_WIDTH,
-  PADDLE_HEIGHT,
-  PADDLE_WIDTH,
-  VICTORY_POINT,
-  WALL_OFFSET
-} from './classic-game-param';
+import { GameState } from '../pong.interface';
+import { Paddle } from './paddle.abstract';
+import { PositionClass } from './position';
 
-interface Position {
-  x: number;
-  y: number;
-}
+export abstract class Game {
+  protected io: Server;
 
-interface PaddleShape extends Position {
-  width: number;
-  height: number;
-}
+  public partyName: string;
 
-interface BallShape extends Position {
-  radius: number;
-}
+  public isStarted: boolean = false;
 
-interface CanvaShape {
-  width: number;
-  height: number;
-}
+  public isOver: boolean = false;
 
-interface GameState {
-  ball: BallShape;
-  leftPaddle: PaddleShape;
-  rightPaddle: PaddleShape;
-  canva: CanvaShape;
-  scorePlayer1: number;
-  scorePlayer2: number;
-  maxScore: number;
-}
+  public maxScore: number;
 
-export class ClassicParty extends Game {
-  private ball: Ball;
+  // Player1
+  public player1: Player;
 
-  private paddle2: Paddle;
+  public scorePlayer1: number = 0;
 
-  private paddle1: Paddle;
+  // Player2
+  public player2: Player;
 
-  private canva: Canva;
+  public scorePlayer2: number = 0;
 
-  constructor(p1: Player, p2: Player, ball: Ball, name: string, io: Server) {
-    super(p1, p2, name, io);
-    this.canva = new Canva(0, 0, CANVA_WIDTH, CANVA_HEIGHT);
+  // Game element
 
-    this.ball = ball;
-    this.paddle1 = new Paddle(
-      WALL_OFFSET,
-      CANVA_HEIGHT / 2 - PADDLE_HEIGHT / 2,
-      PADDLE_WIDTH,
-      PADDLE_HEIGHT
-    );
-    this.paddle2 = new Paddle(
-      CANVA_WIDTH - (WALL_OFFSET + PADDLE_WIDTH),
-      CANVA_HEIGHT / 2 - PADDLE_HEIGHT / 2,
-      PADDLE_WIDTH,
-      PADDLE_HEIGHT
-    );
+  protected ball: Ball;
+
+  protected paddle2: Paddle;
+
+  protected paddle1: Paddle;
+
+  protected canva: PositionClass;
+
+  constructor(
+    p1: Player,
+    p2: Player,
+    winCondition: number,
+    name: string,
+    io: Server
+  ) {
+    this.player1 = p1;
+    this.player2 = p2;
+    this.partyName = name;
+    this.io = io;
+    this.maxScore = winCondition;
   }
 
   public isPlayer1(playerId: string) {
@@ -109,35 +88,6 @@ export class ClassicParty extends Game {
     }
   }
 
-  public static getInitGameState(): GameState {
-    return {
-      ball: {
-        x: CANVA_WIDTH / 2,
-        y: CANVA_HEIGHT / 2,
-        radius: BALLSIZE / 2
-      },
-      leftPaddle: {
-        x: WALL_OFFSET,
-        y: CANVA_HEIGHT / 2 - PADDLE_HEIGHT / 2,
-        width: PADDLE_WIDTH,
-        height: PADDLE_HEIGHT
-      },
-      rightPaddle: {
-        x: CANVA_WIDTH - (WALL_OFFSET + PADDLE_WIDTH),
-        y: CANVA_HEIGHT / 2 - PADDLE_HEIGHT / 2,
-        width: PADDLE_WIDTH,
-        height: PADDLE_HEIGHT
-      },
-      canva: {
-        width: CANVA_WIDTH,
-        height: CANVA_HEIGHT
-      },
-      scorePlayer1: 0,
-      scorePlayer2: 0,
-      maxScore: VICTORY_POINT
-    };
-  }
-
   public incScore1() {
     this.scorePlayer1 += 1;
   }
@@ -149,12 +99,12 @@ export class ClassicParty extends Game {
   private startGameLoop(clearParty: () => void): void {
     this.isStarted = true;
     const gameInterval = setInterval(() => {
-      this.ball.updatePosition(this.paddle1, this.paddle2, this.canva, this);
+      this.ball.updatePosition(this.paddle1, this.paddle2, this.canva);
       this.paddle1.updatePosition(this.canva);
       this.paddle2.updatePosition(this.canva);
       if (
-        this.scorePlayer1 >= VICTORY_POINT ||
-        this.scorePlayer2 >= VICTORY_POINT
+        this.scorePlayer1 >= this.maxScore ||
+        this.scorePlayer2 >= this.maxScore
       ) {
         this.io.to(this.partyName).emit('gameOver', true);
         clearParty();
@@ -190,7 +140,7 @@ export class ClassicParty extends Game {
         canva: this.canva,
         scorePlayer1: this.scorePlayer1,
         scorePlayer2: this.scorePlayer2,
-        maxScore: VICTORY_POINT
+        maxScore: this.maxScore
       };
       this.io.to(this.partyName).emit('gameState', gameState);
     }, 8);

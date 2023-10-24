@@ -9,8 +9,8 @@ import {
 } from '@nestjs/websockets';
 import { Server } from 'socket.io';
 import { PongSocket } from './pong.interface';
-import { ClassicParty } from './party/party';
 import { PongService } from './pong.service';
+import { ClassicParty } from './party/classic-party/classic-party';
 
 @WebSocketGateway()
 export class PongGateway

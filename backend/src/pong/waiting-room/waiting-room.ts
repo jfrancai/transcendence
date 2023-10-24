@@ -1,9 +1,8 @@
 import { Server } from 'socket.io';
 import { Injectable } from '@nestjs/common';
 import { PongSocket, RoomName, UserID } from '../pong.interface';
-import { ClassicParty } from '../party/party';
 import { Player } from '../party/player';
-import { SpeedBall } from '../party/speed-ball';
+import { ClassicParty } from '../party/classic-party/classic-party';
 
 @Injectable()
 export class ClassicWaitingRoom {
@@ -51,12 +50,10 @@ export class ClassicWaitingRoom {
     client.join(this.roomName);
     if (this.waitingPlayer) {
       const player2 = new Player(client, 2);
-      const ball = new SpeedBall();
 
       const party = new ClassicParty(
         this.waitingPlayer,
         player2,
-        ball,
         this.roomName,
         io
       );

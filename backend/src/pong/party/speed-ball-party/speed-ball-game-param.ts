@@ -1,28 +1,22 @@
-// Default game param
+// Number of point to win a SpeedParty
 const VICTORY_POINT = 5;
 
-// Default canva params
+// Canva params
 const CANVA_WIDTH = 1200;
 const CANVA_HEIGHT = 700;
 
-// Default paddle params
+// Paddle params
 const PADDLE_SPEED = 8;
 
 const PADDLE_WIDTH = 10;
 const PADDLE_HEIGHT = 200;
 
-const WALL_OFFSET = 0;
+const WALL_OFFSET = 0; // distance of the paddle from the wall
 
-// Default ball params
+// SpeedBall params
 const BALL_SPEED = 2;
 const BALLSIZE = 50;
-
-// Classic ball params
-const CLASSIC_BALL_SPEED = BALL_SPEED;
-
-// Speed ball params
 const ACCELERATION = 1.1;
-const SPEED_BALL_BALL_SPEED = BALL_SPEED;
 
 export {
   BALL_SPEED,
@@ -34,7 +28,5 @@ export {
   CANVA_WIDTH,
   PADDLE_SPEED,
   VICTORY_POINT,
-  ACCELERATION,
-  CLASSIC_BALL_SPEED,
-  SPEED_BALL_BALL_SPEED
+  ACCELERATION
 };
