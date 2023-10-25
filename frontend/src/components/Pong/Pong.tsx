@@ -47,7 +47,10 @@ export default function Pong() {
 
   useEffect(() => {
     connectSocket();
-  }, []);
+    return () => {
+      socket.disconnect();
+    };
+  }, [socket]);
 
   useEffect(() => {
     if (isGameOver) {
