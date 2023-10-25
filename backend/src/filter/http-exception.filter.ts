@@ -6,7 +6,6 @@ import {
   Logger
 } from '@nestjs/common';
 import { Request, Response } from 'express';
-import { RedirectionException } from 'src/exception/redirect-execption';
 
 /* eslint class-methods-use-this: 0 */
 
@@ -20,14 +19,6 @@ export class HttpExceptionFilter implements ExceptionFilter {
     const response = ctx.getResponse<Response>();
     const status = exception.getStatus();
 
-    if (
-      status === 403 &&
-      (exception.message === 'Invalid Token as been modified' ||
-        exception.message === 'Missing Token' ||
-        exception.message === 'Invalid Token username dont match')
-    ) {
-      throw new RedirectionException();
-    }
     response.status(status).json({
       statusCode: status,
       message: exception.message,

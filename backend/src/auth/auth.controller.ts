@@ -44,6 +44,11 @@ export class AuthController {
     this.logger.log('AuthController Init...');
   }
 
+  @Get('token')
+  @UseGuards(ApiGuard, JwtAuthGuard)
+  @HttpCode(200)
+  checkToken() {}
+
   @Get('logout')
   @UseGuards(ApiGuard, JwtAuthGuard)
   @HttpCode(200)

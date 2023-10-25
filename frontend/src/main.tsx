@@ -3,7 +3,8 @@ import { createBrowserRouter, RouterProvider } from 'react-router-dom';
 import { action as loginTwoAuthAction } from '@login/loginTwoAuth.action';
 import { action as createAction } from '@login/create.action';
 import { action as loginAction } from '@login/login.action';
-import { loader as twoAuthLoader } from '@login/twoAuth.loader';
+import { loader as loginTwoAuthLoader } from '@login/logintwoAuth.loader';
+import { loader as uploadImageLoader } from '@login/uploadImage.loader';
 import HomePage from '@login/HomePage';
 import LoginForm from '@login/LoginForm';
 import CreateForm from '@login/CreateForm';
@@ -12,9 +13,10 @@ import ErrorPage from '@login/ErrorPage';
 import ErrorValidation from '@login/ErrorValidation';
 import ValidationTwoAuth from '@login/ValidationTwoAuth';
 import UploadImg from '@login/UploadImg';
-import { loader as loaderProfile } from './components/Profile/profile.loader';
-import { action as actionProfile } from './components/Profile/profile.action';
-import { loader as loaderSearchProfile } from './components/Profile/profileSearch.loader';
+import { loader as profileLoader } from './components/Profile/profile.loader';
+import { action as profileAction } from './components/Profile/profile.action';
+import { loader as profileSearchLoader } from './components/Profile/profileSearch.loader';
+import { loader as homeLoader } from './components/Home/home.loader';
 import Pong from './components/Pong/Pong';
 import Profile from './components/Profile/Profile';
 import ProfileSearch from './components/Profile/ProfileSearch';
@@ -37,18 +39,13 @@ const router = createBrowserRouter([
     path: '/2fa-validation',
     element: <ValidationTwoAuth />,
     errorElement: <ErrorValidation />,
-    loader: twoAuthLoader
+    loader: loginTwoAuthLoader
   },
   {
     path: '/login',
     element: <LoginForm />,
     errorElement: <LoginForm />,
     action: loginAction
-  },
-  {
-    path: '/2fa-validation',
-    element: <ValidationTwoAuth />,
-    loader: twoAuthLoader
   },
   {
     path: '/2fa-login',
@@ -59,7 +56,8 @@ const router = createBrowserRouter([
   {
     path: '/upload_img',
     element: <UploadImg />,
-    errorElement: <UploadImg />
+    errorElement: <UploadImg />,
+    loader: uploadImageLoader
   },
   {
     path: '/pong',
@@ -69,18 +67,19 @@ const router = createBrowserRouter([
     path: '/profile',
     element: <Profile />,
     errorElement: <Profile />,
-    loader: loaderProfile,
-    action: actionProfile
+    loader: profileLoader,
+    action: profileAction
   },
   {
     path: '/profile/:username',
     element: <ProfileSearch />,
     errorElement: <ErrorPage />,
-    loader: loaderSearchProfile
+    loader: profileSearchLoader
   },
   {
     path: '/home',
-    element: <Home />
+    element: <Home />,
+    loader: homeLoader
   }
 ]);
 

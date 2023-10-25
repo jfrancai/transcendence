@@ -1,11 +1,11 @@
-import { redirect } from 'react-router-dom';
-import axios, { AxiosResponse, AxiosRequestConfig } from 'axios';
+import axios, { AxiosError, AxiosResponse, AxiosRequestConfig } from 'axios';
 import { CONST_BACKEND_URL } from '@constant';
 
 export async function loader(props: { request: Request }) {
+  let error = false;
   const { request } = props;
   const jwt = localStorage.getItem('jwt');
-  if (!jwt) redirect('/');
+  if (!jwt) return window.location.replace('/');
 
   const path = request.url.substring(request.url.indexOf('/profile'));
   const config: AxiosRequestConfig = {
@@ -19,15 +19,23 @@ export async function loader(props: { request: Request }) {
 
   const result = await axios
     .get(`${CONST_BACKEND_URL}/img/download/${username}`, config)
-    .then((res: AxiosResponse) => res.data);
+    .then((res: AxiosResponse) => res.data)
+    .catch((err: AxiosError) => {
+      if (err) error = true;
+    });
+
+  if (error) return window.location.replace('/');
 
   const fetchUser = await axios
     .post(`${CONST_BACKEND_URL}/user/jwt`, { jwt }, config)
-    .then((res: AxiosResponse) => res.data);
+    .then((res: AxiosResponse) => res.data)
+    .catch((err: AxiosError) => {
+      if (err) error = true;
+    });
 
   const userInfo = {
     ...result,
     userFriendList: fetchUser.friendList
   };
-  return userInfo;
+  return error ? window.location.replace('/') : userInfo;
 }
