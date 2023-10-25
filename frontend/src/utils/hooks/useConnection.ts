@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { Dispatch, SetStateAction, useEffect, useState } from 'react';
 import { useSocketContext } from '../../contexts/socket';
 
 export type Status =
@@ -8,7 +8,10 @@ export type Status =
   | 'partyNotStarted'
   | 'partyEnded';
 
-export function useConnection(): { pongStatus: Status } {
+export function useConnection(): {
+  pongStatus: Status;
+  setPongStatus: Dispatch<SetStateAction<Status>>;
+} {
   const { socket } = useSocketContext();
   const [pongStatus, setPongStatus] = useState<Status>('default');
 
@@ -23,5 +26,5 @@ export function useConnection(): { pongStatus: Status } {
     };
   });
 
-  return { pongStatus };
+  return { pongStatus, setPongStatus };
 }

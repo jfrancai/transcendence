@@ -7,14 +7,18 @@ export interface PartyConstructor<GameType> {
   new (p1: Player, p2: Player, name: string, io: Server): GameType;
 }
 
-export abstract class WaitingRoom {
-  private roomName: string = 'room-0';
+export class WaitingRoom {
+  private roomName: string;
 
   private roomCounter: number = 0;
 
   private waitingPlayer: Player | undefined;
 
   private parties: Map<RoomName | UserID, Game> = new Map();
+
+  constructor(roomName: string) {
+    this.roomName = roomName;
+  }
 
   public hasWaitingPlayer() {
     if (this.waitingPlayer) {

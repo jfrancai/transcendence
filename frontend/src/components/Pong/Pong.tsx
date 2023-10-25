@@ -9,23 +9,24 @@ import { useJoinWaitingRoom } from '../../utils/hooks/useJoinWaitingRoom';
 import { usePlayerReady } from '../../utils/hooks/usePlayersJoinedParty';
 import { useJoinParty } from '../../utils/hooks/useJoinParty';
 import { useGameOver } from '../../utils/hooks/useGameOver';
+import { useConnection } from '../../utils/hooks/useConnection';
 
-export default function Pong() {
+interface GameButtonProps {
+  gameMode: string;
+  handleJoinWaitingRoom: () => void;
+}
+
+export function GameButton({
+  gameMode,
+  handleJoinWaitingRoom
+}: GameButtonProps) {
   const { socket } = useSocketContext();
-  const { drawClassicGame, width, height } = useDraw();
+  const [hasText, setHasText] = useState('Play Classic mode');
   const { isGameOver } = useGameOver();
   const { isGameStarted } = useGameStarted();
   const { isPlayerReady } = usePlayerReady();
   const { hasJoinParty } = useJoinParty();
   const { hasJoinWaitingRoom } = useJoinWaitingRoom();
-  const [hasText, setHasText] = useState('Join waiting-room');
-  usePaddle();
-
-  const handleJoinWaitingRoom = () => {
-    socket.emit('initialState');
-    socket.emit('joinWaitingRoom');
-  };
-
   const handlePlayerReady = () => {
     socket.emit('playerReady');
   };
@@ -34,7 +35,7 @@ export default function Pong() {
     socket.emit('playAgain');
   };
 
-  const handler = () => {
+  const classicHandler = () => {
     if (isGameOver) {
       handlePlayAgain();
     }
@@ -44,13 +45,6 @@ export default function Pong() {
       handleJoinWaitingRoom();
     }
   };
-
-  useEffect(() => {
-    connectSocket();
-    return () => {
-      socket.disconnect();
-    };
-  }, [socket]);
 
   useEffect(() => {
     if (isGameOver) {
@@ -65,21 +59,68 @@ export default function Pong() {
         }
       }
     } else {
-      setHasText('Join waiting-room');
+      setHasText(`Play ${gameMode} mode`);
     }
-  }, [hasJoinWaitingRoom, isPlayerReady, hasJoinParty, isGameOver]);
+  }, [gameMode, hasJoinWaitingRoom, isPlayerReady, hasJoinParty, isGameOver]);
+
+  return (
+    <button
+      type="button"
+      onClick={classicHandler}
+      className={`${isGameStarted ? 'hidden' : ''} ${
+        isGameOver ? 'mt-60' : ''
+      } rounded bg-blue-500 px-4 py-2 font-bold text-white hover:bg-blue-600`}
+    >
+      {hasText}
+    </button>
+  );
+}
+
+export function Buttons() {
+  const { socket } = useSocketContext();
+  const { pongStatus, setPongStatus } = useConnection();
+  const handleJoinClassicWaitingRoom = () => {
+    socket.emit('initialState');
+    socket.emit('joinClassicWaitingRoom');
+    setPongStatus('waitingRoom');
+  };
+
+  const handleJoinSpeedWaitingRoom = () => {
+    socket.emit('initialState');
+    socket.emit('joinSpeedWaitingRoom');
+    setPongStatus('waitingRoom');
+  };
+  return (
+    <div className="absolute flex flex-col gap-5">
+      {pongStatus === 'default' && (
+        <GameButton
+          gameMode="classic"
+          handleJoinWaitingRoom={handleJoinClassicWaitingRoom}
+        />
+      )}
+      <GameButton
+        gameMode="speed"
+        handleJoinWaitingRoom={handleJoinSpeedWaitingRoom}
+      />
+    </div>
+  );
+}
+
+export default function Pong() {
+  const { socket } = useSocketContext();
+  const { drawClassicGame, width, height } = useDraw();
+  usePaddle();
+
+  useEffect(() => {
+    connectSocket();
+    return () => {
+      socket.disconnect();
+    };
+  }, [socket]);
 
   return (
     <div className="flex h-screen items-center justify-center bg-[url('./images/background.png')] bg-cover">
-      <button
-        type="button"
-        onClick={handler}
-        className={`absolute ${isGameStarted ? 'hidden' : ''} ${
-          isGameOver ? 'mt-60' : ''
-        } rounded bg-blue-500 px-4 py-2 font-bold text-white hover:bg-blue-600`}
-      >
-        {hasText}
-      </button>
+      <Buttons />
       <Canvas
         draw={drawClassicGame}
         className="flex items-center rounded-lg shadow-lg"

@@ -9,40 +9,70 @@ import { SpeedParty } from './party/speed-ball-party/speed-party';
 export class PongService {
   private rooms: Map<UserID, WaitingRoom> = new Map();
 
-  constructor(
-    private classicWaitingRoom: WaitingRoom,
-    private speedWaitingRoom: WaitingRoom
-  ) {}
+  private speedWaitingRoom: WaitingRoom = new WaitingRoom('speed');
+
+  private classicWaitingRoom: WaitingRoom = new WaitingRoom('classic');
 
   handleConnection(client: PongSocket): any {
     this.classicWaitingRoom.handleConnection(client);
+    const room = this.rooms.get(client.user.id!);
+    if (room) room.handleConnection(client);
+    else {
+      client.emit('connection', 'default');
+    }
   }
 
-  handleJoinWaitingRoom(client: PongSocket, io: Server) {
-    this.classicWaitingRoom.handleJoinWaitingRoom(client, io, ClassicParty);
+  handleJoinWaitingRoom(
+    client: PongSocket,
+    io: Server,
+    type: 'classic' | 'speed'
+  ) {
+    if (type === 'classic') {
+      this.classicWaitingRoom.handleJoinWaitingRoom(client, io, ClassicParty);
+      this.rooms.set(client.user.id!, this.classicWaitingRoom);
+    } else {
+      this.speedWaitingRoom.handleJoinWaitingRoom(client, io, SpeedParty);
+      this.rooms.set(client.user.id!, this.speedWaitingRoom);
+    }
   }
 
   handleLeaveWaitingRoom(client: PongSocket) {
-    this.classicWaitingRoom.handleLeaveWaitingRoom(client);
+    const room = this.rooms.get(client.user.id!);
+    if (room) room.handleLeaveWaitingRoom(client);
   }
 
   handleRole(client: PongSocket) {
-    this.classicWaitingRoom.handleRole(client);
+    const room = this.rooms.get(client.user.id!);
+    if (room) {
+      room.handleRole(client);
+    }
   }
 
   handleIsPlayerReady(client: PongSocket) {
-    this.classicWaitingRoom.handleIsPlayerReady(client);
+    const room = this.rooms.get(client.user.id!);
+    if (room) {
+      room.handleIsPlayerReady(client);
+    }
   }
 
   handlePlayerReady(client: PongSocket) {
-    this.classicWaitingRoom.handlePlayerReady(client);
+    const room = this.rooms.get(client.user.id!);
+    if (room) {
+      room.handlePlayerReady(client);
+    }
   }
 
   handleArrowUp(client: PongSocket, isPressed: boolean) {
-    this.classicWaitingRoom.handleArrowUp(client, isPressed);
+    const room = this.rooms.get(client.user.id!);
+    if (room) {
+      room.handleArrowUp(client, isPressed);
+    }
   }
 
   handleArrowDown(client: PongSocket, isPressed: boolean) {
-    this.classicWaitingRoom.handleArrowDown(client, isPressed);
+    const room = this.rooms.get(client.user.id!);
+    if (room) {
+      room.handleArrowDown(client, isPressed);
+    }
   }
 }
