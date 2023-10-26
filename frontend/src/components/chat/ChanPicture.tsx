@@ -27,7 +27,7 @@ export function ChanPicture({ size = 'xl', select = false, chanID }: Props) {
       if (!chanID) return;
       const jwt = localStorage.getItem('jwt');
       axios
-        .get(`${CONST_BACKEND_URL}/img/download/${id}`, {
+        .get(`${CONST_BACKEND_URL}/img/download_channel/${id}`, {
           withCredentials: true,
           headers: { Authorization: `Bearer ${jwt!}` }
         })

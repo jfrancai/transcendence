@@ -64,17 +64,27 @@ const router = createBrowserRouter([
   {
     path: '/pong',
     element: (
-      <>
-        <SocketContextProvider>
-          <Pong />
-        </SocketContextProvider>
-        <Chat />
-      </>
-    )
+      <SocketContextProvider>
+        <Pong />
+      </SocketContextProvider>
+    ),
+    errorElement: <ErrorPage />,
+    children: [
+      {
+        path: '',
+        element: <Chat />
+      }
+    ]
   },
   {
     path: '/profile',
     element: <Profile />,
+    children: [
+      {
+        path: '',
+        element: <Chat />
+      }
+    ],
     errorElement: <Profile />,
     loader: profileLoader,
     action: profileAction
@@ -82,6 +92,12 @@ const router = createBrowserRouter([
   {
     path: '/profile/:username',
     element: <ProfileSearch />,
+    children: [
+      {
+        path: '',
+        element: <Chat />
+      }
+    ],
     errorElement: <ErrorPage />,
     loader: profileSearchLoader
   },

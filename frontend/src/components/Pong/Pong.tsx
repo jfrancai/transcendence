@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import { Outlet } from 'react-router-dom';
 import { useSocketContext } from '../../contexts/socket';
 import { connectSocket } from '../../utils/functions/socket';
 import { useDraw } from '../../utils/hooks/useDraw';
@@ -67,22 +68,25 @@ export default function Pong() {
   }, [hasJoinWaitingRoom, isPlayerReady, hasJoinParty, isGameOver]);
 
   return (
-    <div className="flex h-screen items-center justify-center bg-[url('./images/background.png')] bg-cover">
-      <button
-        type="button"
-        onClick={handler}
-        className={`absolute ${isGameStarted ? 'hidden' : ''} ${
-          isGameOver ? 'mt-60' : ''
-        } mb-4 rounded bg-blue-500 px-4 py-2 font-bold text-white hover:bg-blue-600`}
-      >
-        {hasText}
-      </button>
-      <Canvas
-        draw={drawClassicGame}
-        className="flex items-center rounded-lg shadow-lg"
-        width={width}
-        height={height}
-      />
-    </div>
+    <>
+      <div className="flex h-screen items-center justify-center bg-[url('./images/background.png')] bg-cover">
+        <button
+          type="button"
+          onClick={handler}
+          className={`absolute ${isGameStarted ? 'hidden' : ''} ${
+            isGameOver ? 'mt-60' : ''
+          } mb-4 rounded bg-blue-500 px-4 py-2 font-bold text-white hover:bg-blue-600`}
+        >
+          {hasText}
+        </button>
+        <Canvas
+          draw={drawClassicGame}
+          className="flex items-center rounded-lg shadow-lg"
+          width={width}
+          height={height}
+        />
+      </div>
+      <Outlet />
+    </>
   );
 }
