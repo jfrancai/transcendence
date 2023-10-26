@@ -70,7 +70,12 @@ export class PongGateway
 
   @SubscribeMessage('playerReady')
   handlePlayerReady(client: PongSocket) {
-    this.pongService.handlePlayerReady(client);
+    this.pongService.handlePlayerReady(client, true);
+  }
+
+  @SubscribeMessage('playerNotReady')
+  handlePlayerNotReady(client: PongSocket) {
+    this.pongService.handlePlayerReady(client, false);
   }
 
   @SubscribeMessage('isPlayerReady')

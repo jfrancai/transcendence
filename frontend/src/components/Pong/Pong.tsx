@@ -5,11 +5,18 @@ import { useDraw } from '../../utils/hooks/useDraw';
 import { useGameStarted } from '../../utils/hooks/useStartGame';
 import { usePaddle } from '../../utils/hooks/usePaddle';
 import { Canvas } from './Canvas';
-import { useJoinWaitingRoom } from '../../utils/hooks/useJoinWaitingRoom';
 import { usePlayerReady } from '../../utils/hooks/usePlayersJoinedParty';
 import { useJoinParty } from '../../utils/hooks/useJoinParty';
 import { useGameOver } from '../../utils/hooks/useGameOver';
-import { useConnection } from '../../utils/hooks/useConnection';
+import {
+  PongStateContextProvider,
+  usePongStateContext
+} from '../../contexts/pongState';
+import { WaitingButton } from './WaitingButton';
+import { ModeButtons } from './ModeButton';
+import { BluePongButton } from './PongButton';
+import { PongDiv } from './PongDiv';
+import RenderIf from '../chat/RenderIf/RenderIf';
 
 interface GameButtonProps {
   gameMode: string;
@@ -21,12 +28,8 @@ export function GameButton({
   handleJoinWaitingRoom
 }: GameButtonProps) {
   const { socket } = useSocketContext();
-  const [hasText, setHasText] = useState('Play Classic mode');
   const { isGameOver } = useGameOver();
   const { isGameStarted } = useGameStarted();
-  const { isPlayerReady } = usePlayerReady();
-  const { hasJoinParty } = useJoinParty();
-  const { hasJoinWaitingRoom } = useJoinWaitingRoom();
   const handlePlayerReady = () => {
     socket.emit('playerReady');
   };
@@ -39,7 +42,7 @@ export function GameButton({
     if (isGameOver) {
       handlePlayAgain();
     }
-    if (hasJoinWaitingRoom || hasJoinParty) {
+    if (hasJoinParty) {
       handlePlayerReady();
     } else {
       handleJoinWaitingRoom();
@@ -49,7 +52,7 @@ export function GameButton({
   useEffect(() => {
     if (isGameOver) {
       setHasText('Play again !');
-    } else if (hasJoinWaitingRoom || hasJoinParty) {
+    } else if (hasJoinParty) {
       setHasText('Waiting...');
       if (hasJoinParty) {
         if (isPlayerReady) {
@@ -61,7 +64,7 @@ export function GameButton({
     } else {
       setHasText(`Play ${gameMode} mode`);
     }
-  }, [gameMode, hasJoinWaitingRoom, isPlayerReady, hasJoinParty, isGameOver]);
+  }, [gameMode, isPlayerReady, hasJoinParty, isGameOver]);
 
   return (
     <button
@@ -76,37 +79,27 @@ export function GameButton({
   );
 }
 
-export function Buttons() {
-  const { socket } = useSocketContext();
-  const { pongStatus, setPongStatus } = useConnection();
-  const handleJoinClassicWaitingRoom = () => {
-    socket.emit('initialState');
-    socket.emit('joinClassicWaitingRoom');
-    setPongStatus('waitingRoom');
-  };
+export function ReadyButton() {
+  const { isPlayerReady } = usePlayerReady();
+  const {
+    SET_READY,
+    SET_NOTREADY,
+    isClassicModePartyLobby,
+    isSpeedModePartyLobby
+  } = usePongStateContext();
 
-  const handleJoinSpeedWaitingRoom = () => {
-    socket.emit('initialState');
-    socket.emit('joinSpeedWaitingRoom');
-    setPongStatus('waitingRoom');
-  };
   return (
-    <div className="absolute flex flex-col gap-5">
-      {pongStatus === 'default' && (
-        <GameButton
-          gameMode="classic"
-          handleJoinWaitingRoom={handleJoinClassicWaitingRoom}
-        />
-      )}
-      <GameButton
-        gameMode="speed"
-        handleJoinWaitingRoom={handleJoinSpeedWaitingRoom}
-      />
-    </div>
+    <RenderIf some={[isClassicModePartyLobby, isSpeedModePartyLobby]}>
+      <PongDiv>
+        <BluePongButton onClick={isPlayerReady ? SET_NOTREADY : SET_READY}>
+          {isPlayerReady ? 'Ready' : 'Not Ready'}
+        </BluePongButton>
+      </PongDiv>
+    </RenderIf>
   );
 }
 
-export default function Pong() {
+export function WrappedPong() {
   const { socket } = useSocketContext();
   const { drawClassicGame, width, height } = useDraw();
   usePaddle();
@@ -120,7 +113,9 @@ export default function Pong() {
 
   return (
     <div className="flex h-screen items-center justify-center bg-[url('./images/background.png')] bg-cover">
-      <Buttons />
+      <ModeButtons />
+      <WaitingButton />
+      <ReadyButton />
       <Canvas
         draw={drawClassicGame}
         className="flex items-center rounded-lg shadow-lg"
@@ -128,5 +123,13 @@ export default function Pong() {
         height={height}
       />
     </div>
+  );
+}
+
+export default function Pong() {
+  return (
+    <PongStateContextProvider>
+      <WrappedPong />
+    </PongStateContextProvider>
   );
 }

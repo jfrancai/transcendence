@@ -61,12 +61,12 @@ export abstract class Game {
     return this.player2.isReady;
   }
 
-  public togglePlayerReady(playerId: string) {
+  public togglePlayerReady(playerId: string, isReady: boolean) {
     if (playerId === this.player1.socket.user.id) {
-      this.player1.isReady = !this.player1.isReady;
+      this.player1.isReady = isReady;
       return this.player1.isReady;
     }
-    this.player2.isReady = !this.player2.isReady;
+    this.player2.isReady = isReady;
     return this.player2.isReady;
   }
 

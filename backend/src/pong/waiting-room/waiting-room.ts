@@ -147,12 +147,12 @@ export class WaitingRoom {
     client.emit('isPlayerReady', ready);
   }
 
-  handlePlayerReady(client: PongSocket) {
+  handlePlayerReady(client: PongSocket, isReady: boolean) {
     const clientID = client.user.id!;
     const party = this.getParty(clientID);
     let ready = false;
     if (party) {
-      ready = party.togglePlayerReady(clientID);
+      ready = party.togglePlayerReady(clientID, isReady);
       party.startParty(() => {
         this.removeParty(party.partyName);
         this.removeParty(party.player2.id);
