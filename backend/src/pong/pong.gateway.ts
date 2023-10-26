@@ -32,14 +32,15 @@ export class PongGateway
   }
 
   handleDisconnect(client: PongSocket): any {
+    this.pongService.handlePlayerReady(client, false);
     this.pongService.handleLeaveWaitingRoom(client);
     this.logger.debug(`Disconnected : ${client.user.id}`);
   }
 
   @SubscribeMessage('leaveWaitingRoom')
   handleLeaveWaitingRoom(client: PongSocket) {
-    this.pongService.handleLeaveWaitingRoom(client);
     this.pongService.handlePlayerReady(client, false);
+    this.pongService.handleLeaveWaitingRoom(client);
   }
 
   @SubscribeMessage('joinClassicWaitingRoom')

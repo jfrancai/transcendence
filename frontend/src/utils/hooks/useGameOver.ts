@@ -1,21 +1,16 @@
-import { useEffect, useState } from 'react';
+import { useEffect } from 'react';
+import { usePongStateContext } from '../../contexts/pongState';
 import { useSocketContext } from '../../contexts/socket';
 
-export function useGameOver(): { isGameOver: boolean } {
+export function useGameOver() {
   const { socket } = useSocketContext();
-  const [isGameOver, setIsGameOver] = useState(false);
+  const { END_MATCH } = usePongStateContext();
 
   useEffect(() => {
-    const onGameOver = () => {
-      setIsGameOver(true);
-    };
-
-    socket.on('gameOver', onGameOver);
+    socket.on('gameOver', END_MATCH);
 
     return () => {
-      socket.off('gameOver', onGameOver);
+      socket.off('gameOver', END_MATCH);
     };
-  }, [socket]);
-
-  return { isGameOver };
+  }, [socket, END_MATCH]);
 }

@@ -17,6 +17,7 @@ import RenderIf from '../chat/RenderIf/RenderIf';
 import { useConnection } from '../../utils/hooks/useConnection';
 import { useGameStarted } from '../../utils/hooks/useStartGame';
 import { useJoinParty } from '../../utils/hooks/useJoinParty';
+import { useGameOver } from '../../utils/hooks/useGameOver';
 
 export function ReadyButton() {
   const { socket } = useSocketContext();
@@ -47,6 +48,7 @@ export function WrappedPong() {
   const { drawClassicGame, width, height } = useDraw();
   const { pongStatus } = useConnection();
   const { send } = usePongStateContext();
+  useGameOver();
   useJoinParty();
   useGameStarted();
   usePaddle();

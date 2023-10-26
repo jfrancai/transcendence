@@ -80,6 +80,7 @@ export const pongMachine = createMachine(
       },
       'Classic Mode Party Lobby': {
         initial: 'Not Ready',
+        entry: ['getInitialState'],
         states: {
           'Not Ready': {
             on: {
@@ -131,6 +132,7 @@ export const pongMachine = createMachine(
       },
       'Speed Mode Party Lobby': {
         initial: 'Not Ready',
+        entry: ['getInitialState'],
         states: {
           'Not Ready': {
             on: {

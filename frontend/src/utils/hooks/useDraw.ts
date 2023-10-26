@@ -1,4 +1,4 @@
-import { useGameOver } from './useGameOver';
+import { usePongStateContext } from '../../contexts/pongState';
 import { useGameState } from './useGameState';
 
 export function useDraw(): {
@@ -7,7 +7,7 @@ export function useDraw(): {
   height: number;
 } {
   const { gameState } = useGameState();
-  const { isGameOver } = useGameOver();
+  const { isSpeedModeMatchEnd, isClassicMatchModeEnd } = usePongStateContext();
 
   // dessine ligne poitillee au centre
   const drawNet = (context: CanvasRenderingContext2D) => {
@@ -115,7 +115,7 @@ export function useDraw(): {
 
   const drawClassicGame = (context: CanvasRenderingContext2D) => {
     resetCanvas(context);
-    if (gameState && isGameOver) {
+    if (gameState && (isClassicMatchModeEnd || isSpeedModeMatchEnd)) {
       if (gameState.scorePlayer1 >= gameState.maxScore) {
         drawGameOverMessage(context, 'Player 1 Wins');
       } else {
