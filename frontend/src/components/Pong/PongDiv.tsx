@@ -5,5 +5,9 @@ interface PongDivProps {
 }
 
 export function PongDiv({ children }: PongDivProps) {
-  return <div className="absolute flex flex-col gap-5">{children}</div>;
+  return (
+    <div className="absolute flex flex-col items-center justify-center gap-5">
+      {children}
+    </div>
+  );
 }

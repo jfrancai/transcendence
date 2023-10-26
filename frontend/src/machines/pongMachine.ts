@@ -8,29 +8,14 @@ export const pongMachine = createMachine(
     initial: 'Choosing Mode',
     states: {
       'Choosing Mode': {
-        entry: ['handleInitialState'],
         on: {
           CLASSIC_MODE: {
             target: 'Classic Mode Waiting Room',
-            actions: [
-              {
-                type: 'joinClassicWaitingRoom'
-              },
-              {
-                type: 'getInitialState'
-              }
-            ]
+            actions: ['joinClassicWaitingRoom', 'getInitialState']
           },
           SPEED_MODE: {
             target: 'Speed Mode Waiting Room',
-            actions: [
-              {
-                type: 'joinSpeedWaitingRoom'
-              },
-              {
-                type: 'getInitialState'
-              }
-            ]
+            actions: ['joinSpeedWaitingRoom', 'getInitialState']
           },
           SPEED_INIT_READY: {
             target: '#Pong Game.Speed Mode Party Lobby.Not Ready'
@@ -121,7 +106,8 @@ export const pongMachine = createMachine(
           'Classic Mode Match End': {
             on: {
               PLAY_AGAIN: {
-                target: '#Pong Game.Classic Mode Waiting Room'
+                target: '#Pong Game.Classic Mode Waiting Room',
+                actions: ['joinClassicWaitingRoom', 'getInitialState']
               },
               CHANGE_MODE: {
                 target: '#Pong Game.Choosing Mode'
@@ -173,10 +159,12 @@ export const pongMachine = createMachine(
           'Speed Mode Match End': {
             on: {
               CHANGE_MODE: {
-                target: '#Pong Game.Choosing Mode'
+                target: '#Pong Game.Choosing Mode',
+                actions: ['getInitialState']
               },
               PLAY_AGAIN: {
-                target: '#Pong Game.Speed Mode Waiting Room'
+                target: '#Pong Game.Speed Mode Waiting Room',
+                actions: ['joinSpeedWaitingRoom', 'getInitialState']
               }
             }
           }
@@ -207,7 +195,6 @@ export const pongMachine = createMachine(
   },
   {
     actions: {
-      raiseClassicInitReady: raise('CLASSIC_INIT_READY'),
       joinClassicWaitingRoom: () => {
         socket.emit('joinClassicWaitingRoom');
       },
@@ -226,9 +213,6 @@ export const pongMachine = createMachine(
       setReady: () => {
         socket.emit('playerReady');
       }
-    },
-    services: {},
-    guards: {},
-    delays: {}
+    }
   }
 );

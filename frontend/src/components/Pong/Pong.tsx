@@ -5,58 +5,25 @@ import { useDraw } from '../../utils/hooks/useDraw';
 import { usePaddle } from '../../utils/hooks/usePaddle';
 import { Canvas } from './Canvas';
 import { usePlayerReady } from '../../utils/hooks/usePlayersJoinedParty';
-import {
-  PongStateContextProvider,
-  usePongStateContext
-} from '../../contexts/pongState';
+import { PongStateContextProvider } from '../../contexts/pongState';
 import { WaitingButton } from './WaitingButton';
 import { ModeButtons } from './ModeButton';
-import { BluePongButton } from './PongButton';
-import { PongDiv } from './PongDiv';
-import RenderIf from '../chat/RenderIf/RenderIf';
-import { useConnection } from '../../utils/hooks/useConnection';
 import { useGameStarted } from '../../utils/hooks/useStartGame';
 import { useJoinParty } from '../../utils/hooks/useJoinParty';
 import { useGameOver } from '../../utils/hooks/useGameOver';
-
-export function ReadyButton() {
-  const { socket } = useSocketContext();
-  const { isSpeedNotReady, isClassicNotReady, isClassicReady, isSpeedReady } =
-    usePongStateContext();
-
-  return (
-    <RenderIf
-      some={[isSpeedReady, isClassicReady, isClassicNotReady, isSpeedNotReady]}
-    >
-      <PongDiv>
-        <BluePongButton
-          onClick={
-            isSpeedReady || isClassicReady
-              ? () => socket.emit('playerNotReady')
-              : () => socket.emit('playerReady')
-          }
-        >
-          {isSpeedReady || isClassicReady ? 'Ready' : 'Not Ready'}
-        </BluePongButton>
-      </PongDiv>
-    </RenderIf>
-  );
-}
+import { ReadyButton } from './ReadyButton';
+import { PlayAgainButton } from './PlayAgainButton';
+import { useConnection } from '../../utils/hooks/useConnection';
 
 export function WrappedPong() {
   const { socket } = useSocketContext();
   const { drawClassicGame, width, height } = useDraw();
-  const { pongStatus } = useConnection();
-  const { send } = usePongStateContext();
   useGameOver();
   useJoinParty();
   useGameStarted();
   usePaddle();
   usePlayerReady();
-
-  useEffect(() => {
-    send(pongStatus);
-  }, [send, pongStatus]);
+  useConnection();
 
   useEffect(() => {
     connectSocket();
@@ -70,6 +37,7 @@ export function WrappedPong() {
       <ModeButtons />
       <WaitingButton />
       <ReadyButton />
+      <PlayAgainButton />
       <Canvas
         draw={drawClassicGame}
         className="flex items-center rounded-lg shadow-lg"

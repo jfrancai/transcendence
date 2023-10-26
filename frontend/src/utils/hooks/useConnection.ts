@@ -1,5 +1,6 @@
-import { useEffect, useState } from 'react';
+import { useEffect } from 'react';
 import { useSocketContext } from '../../contexts/socket';
+import { usePongStateContext } from '../../contexts/pongState';
 
 export type Status =
   | 'CLASSIC_INIT_READY'
@@ -12,15 +13,14 @@ export type Status =
   | 'SPEED_INIT_MATCH'
   | 'SPEED_MODE';
 
-export function useConnection(): {
-  pongStatus: Status;
-} {
+export function useConnection() {
   const { socket } = useSocketContext();
-  const [pongStatus, setPongStatus] = useState<Status>('default');
+  const { send } = usePongStateContext();
 
   useEffect(() => {
     const onConnection = (status: Status) => {
-      setPongStatus(status);
+      console.log('HERER', status);
+      send(status);
     };
 
     socket.on('connection', onConnection);
@@ -28,6 +28,4 @@ export function useConnection(): {
       socket.off('connection', onConnection);
     };
   });
-
-  return { pongStatus };
 }
