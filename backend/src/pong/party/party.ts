@@ -50,9 +50,12 @@ export class PartyClassic extends Game {
 
   private io: Server;
 
+  public playerWon: number;
+
   constructor(p1: Player, p2: Player, name: string, io: Server) {
     super(p1, p2, name);
     this.io = io;
+    this.playerWon = 0;
     this.canva = new Canva(0, 0, CANVA_WIDTH, CANVA_HEIGHT);
 
     this.ball = new Ball(
@@ -160,6 +163,7 @@ export class PartyClassic extends Game {
         this.scorePlayer2 >= VICTORY_POINT
       ) {
         this.io.to(this.partyName).emit('gameOver', true);
+        this.playerWon = this.scorePlayer1 >= VICTORY_POINT ? 1 : 2;
         clearParty();
         this.isOver = true;
         clearInterval(gameInterval);

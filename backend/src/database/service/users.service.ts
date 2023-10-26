@@ -238,4 +238,48 @@ export class UsersService {
       return null;
     }
   }
+
+  async addMatchHistory(id: string, match: string) {
+    try {
+      const user = await this.prisma.users.findUnique({
+        where: {
+          id
+        }
+      });
+
+      if (!user) return null;
+
+      let max = 0;
+      let [_rsM, _opId, oldestTimestamp] = match.split('|'); // eslint-disable-line
+
+      if (user.matchHistory.length >= 10) {
+        for (let i: number = 0; i < user.matchHistory.length; i += 1) {
+          // eslint-disable-next-line
+          const [_resultOfMatch, _opponentId, timestamp] =
+            user.matchHistory[i].split('|');
+
+          if (oldestTimestamp > timestamp) {
+            oldestTimestamp = timestamp;
+            max = i;
+          }
+        }
+
+        user.matchHistory[max] = match;
+      } else {
+        user.matchHistory.push(match);
+      }
+
+      return await this.prisma.users.update({
+        where: {
+          id
+        },
+        data: {
+          matchHistory: user.matchHistory
+        }
+      });
+    } catch (e: any) {
+      this.logger.warn(e);
+      return null;
+    }
+  }
 }
