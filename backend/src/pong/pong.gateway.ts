@@ -39,6 +39,7 @@ export class PongGateway
   @SubscribeMessage('leaveWaitingRoom')
   handleLeaveWaitingRoom(client: PongSocket) {
     this.pongService.handleLeaveWaitingRoom(client);
+    this.pongService.handlePlayerReady(client, false);
   }
 
   @SubscribeMessage('joinClassicWaitingRoom')

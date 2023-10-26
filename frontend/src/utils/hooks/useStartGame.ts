@@ -1,37 +1,16 @@
-import { useEffect, useState } from 'react';
+import { useEffect } from 'react';
 import { useSocketContext } from '../../contexts/socket';
-import { useGameOver } from './useGameOver';
-import { useConnection } from './useConnection';
+import { usePongStateContext } from '../../contexts/pongState';
 
-export function useGameStarted(): { isGameStarted: boolean } {
+export function useGameStarted() {
   const { socket } = useSocketContext();
-  const [isGameStarted, setIsGameStarted] = useState(false);
-  const { isGameOver } = useGameOver();
-  const { pongStatus } = useConnection();
+  const { START_MATCH } = usePongStateContext();
 
   useEffect(() => {
-    if (pongStatus === 'partyStarted') {
-      setIsGameStarted(true);
-    } else {
-      setIsGameStarted(false);
-    }
-  }, [pongStatus]);
-
-  useEffect(() => {
-    if (isGameOver) {
-      setIsGameStarted(false);
-    }
-  }, [isGameOver]);
-
-  useEffect(() => {
-    const onStartGame = () => {
-      setIsGameStarted(true);
-    };
-    socket.on('startGame', onStartGame);
+    socket.on('startGame', START_MATCH);
 
     return () => {
-      socket.off('startGame', onStartGame);
+      socket.off('startGame', START_MATCH);
     };
-  }, [socket]);
-  return { isGameStarted };
+  }, [socket, START_MATCH]);
 }

@@ -1,5 +1,11 @@
 import { useMachine } from '@xstate/react';
-import { ReactNode, createContext, useContext, useMemo } from 'react';
+import {
+  ReactNode,
+  createContext,
+  useContext,
+  useEffect,
+  useMemo
+} from 'react';
 import { pongMachine } from '../machines/pongMachine';
 
 interface PongState {
@@ -7,8 +13,10 @@ interface PongState {
   isClassicModeWaitingRoom: boolean;
   isSpeedModeWaitingRoom: boolean;
   isClassicModePartyLobby: boolean;
-  isReady: boolean;
-  isNotReady: boolean;
+  isClassicReady: boolean;
+  isClassicNotReady: boolean;
+  isSpeedReady: boolean;
+  isSpeedNotReady: boolean;
   isClassicMatchMode: boolean;
   isClassicMatchModeEnd: boolean;
   isSpeedModePartyLobby: boolean;
@@ -23,6 +31,7 @@ interface PongState {
   CHANGE_MODE: () => void;
   PLAY_AGAIN: () => void;
   SPEED_MODE: () => void;
+  send: (arg: any) => void;
 }
 
 const PongStateContext = createContext<PongState | null>(null);
@@ -35,19 +44,37 @@ export function PongStateContextProvider({
   children
 }: PongStateContextProviderProps) {
   const [state, send] = useMachine(pongMachine);
+  useEffect(() => {
+    console.log('Current State : ', state.value);
+  }, [state]);
+
   const stateProviderValue = useMemo(
     (): PongState => ({
       isChoosingMode: state.matches('Choosing Mode'),
       isClassicModeWaitingRoom: state.matches('Classic Mode Waiting Room'),
       isSpeedModeWaitingRoom: state.matches('Speed Mode Waiting Room'),
-      isClassicModePartyLobby: state.matches('Classic Mode Party Lobby'),
-      isReady: state.matches('Ready'),
-      isNotReady: state.matches('Not Ready'),
-      isClassicMatchMode: state.matches('Classic Mode Match'),
-      isClassicMatchModeEnd: state.matches('Classic Mode Match End'),
+      isClassicModePartyLobby: state.matches({
+        'Classic Mode Party Lobby': 'Classic Mode Party Lobby'
+      }),
+      isClassicReady: state.matches({ 'Classic Mode Party Lobby': 'Ready' }),
+      isClassicNotReady: state.matches({
+        'Classic Mode Party Lobby': 'Not Ready'
+      }),
+      isSpeedReady: state.matches({ 'Speed Mode Party Lobby': 'Ready' }),
+      isSpeedNotReady: state.matches({ 'Speed Mode Party Lobby': 'Not Ready' }),
+      isClassicMatchMode: state.matches({
+        'Classic Mode Party Lobby': 'Classic Mode Match'
+      }),
+      isClassicMatchModeEnd: state.matches({
+        'Classic Mode Party Lobby': 'Classic Mode Match End'
+      }),
       isSpeedModePartyLobby: state.matches('Speed Mode Party Lobby'),
-      isSpeedModeMatch: state.matches('Speed Mode Match'),
-      isSpeedModeMatchEnd: state.matches('Speed Mode Match End'),
+      isSpeedModeMatch: state.matches({
+        'Speed Mode Party Lobby': 'Speed Mode Match'
+      }),
+      isSpeedModeMatchEnd: state.matches({
+        'Speed Mode Party Lobby': 'Speed Mode Match End'
+      }),
       CLASSIC_MODE: () => send('CLASSIC_MODE'),
       JOIN_PARTY_LOBBY: () => send('JOIN_PARTY_LOBBY'),
       SET_READY: () => send('SET_READY'),
@@ -56,7 +83,8 @@ export function PongStateContextProvider({
       END_MATCH: () => send('END_MATCH'),
       CHANGE_MODE: () => send('CHANGE_MODE'),
       PLAY_AGAIN: () => send('PLAY_AGAIN'),
-      SPEED_MODE: () => send('SPEED_MODE')
+      SPEED_MODE: () => send('SPEED_MODE'),
+      send: (arg: any) => send(arg)
     }),
     [state, send]
   );

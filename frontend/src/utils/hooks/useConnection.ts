@@ -1,16 +1,19 @@
-import { Dispatch, SetStateAction, useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useSocketContext } from '../../contexts/socket';
 
 export type Status =
+  | 'CLASSIC_INIT_READY'
+  | 'CLASSIC_INIT_END'
+  | 'CLASSIC_INIT_MATCH'
+  | 'CLASSIC_MODE'
   | 'default'
-  | 'waitingRoom'
-  | 'partyStarted'
-  | 'partyNotStarted'
-  | 'partyEnded';
+  | 'SPEED_INIT_READY'
+  | 'SPEED_INIT_END'
+  | 'SPEED_INIT_MATCH'
+  | 'SPEED_MODE';
 
 export function useConnection(): {
   pongStatus: Status;
-  setPongStatus: Dispatch<SetStateAction<Status>>;
 } {
   const { socket } = useSocketContext();
   const [pongStatus, setPongStatus] = useState<Status>('default');
@@ -26,5 +29,5 @@ export function useConnection(): {
     };
   });
 
-  return { pongStatus, setPongStatus };
+  return { pongStatus };
 }

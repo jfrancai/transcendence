@@ -2,6 +2,7 @@ import { Server } from 'socket.io';
 import { PongSocket, RoomName, Status, UserID } from '../pong.interface';
 import { Player } from '../party/player';
 import { Game } from '../party/game.abstract';
+import { ClassicParty } from '../party/classic-party/classic-party';
 
 export interface PartyConstructor<GameType> {
   new (p1: Player, p2: Player, name: string, io: Server): GameType;
@@ -90,16 +91,21 @@ export class WaitingRoom {
     if (party) {
       client.join(party.partyName);
       if (party.isStarted) {
-        status = 'partyStarted';
+        status =
+          party instanceof ClassicParty
+            ? 'CLASSIC_INIT_MATCH'
+            : 'SPEED_INIT_MATCH';
+      } else if (party.isOver) {
+        status =
+          party instanceof ClassicParty ? 'CLASSIC_INIT_END' : 'SPEED_INIT_END';
       } else {
-        status = 'partyNotStarted';
+        status =
+          party instanceof ClassicParty
+            ? 'CLASSIC_INIT_READY'
+            : 'SPEED_INIT_READY';
       }
-    } else if (this.isUserWaiting(clientID)) {
-      status = 'waitingRoom';
-    } else {
-      status = 'default';
+      client.emit('connection', status);
     }
-    client.emit('connection', status);
   }
 
   public handleJoinWaitingRoom(

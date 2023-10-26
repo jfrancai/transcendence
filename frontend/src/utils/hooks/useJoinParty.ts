@@ -1,35 +1,15 @@
-import { useEffect, useState } from 'react';
+import { useEffect } from 'react';
 import { useSocketContext } from '../../contexts/socket';
-import { useGameOver } from './useGameOver';
-import { useConnection } from './useConnection';
+import { usePongStateContext } from '../../contexts/pongState';
 
-export function useJoinParty(): { hasJoinParty: boolean } {
+export function useJoinParty() {
   const { socket } = useSocketContext();
-  const [hasJoinParty, setHasJoinParty] = useState(false);
-  const { isGameOver } = useGameOver();
-  const { pongStatus } = useConnection();
+  const { JOIN_PARTY_LOBBY } = usePongStateContext();
 
   useEffect(() => {
-    if (pongStatus === 'partyNotStarted') {
-      setHasJoinParty(true);
-    } else {
-      setHasJoinParty(false);
-    }
-  }, [pongStatus]);
-
-  useEffect(() => {
-    setHasJoinParty(false);
-  }, [isGameOver]);
-
-  useEffect(() => {
-    const onJoinParty = () => {
-      setHasJoinParty(true);
-    };
-
-    socket.on('joinParty', onJoinParty);
+    socket.on('joinParty', JOIN_PARTY_LOBBY);
     return () => {
-      socket.off('joinParty', onJoinParty);
+      socket.off('joinParty', JOIN_PARTY_LOBBY);
     };
-  }, [socket]);
-  return { hasJoinParty };
+  }, [socket, JOIN_PARTY_LOBBY]);
 }

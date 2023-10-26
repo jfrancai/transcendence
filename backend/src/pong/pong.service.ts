@@ -17,9 +17,6 @@ export class PongService {
     this.classicWaitingRoom.handleConnection(client);
     const room = this.rooms.get(client.user.id!);
     if (room) room.handleConnection(client);
-    else {
-      client.emit('connection', 'default');
-    }
   }
 
   handleJoinWaitingRoom(

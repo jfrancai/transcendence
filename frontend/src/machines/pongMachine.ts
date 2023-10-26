@@ -1,3 +1,4 @@
+import { raise } from 'xstate/lib/actions';
 import { createMachine } from 'xstate';
 import { socket } from '../utils/functions/socket';
 
@@ -7,14 +8,47 @@ export const pongMachine = createMachine(
     initial: 'Choosing Mode',
     states: {
       'Choosing Mode': {
+        entry: ['handleInitialState'],
         on: {
           CLASSIC_MODE: {
             target: 'Classic Mode Waiting Room',
-            actions: ['joinClassicWaitingRoom', 'getInitialState']
+            actions: [
+              {
+                type: 'joinClassicWaitingRoom'
+              },
+              {
+                type: 'getInitialState'
+              }
+            ]
           },
           SPEED_MODE: {
             target: 'Speed Mode Waiting Room',
-            actions: ['joinSpeedWaitingRoom', 'getInitialState']
+            actions: [
+              {
+                type: 'joinSpeedWaitingRoom'
+              },
+              {
+                type: 'getInitialState'
+              }
+            ]
+          },
+          SPEED_INIT_READY: {
+            target: '#Pong Game.Speed Mode Party Lobby.Not Ready'
+          },
+          SPEED_INIT_MATCH: {
+            target: '#Pong Game.Speed Mode Party Lobby.Speed Mode Match'
+          },
+          SPEED_INIT_END: {
+            target: '#Pong Game.Speed Mode Party Lobby.Speed Mode Match End'
+          },
+          CLASSIC_INIT_READY: {
+            target: '#Pong Game.Classic Mode Party Lobby.Not Ready'
+          },
+          CLASSIC_INIT_MATCH: {
+            target: '#Pong Game.Classic Mode Party Lobby.Classic Mode Match'
+          },
+          CLASSIC_INIT_END: {
+            target: '#Pong Game.Classic Mode Party Lobby.Classic Mode Match End'
           }
         }
       },
@@ -25,7 +59,9 @@ export const pongMachine = createMachine(
           },
           CHANGE_MODE: {
             target: 'Choosing Mode',
-            actions: ['leaveWaitingRoom']
+            actions: {
+              type: 'leaveWaitingRoom'
+            }
           }
         }
       },
@@ -36,7 +72,9 @@ export const pongMachine = createMachine(
           },
           CHANGE_MODE: {
             target: 'Choosing Mode',
-            actions: ['leaveWaitingRoom']
+            actions: {
+              type: 'leaveWaitingRoom'
+            }
           }
         }
       },
@@ -47,7 +85,9 @@ export const pongMachine = createMachine(
             on: {
               SET_READY: {
                 target: 'Ready',
-                actions: ['setReady']
+                actions: {
+                  type: 'setReady'
+                }
               },
               CHANGE_MODE: {
                 target: '#Pong Game.Choosing Mode'
@@ -61,7 +101,9 @@ export const pongMachine = createMachine(
               },
               SET_NOTREADY: {
                 target: 'Not Ready',
-                actions: ['setNotReady']
+                actions: {
+                  type: 'setNotReady'
+                }
               },
               CHANGE_MODE: {
                 target: '#Pong Game.Choosing Mode'
@@ -94,7 +136,9 @@ export const pongMachine = createMachine(
             on: {
               SET_READY: {
                 target: 'Ready',
-                actions: ['setReady']
+                actions: {
+                  type: 'setReady'
+                }
               },
               CHANGE_MODE: {
                 target: '#Pong Game.Choosing Mode'
@@ -108,7 +152,9 @@ export const pongMachine = createMachine(
               },
               SET_NOTREADY: {
                 target: 'Not Ready',
-                actions: ['setNotReady']
+                actions: {
+                  type: 'setNotReady'
+                }
               },
               CHANGE_MODE: {
                 target: '#Pong Game.Choosing Mode'
@@ -140,19 +186,26 @@ export const pongMachine = createMachine(
         | { type: 'CLASSIC_MODE' }
         | { type: 'SPEED_MODE' }
         | { type: 'JOIN_PARTY_LOBBY' }
+        | { type: 'CHANGE_MODE' }
         | { type: 'SET_READY' }
         | { type: 'START_MATCH' }
+        | { type: 'SET_NOTREADY' }
         | { type: 'END_MATCH' }
         | { type: 'PLAY_AGAIN' }
-        | { type: 'CHANGE_MODE' }
-        | { type: 'SET_NOTREADY' }
-        | { type: 'CHANGE_MODE' }
+        | { type: '' }
+        | { type: 'SPEED_INIT_READY' }
+        | { type: 'SPEED_INIT_END' }
+        | { type: 'CLASSIC_INIT_READY' }
+        | { type: 'CLASSIC_INIT_MATCH' }
+        | { type: 'SPEED_INIT_MATCH' }
+        | { type: 'CLASSIC_INIT_END' }
     },
     predictableActionArguments: true,
     preserveActionOrder: true
   },
   {
     actions: {
+      raiseClassicInitReady: raise('CLASSIC_INIT_READY'),
       joinClassicWaitingRoom: () => {
         socket.emit('joinClassicWaitingRoom');
       },
