@@ -33,6 +33,22 @@ export class ChannelService {
     }
   }
 
+  async updateImg(id: string, img: string) {
+    try {
+      return await this.prisma.channel.update({
+        where: {
+          id
+        },
+        data: {
+          img
+        }
+      });
+    } catch (e) {
+      this.logger.warn(e);
+      return null;
+    }
+  }
+
   async updateChanType(id: string, type: ChannelType, password?: string) {
     try {
       return await this.prisma.channel.update({
@@ -167,6 +183,24 @@ export class ChannelService {
     } catch (e) {
       this.logger.warn('getChanWithMembers', e);
       throw new ForbiddenException();
+    }
+  }
+
+  async addChannelMemberById(id: string, memberId: string) {
+    try {
+      return await this.prisma.channel.update({
+        where: {
+          id
+        },
+        data: {
+          members: {
+            connect: { id: memberId }
+          }
+        }
+      });
+    } catch (e) {
+      this.logger.warn(e);
+      return null;
     }
   }
 

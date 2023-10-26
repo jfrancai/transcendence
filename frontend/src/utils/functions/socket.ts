@@ -28,10 +28,11 @@ export const connectSocket = () => {
     socket.connect();
   }
 };
+
 export const disconnectSocket = () => socket.disconnect();
 
 socket.onAny((event, ...args) => {
   /* eslint-disable */
-  console.log(event, args);
+  if (event !== 'gameState') console.log(event, args);
   /* eslint-enable */
 });

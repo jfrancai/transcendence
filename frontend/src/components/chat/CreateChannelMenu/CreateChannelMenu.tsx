@@ -1,15 +1,9 @@
+import { useStateContext } from '../../../contexts/state';
 import { PrimaryButton } from '../../PrimaryButton/PrimaryButton';
 import { Scrollable } from '../Scrollable/Scrollable';
 
-interface CreateChannelMenuProps {
-  createChannel: () => any;
-  joinChannel: () => any;
-}
-
-export function CreateChannelMenu({
-  createChannel,
-  joinChannel
-}: CreateChannelMenuProps) {
+export function CreateChannelMenu() {
+  const { createChannel, joinChannel } = useStateContext();
   return (
     <>
       <Scrollable width={336}>

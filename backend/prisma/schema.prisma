@@ -42,6 +42,7 @@ model Message {
 
 model Channel {
   id        String      @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  img       String      @default("/home/qbornet/42/ft_transcendence/backend/img/default.jpg")
   chanName  String      @unique
   type      ChannelType @default(PRIVATE)
   createdAt DateTime    @default(now())

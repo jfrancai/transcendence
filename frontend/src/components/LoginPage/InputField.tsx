@@ -1,7 +1,7 @@
 export default function InputField(props: {
   label: string;
   type: string;
-  readOnly: boolean;
+  readOnly?: boolean;
   name?: string;
   placeholder?: string;
   handleInput?: (e: React.KeyboardEvent<HTMLInputElement>) => void;

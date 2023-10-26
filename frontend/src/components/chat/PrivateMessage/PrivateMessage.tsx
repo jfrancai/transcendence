@@ -1,21 +1,13 @@
 import { useState } from 'react';
 import RenderIf from '../RenderIf/RenderIf';
-import { ContactListFeed } from '../ContactListFeed.tsx/ContactListFeed';
+import { ContactListFeed } from '../ContactListFeed/ContactListFeed';
 import { SendMessageInput } from '../SendMessageInput/SendMessageInput';
 import { PrivateFeed } from '../PrivateFeed/PrivateFeed';
+import { useStateContext } from '../../../contexts/state';
 
-interface PrivateMessageProps {
-  isMessageView: boolean;
-  isConversationView: boolean;
-  toggleConversationView: () => any;
-}
-
-export function PrivateMessage({
-  isMessageView,
-  isConversationView,
-  toggleConversationView
-}: PrivateMessageProps) {
+export function PrivateMessage() {
   const [userID, setUserID] = useState<string>('');
+  const { isConversationView, isMessageView } = useStateContext();
 
   return (
     <>
@@ -24,10 +16,7 @@ export function PrivateMessage({
         <SendMessageInput receiverID={userID} event="privateMessage" />
       </RenderIf>
       <RenderIf some={[isMessageView]}>
-        <ContactListFeed
-          setUserID={setUserID}
-          toggleConversationView={toggleConversationView}
-        />
+        <ContactListFeed setUserID={setUserID} />
       </RenderIf>
     </>
   );

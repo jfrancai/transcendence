@@ -2,24 +2,21 @@ import { useEffect } from 'react';
 import { Scrollable } from '../Scrollable/Scrollable';
 import { useSocketContext } from '../../../contexts/socket';
 import { useChanInfo } from '../../../utils/hooks/useChannelInfo';
-import { ChannelList } from '../ChannelList/ChannelList';
+import { Admins, Banned, Creator, Members } from '../ChannelList/ChannelList';
 import { LeaveChannel } from '../LeaveChannel/LeaveChannel';
 import { useChanUsers } from '../../../utils/hooks/useChanUsers';
 import { UpdateChannel } from '../AddPassword/AddPassword';
+import { useStateContext } from '../../../contexts/state';
 
 interface ContactListProps {
   chanID: string;
   setChanID: (arg: string) => any;
-  updateChannel: () => any;
 }
 
-export function ChannelListFeed({
-  chanID,
-  setChanID,
-  updateChannel
-}: ContactListProps) {
+export function ChannelListFeed({ chanID, setChanID }: ContactListProps) {
   const { socket } = useSocketContext();
-  const { contactList, bannedList } = useChanUsers(() => setChanID(''));
+  const { contactList, bannedList } = useChanUsers(() => setChanID(''), chanID);
+  const { toggleInviteChannel, updateChannel } = useStateContext();
 
   const channel = useChanInfo();
   const isCreator = (userID: string) => channel?.creatorID === userID;
@@ -66,51 +63,40 @@ export function ChannelListFeed({
       socket.emit('channelDelete', { chanID });
     }
   };
+
+  const displayButtons = isAdmin(socket.userID) || isCreator(socket.userID);
   return (
     <div className="w-full">
       <Scrollable>
         <div className="flex flex-col gap-3">
-          <ChannelList
-            list={contactList.filter((c) => isCreator(c.userID))}
-            title="CREATOR"
-            chanID={channel ? channel.chanID : ''}
-            isAdmin={false}
-            isCreator={false}
-          />
-          <ChannelList
+          <Creator list={contactList.filter((c) => isCreator(c.userID))} />
+          <Admins
             list={contactList.filter((c) => isAdmin(c.userID))}
-            title="ADMINS"
             chanID={channel ? channel.chanID : ''}
-            isAdmin={isAdmin(socket.userID)}
-            isCreator={isCreator(socket.userID)}
-            adminSection
+            displayButtons={displayButtons}
+            userID={socket.userID}
           />
-          <ChannelList
+          <Members
             list={contactList.filter((c) => isMember(c.userID))}
-            title="MEMBER"
             chanID={channel ? channel.chanID : ''}
-            isAdmin={isAdmin(socket.userID)}
-            isCreator={isCreator(socket.userID)}
+            displayButtons={displayButtons}
+            userID={socket.userID}
           />
-
-          {isCreator(socket.userID) || isAdmin(socket.userID) ? (
-            <ChannelList
-              list={bannedList}
-              title="BANLIST"
-              chanID={channel ? channel.chanID : ''}
-              isAdmin={false}
-              isCreator={false}
-              isBanned
-            />
-          ) : null}
-
-          {isCreator(socket.userID) ? (
-            <UpdateChannel
-              display={contactList.length !== 0}
-              handler={updateChannel}
-              label="Channel configuration"
-            />
-          ) : null}
+          <Banned
+            list={bannedList}
+            chanID={channel ? channel.chanID : ''}
+            displayButtons={displayButtons}
+          />
+          <UpdateChannel
+            display={contactList.length !== 0}
+            handler={toggleInviteChannel}
+            label="Invite user"
+          />
+          <UpdateChannel
+            display={contactList.length !== 0 && isCreator(socket.userID)}
+            handler={updateChannel}
+            label="Channel configuration"
+          />
           <LeaveChannel
             display={contactList.length !== 0}
             handler={isCreator(socket.userID) ? handleDelete : handleLeave}

@@ -31,7 +31,6 @@ import {
   CONST_SALT
 } from './constants';
 import { AuthService } from './auth.service';
-import { IUsers } from '../database/service/interface/users';
 
 @Controller('auth')
 export class AuthController {

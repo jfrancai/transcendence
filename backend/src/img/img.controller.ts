@@ -18,6 +18,7 @@ import { FileInterceptor } from '@nestjs/platform-express';
 import { ImgService } from './img.service';
 import { FileValidationPipe } from './pipe/file-validation.pipe';
 import { IUsers } from '../database/service/interface/users';
+import { ChannelService } from '../database/service/channel.service';
 
 @Controller('img')
 @UseGuards(ApiGuard, JwtAuthGuard)
@@ -26,7 +27,8 @@ export class ImgController {
 
   constructor(
     private readonly imgService: ImgService,
-    private readonly authService: AuthService
+    private readonly authService: AuthService,
+    private readonly chanService: ChannelService
   ) {
     this.logger.log('ImgController Init...');
   }
@@ -38,7 +40,8 @@ export class ImgController {
     @Res() res: any,
     @UploadedFile(FileValidationPipe) file: Express.Multer.File
   ) {
-    const user = await this.authService.findUser(req.user);
+    const jwt = req.headers.authorization.replace('Bearer ', '');
+    const user = await this.authService.findUserByJWT(jwt);
     if (!user) return;
 
     const fileName = this.imgService.writeFile(file);
@@ -59,14 +62,52 @@ export class ImgController {
     res.status(200).json({ message: 'ok' });
   }
 
+  @Post('upload/:id')
+  @UseInterceptors(FileInterceptor('image'))
+  async uploadChannelPicture(
+    @Param('id') chanID: string,
+    @Req() req: any,
+    @Res() res: any,
+    @UploadedFile(FileValidationPipe) file: Express.Multer.File
+  ) {
+    const jwt = req.headers.authorization.replace('Bearer ', '');
+    const user = await this.authService.findUserByJWT(jwt);
+    if (!user) return;
+
+    const channel = await this.chanService.getChanById(chanID);
+    if (!channel || user.id !== channel.creatorID) return;
+
+    const fileName = this.imgService.writeFile(file);
+    if (!fileName) return;
+
+    this.imgService.deleteFile(channel.img);
+    const img = `${join(__dirname, `../../img/${fileName}`)}`;
+    this.chanService.updateImg(chanID, img);
+    res.status(200).json({ message: 'ok' });
+  }
+
   @Get('download')
   async getUserImage(@Req() req: any) {
-    const user = await this.authService.findUser(req.user);
+    const jwt = req.headers.authorization.replace('Bearer ', '');
+    const user = await this.authService.findUserByJWT(jwt);
     if (user) {
       const imgValue = this.imgService.imageToBase64(user?.img);
       return { username: user.username, uuid: user.id, ...imgValue };
     }
     return null;
+  }
+
+  @Get('download_channel/:id')
+  async getChannelImage(@Req() req: any, @Param('id') chanID: string) {
+    const jwt = req.headers.authorization.replace('Bearer ', '');
+    const user = await this.authService.findUserByJWT(jwt);
+    if (!user) return null;
+
+    const channel = await this.chanService.getChanById(chanID);
+    if (!channel) return null;
+
+    const imgValue = this.imgService.imageToBase64(channel.img);
+    return { chanName: channel.chanName, ...imgValue };
   }
 
   // use this route for fetching on specific user

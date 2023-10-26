@@ -1,4 +1,6 @@
-import { useEffect, useState } from 'react';
+import axios, { AxiosRequestConfig } from 'axios';
+import { CONST_BACKEND_URL } from '@constant';
+import { FormEvent, useEffect, useState } from 'react';
 import { AiOutlineCloudUpload } from 'react-icons/ai';
 import { SelectChannelType } from '../SelectChannelType/SelectChannelType';
 import { Scrollable } from '../Scrollable/Scrollable';
@@ -6,6 +8,7 @@ import { PrimaryButton } from '../../PrimaryButton/PrimaryButton';
 import RenderIf from '../RenderIf/RenderIf';
 import { useSocketContext } from '../../../contexts/socket';
 import { useChanInfo } from '../../../utils/hooks/useChannelInfo';
+import { useStateContext } from '../../../contexts/state';
 
 interface SectionTitleProps {
   title: string;
@@ -24,26 +27,54 @@ function Section({ children }: SectionProps) {
 }
 
 interface CreateChannelViewProps {
-  toggleInviteChannel: () => any;
-  toggleChannelSettings: () => any;
-  isNameView: boolean;
   chanID: string;
+  setChanID: (arg: any) => any;
 }
 
 export function CreateChannelView({
-  toggleInviteChannel,
-  toggleChannelSettings,
-  isNameView,
-  chanID
+  chanID,
+  setChanID
 }: CreateChannelViewProps) {
   const { socket } = useSocketContext();
+  const { toggleChannelSettings, isChannelNameView, toggleInviteChannel } =
+    useStateContext();
   const [chanName, setChanName] = useState(`${socket.username}'s channel`);
   const [type, setType] = useState<'PASSWORD' | 'PUBLIC' | 'PRIVATE'>('PUBLIC');
   const [password, setPassword] = useState<string>('');
   const [error, setError] = useState<string | undefined>(undefined);
+  const [imagePreview, setImagePreview] = useState<string | null>(null);
+  const [image, setImage] = useState<File | null>(null);
   const channel = useChanInfo();
 
-  const handleCreateChannel = () => {
+  useEffect(() => {
+    const handleSubmit = (id: string, img: File | null) => {
+      if (!img) return;
+      const formData = new FormData();
+      formData.append('image', img);
+
+      const jwt = localStorage.getItem('jwt') as string;
+      const config: AxiosRequestConfig = {
+        withCredentials: true,
+        headers: { Authorization: `Bearer ${jwt}` }
+      };
+
+      axios
+        .post(`${CONST_BACKEND_URL}/img/upload/${id}`, formData, config)
+        .catch(() => {});
+    };
+
+    const onChannelCreate = (data: any) => {
+      setChanID(data.chanID);
+      handleSubmit(data.chanID, image);
+    };
+    socket.on('channelCreate', onChannelCreate);
+    return () => {
+      socket.off('channelCreate', onChannelCreate);
+    };
+  }, [socket, setChanID, image]);
+
+  const handleCreateChannel = (e: FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
     socket.emit('channelCreate', {
       chanName,
       type,
@@ -52,15 +83,37 @@ export function CreateChannelView({
     toggleChannelSettings();
   };
 
+  const handleUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    e.preventDefault();
+    const allowedTypes = ['image/jpeg', 'image/png'];
+    const reader = new FileReader();
+    const file = e.target.files?.[0];
+    if (file) {
+      if (file.size > 50000) {
+        return;
+      }
+      if (!allowedTypes.includes(file.type)) {
+        return;
+      }
+
+      reader.onloadend = () => {
+        setImage(file);
+        setImagePreview(reader.result as string);
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+
   useEffect(() => {
-    if (!isNameView && chanID) {
+    if (!isChannelNameView && chanID) {
       socket.emit('channelInfo', {
         chanID
       });
     }
-  }, [chanID, isNameView, socket]);
+  }, [chanID, isChannelNameView, socket]);
 
-  const handleUpdateChannel = () => {
+  const handleUpdateChannel = (e: FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
     if (channel) {
       socket.emit('channelMode', {
         chanID,
@@ -85,27 +138,39 @@ export function CreateChannelView({
     };
   }, [socket, toggleInviteChannel, toggleChannelSettings]);
   return (
-    <>
+    <form
+      onSubmit={isChannelNameView ? handleCreateChannel : handleUpdateChannel}
+    >
       <Scrollable width={336}>
         <div className="flex w-full flex-col items-center justify-center gap-10">
           <p className="text-2xl font-bold text-pong-white">
-            {isNameView ? 'Create your Channel' : 'Update Channel'}
+            {isChannelNameView ? 'Create your Channel' : 'Update Channel'}
           </p>
 
-          {isNameView ? (
+          {isChannelNameView ? (
             <>
               <Section>
                 <SectionTitle title="CHANNEL PICTURE" />
                 <label
                   htmlFor="UploadChannelImage"
-                  className="flex justify-center rounded border border-dashed border-pong-white text-[50px]"
+                  className="flex justify-center rounded border border-dashed border-pong-white p-3 text-[50px]"
                 >
                   <input
                     id="UploadChannelImage"
                     type="file"
                     className="hidden"
+                    onChange={handleUpload}
                   />
-                  <AiOutlineCloudUpload className="my-4 cursor-pointer rounded-full bg-pong-blue-500 p-1 text-pong-blue-100" />
+                  {image && imagePreview ? (
+                    <img
+                      className="h-24 w-24 cursor-pointer overflow-hidden rounded-full border-[1px] border-blue-pong-1 object-cover"
+                      id="profile-preview"
+                      src={imagePreview}
+                      alt="ImagePreview"
+                    />
+                  ) : (
+                    <AiOutlineCloudUpload className="my-4 cursor-pointer rounded-full bg-pong-blue-500 p-1 text-pong-blue-100" />
+                  )}
                 </label>
               </Section>
 
@@ -157,14 +222,12 @@ export function CreateChannelView({
               </label>
             </Section>
           </RenderIf>
-          <PrimaryButton
-            onClick={isNameView ? handleCreateChannel : handleUpdateChannel}
-          >
-            {isNameView ? 'Create Channel' : 'Update Channel'}
+          <PrimaryButton submit>
+            {isChannelNameView ? 'Create Channel' : 'Update Channel'}
           </PrimaryButton>
         </div>
       </Scrollable>
       <div className="h-14 w-[336px]" />
-    </>
+    </form>
   );
 }

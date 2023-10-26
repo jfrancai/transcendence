@@ -1,5 +1,3 @@
-import { Tooltip } from 'react-tooltip';
-
 interface UpdateChannelProps {
   handler: () => any;
   label: string;

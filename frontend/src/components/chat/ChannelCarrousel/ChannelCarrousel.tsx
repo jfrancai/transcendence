@@ -1,10 +1,11 @@
 import { Tooltip } from 'react-tooltip';
 import { useEffect } from 'react';
 import { AiOutlinePlusCircle } from 'react-icons/ai';
-import ProfilePicture from '../ProfilePicture/ProfilePicture';
 import { Scrollable } from '../Scrollable/Scrollable';
 import { useChannels } from '../../../utils/hooks/useChannels';
 import { useSocketContext } from '../../../contexts/socket';
+import { ChanPicture } from '../ChanPicture';
+import { useStateContext } from '../../../contexts/state';
 
 interface ChannelCarrouselCardProps {
   onPrimaryClick: () => any;
@@ -29,7 +30,7 @@ export function ChannelCarrouselCard({
       }}
     >
       <button type="button" onClick={onPrimaryClick} className={`id-${id}`}>
-        <ProfilePicture select={select} size="s" url="starwatcher.jpg" />
+        <ChanPicture select={select} size="s" chanID={id} />
       </button>
       <Tooltip
         disableStyleInjection
@@ -45,25 +46,25 @@ export function ChannelCarrouselCard({
 }
 
 interface ChannelCarrouselProps {
-  toggleCreateChannelView: () => any;
-  toggleChannelSettings: () => any;
-  toggleChannelView: () => any;
   setChanID: (arg: string) => any;
   chanID: string;
 }
 
-export function ChannelCarrousel({
-  toggleCreateChannelView,
-  toggleChannelSettings,
-  toggleChannelView,
-  setChanID,
-  chanID
-}: ChannelCarrouselProps) {
+export function ChannelCarrousel({ setChanID, chanID }: ChannelCarrouselProps) {
   const { socket } = useSocketContext();
   const channels = useChannels(setChanID, chanID);
+  const { toggleChannelView, toggleChannelSettings, toggleCreateChannelView } =
+    useStateContext();
 
   useEffect(() => {
-    socket.emit('channels');
+    const onChannelUserJoin = () => {
+      socket.emit('channels');
+    };
+    onChannelUserJoin();
+    socket.on('channelUserJoin', onChannelUserJoin);
+    return () => {
+      socket.off('channelUserJoin', onChannelUserJoin);
+    };
   }, [socket]);
 
   return (
