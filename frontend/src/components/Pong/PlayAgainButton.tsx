@@ -12,7 +12,7 @@ export function PlayAgainButton() {
   } = usePongStateContext();
   return (
     <RenderIf some={[isSpeedModeMatchEnd, isClassicMatchModeEnd]}>
-      <PongDiv>
+      <PongDiv className="mt-56">
         <BluePongButton onClick={PLAY_AGAIN}>Play again !</BluePongButton>
         <BluePongButton onClick={CHANGE_MODE}>Change Mode ?</BluePongButton>
       </PongDiv>
