@@ -1,11 +1,5 @@
 import { useMachine } from '@xstate/react';
-import {
-  ReactNode,
-  createContext,
-  useContext,
-  useEffect,
-  useMemo
-} from 'react';
+import { ReactNode, createContext, useContext, useMemo } from 'react';
 import { pongMachine } from '../machines/pongMachine';
 
 interface PongState {
@@ -44,9 +38,6 @@ export function PongStateContextProvider({
   children
 }: PongStateContextProviderProps) {
   const [state, send] = useMachine(pongMachine);
-  useEffect(() => {
-    console.log('Current State : ', state.value);
-  }, [state]);
 
   const stateProviderValue = useMemo(
     (): PongState => ({

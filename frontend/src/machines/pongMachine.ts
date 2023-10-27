@@ -1,4 +1,3 @@
-import { raise } from 'xstate/lib/actions';
 import { createMachine } from 'xstate';
 import { socket } from '../utils/functions/socket';
 
