@@ -16,8 +16,8 @@ import { JwtAuthGuard } from 'src/auth/guards/jwt-auth.guard';
 import { UsersService } from 'src/database/service/users.service';
 import * as bcrypt from 'bcrypt';
 import { CONST_SALT } from 'src/auth/constants';
-import { RemoveService } from './service/remove.service';
 import { AuthService } from 'src/auth/auth.service';
+import { RemoveService } from './service/remove.service';
 
 type UserDto = {
   id: string;

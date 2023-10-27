@@ -1,6 +1,6 @@
 import { Server } from 'socket.io';
 import { Injectable, Logger } from '@nestjs/common';
-import { UsersService } from 'src/database/service/users.service';
+import { MatchService } from 'src/database/service/match.service';
 import { PongSocket, Status } from './pong.interface';
 import { ClassicWaitingRoom } from './waiting-room/waiting-room';
 import { PartyClassic } from './party/party';
@@ -11,7 +11,7 @@ export class PongService {
 
   constructor(
     private waitingRoomService: ClassicWaitingRoom,
-    private usersService: UsersService
+    private matchService: MatchService
   ) {}
 
   handleConnection(client: PongSocket): any {
@@ -116,14 +116,14 @@ export class PongService {
       const winMatchHistory = `1|${player2Id}|${timestamp}`;
       const lostMatchHistory = `0|${player1Id}|${timestamp}`;
 
-      this.usersService.addMatchHistory(player1Id, winMatchHistory);
-      this.usersService.addMatchHistory(player2Id, lostMatchHistory);
+      this.matchService.addMatchHistory(player1Id, winMatchHistory);
+      this.matchService.addMatchHistory(player2Id, lostMatchHistory);
     } else if (playerWon === 2) {
       const winMatchHistory = `1|${player1Id}|${timestamp}`;
       const lostMatchHistory = `0|${player2Id}|${timestamp}`;
 
-      this.usersService.addMatchHistory(player2Id, winMatchHistory);
-      this.usersService.addMatchHistory(player1Id, lostMatchHistory);
+      this.matchService.addMatchHistory(player2Id, winMatchHistory);
+      this.matchService.addMatchHistory(player1Id, lostMatchHistory);
     }
   }
 }

@@ -21,7 +21,7 @@ model Users {
   apiToken        String?
   maxAge          Int       @default(0)
   connectedChat   Boolean   @default(false)
-  matchHistory    String[]
+  match           Match[]   @relation(name: "match")
   channels        Channel[]
   messageSent     Message[] @relation(name: "sender")
   messageReceived Message[] @relation(name: "receiver")
@@ -54,6 +54,15 @@ model Channel {
   mute      String[]    @db.Uuid
   members   Users[]
   messages  Message[]
+}
+
+model Match {
+  id        String  @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  result    Int     @default(0)
+  timestamp Int     @default(0)
+  oppId     String? @db.Uuid
+  Users     Users?  @relation(name: "match", fields: [usersId], references: [id])
+  usersId   String? @db.Uuid
 }
 
 enum ChannelType {
