@@ -36,7 +36,13 @@ export function useGameState(): { gameState: GameState | undefined } {
 
   useEffect(() => {
     const onGameState = (state: GameState) => {
-      setGameState(state);
+      const newState: GameState = state;
+      const newWidth = window.innerWidth - 100;
+      const scaleFactor = newWidth / state.canva.width;
+      const newHeight = state.canva.height * scaleFactor;
+      newState.canva.width = newWidth;
+      newState.canva.height = newHeight;
+      setGameState(newState);
     };
 
     socket.on('gameState', onGameState);
