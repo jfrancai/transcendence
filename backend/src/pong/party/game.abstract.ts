@@ -1,3 +1,4 @@
+import { WebSocketServer } from '@nestjs/websockets';
 import { Server } from 'socket.io';
 import { Ball } from './ball.abstract';
 import { Player } from './player';
@@ -6,7 +7,7 @@ import { Paddle } from './paddle.abstract';
 import { PositionClass } from './position';
 
 export abstract class Game {
-  protected io: Server;
+  @WebSocketServer() io: Server;
 
   public partyName: string;
 
@@ -36,17 +37,10 @@ export abstract class Game {
 
   protected canva: PositionClass;
 
-  constructor(
-    p1: Player,
-    p2: Player,
-    winCondition: number,
-    name: string,
-    io: Server
-  ) {
+  constructor(p1: Player, p2: Player, winCondition: number, name: string) {
     this.player1 = p1;
     this.player2 = p2;
     this.partyName = name;
-    this.io = io;
     this.maxScore = winCondition;
   }
 

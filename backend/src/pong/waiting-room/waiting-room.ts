@@ -1,90 +1,58 @@
+import { WebSocketServer } from '@nestjs/websockets';
 import { Server } from 'socket.io';
+import { v4 as uuid } from 'uuid';
 import { PongSocket, RoomName, Status, UserID } from '../pong.interface';
-import { Player } from '../party/player';
 import { Game } from '../party/game.abstract';
 import { ClassicParty } from '../party/classic-party/classic-party';
+import { Player } from '../party/player';
 
-export interface PartyConstructor<GameType> {
-  new (p1: Player, p2: Player, name: string, io: Server): GameType;
+interface PartyConstructor<GameType> {
+  new (p1: Player, p2: Player, name: string): GameType;
 }
 
-export class WaitingRoom {
-  private roomName: string;
+export abstract class WaitingRoom {
+  protected roomName: string = uuid();
 
-  private roomCounter: number = 0;
+  protected PartyConstructor: PartyConstructor<Game>;
 
-  private waitingPlayer: Player | undefined;
+  protected parties: Map<RoomName | UserID, Game> = new Map();
 
-  private parties: Map<RoomName | UserID, Game> = new Map();
+  @WebSocketServer() io: Server;
 
-  constructor(roomName: string) {
-    this.roomName = roomName;
+  constructor(PartyConstructor: PartyConstructor<Game>) {
+    this.PartyConstructor = PartyConstructor;
+  }
+  abstract handleLeaveWaitingRoom(client: PongSocket): void;
+  abstract handleJoinWaitingRoom(
+    client: PongSocket,
+    PartyConstructor: PartyConstructor<Game>
+  ): void;
+
+  protected joinParty(client1: PongSocket, client2: PongSocket) {
+    const player1 = new Player(client1, 1);
+    const player2 = new Player(client2, 2);
+
+    const party = new this.PartyConstructor(player1, player2, this.roomName);
+    this.io.to(party.partyName).emit('joinParty');
+    this.parties.set(this.roomName, party);
+    this.parties.set(party.player1.id, party);
+    this.parties.set(party.player2.id, party);
+    this.roomName = uuid();
   }
 
-  public hasWaitingPlayer() {
-    if (this.waitingPlayer) {
-      return true;
-    }
-    return false;
-  }
-
-  private isUserWaiting(id: UserID) {
-    if (this.waitingPlayer) {
-      return id === this.waitingPlayer.id;
-    }
-    return false;
-  }
-
-  public getRoomName() {
-    return this.roomName;
-  }
-
-  private getParty(id: RoomName | UserID) {
+  protected getParty(id: RoomName | UserID) {
     return this.parties.get(id);
   }
 
-  private removeParty(id: RoomName | UserID) {
+  protected removeParty(id: RoomName | UserID) {
     return this.parties.delete(id);
   }
 
-  private leaveWaitingRoom(id: UserID) {
-    if (this.isUserWaiting(id)) {
-      this.waitingPlayer = undefined;
-    }
-  }
-
-  private joinParty(
-    client: PongSocket,
-    io: Server,
-    PartyConstructor: PartyConstructor<Game>
-  ): string {
-    client.join(this.roomName);
-    if (this.waitingPlayer) {
-      const player2 = new Player(client, 2);
-
-      const party = new PartyConstructor(
-        this.waitingPlayer,
-        player2,
-        this.roomName,
-        io
-      );
-      io.to(party.partyName).emit('joinParty');
-
-      this.parties.set(this.roomName, party);
-      this.parties.set(party.player1.id, party);
-      this.parties.set(party.player2.id, party);
-
-      this.roomCounter += 1;
-      this.roomName = `room-${this.roomCounter}`;
-
-      this.waitingPlayer = undefined;
-      return party.partyName;
-    }
-    this.waitingPlayer = new Player(client, 1);
+  getRoomName() {
     return this.roomName;
   }
 
-  public handleConnection(client: PongSocket): any {
+  handleConnection(client: PongSocket): any {
     const clientID = client.user.id!;
     const party = this.getParty(clientID);
     let status: Status;
@@ -106,25 +74,6 @@ export class WaitingRoom {
       }
       client.emit('connection', status);
     }
-  }
-
-  public handleJoinWaitingRoom(
-    client: PongSocket,
-    io: Server,
-    PartyConstructor: PartyConstructor<Game>
-  ) {
-    const clientID = client.user.id!;
-    const party = this.getParty(clientID);
-    if (party) return;
-
-    this.joinParty(client, io, PartyConstructor);
-    client.emit('joinWaitingRoom');
-  }
-
-  handleLeaveWaitingRoom(client: PongSocket) {
-    const clientID = client.user.id!;
-    this.leaveWaitingRoom(clientID);
-    client.emit('leaveWaitingRoom');
   }
 
   handleRole(client: PongSocket) {

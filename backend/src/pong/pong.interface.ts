@@ -1,5 +1,6 @@
-import { Socket } from 'socket.io';
+import { Server, Socket } from 'socket.io';
 import { IUsers } from 'src/database/service/interface/users';
+import { Player } from './party/player';
 
 export interface PongSocket extends Socket {
   user: Partial<IUsers>;
@@ -46,4 +47,8 @@ export interface GameState {
   scorePlayer1: number;
   scorePlayer2: number;
   maxScore: number;
+}
+
+export interface PartyConstructor<GameType> {
+  new (p1: Player, p2: Player, name: string, io: Server): GameType;
 }

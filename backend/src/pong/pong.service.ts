@@ -1,17 +1,17 @@
-import { Server } from 'socket.io';
 import { Injectable } from '@nestjs/common';
 import { PongSocket, UserID } from './pong.interface';
 import { WaitingRoom } from './waiting-room/waiting-room';
 import { ClassicParty } from './party/classic-party/classic-party';
 import { SpeedParty } from './party/speed-ball-party/speed-party';
+import { PublicWaitingRoom } from './waiting-room/public-waiting-room';
 
 @Injectable()
 export class PongService {
   private rooms: Map<UserID, WaitingRoom> = new Map();
 
-  private speedWaitingRoom: WaitingRoom = new WaitingRoom('speed');
+  private speedWaitingRoom: WaitingRoom = new PublicWaitingRoom();
 
-  private classicWaitingRoom: WaitingRoom = new WaitingRoom('classic');
+  private classicWaitingRoom: WaitingRoom = new PublicWaitingRoom();
 
   handleConnection(client: PongSocket): any {
     this.classicWaitingRoom.handleConnection(client);
@@ -19,16 +19,12 @@ export class PongService {
     if (room) room.handleConnection(client);
   }
 
-  handleJoinWaitingRoom(
-    client: PongSocket,
-    io: Server,
-    type: 'classic' | 'speed'
-  ) {
+  handleJoinWaitingRoom(client: PongSocket, type: 'classic' | 'speed') {
     if (type === 'classic') {
-      this.classicWaitingRoom.handleJoinWaitingRoom(client, io, ClassicParty);
+      this.classicWaitingRoom.joinWaitingRoom(client, ClassicParty);
       this.rooms.set(client.user.id!, this.classicWaitingRoom);
     } else {
-      this.speedWaitingRoom.handleJoinWaitingRoom(client, io, SpeedParty);
+      this.speedWaitingRoom.joinWaitingRoom(client, SpeedParty);
       this.rooms.set(client.user.id!, this.speedWaitingRoom);
     }
   }
