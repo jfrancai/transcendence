@@ -11,6 +11,7 @@ import { UserModule } from './user/user.module';
 import envSchema from './env.validation';
 import configuration from './config/configuration';
 import { PongModule } from './pong/pong.module';
+import { UserStatusGateway } from './user-status/user-status.gateway';
 
 @Module({
   imports: [
@@ -32,6 +33,6 @@ import { PongModule } from './pong/pong.module';
     UserModule
   ],
   controllers: [AppController],
-  providers: [AppService]
+  providers: [AppService, UserStatusGateway]
 })
 export class AppModule {}
