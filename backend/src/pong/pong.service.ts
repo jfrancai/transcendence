@@ -3,6 +3,7 @@ import { PongSocket, UserID } from './pong.interface';
 import { WaitingRoom } from './waiting-room/waiting-room';
 import { ClassicParty } from './party/classic-party/classic-party';
 import { SpeedParty } from './party/speed-ball-party/speed-party';
+import { Server } from 'socket.io';
 
 @Injectable()
 export class PongService {
@@ -18,12 +19,16 @@ export class PongService {
     if (room) room.handleConnection(client);
   }
 
-  handleJoinWaitingRoom(client: PongSocket, type: 'classic' | 'speed') {
+  handleJoinWaitingRoom(
+    client: PongSocket,
+    type: 'classic' | 'speed',
+    io: Server
+  ) {
     if (type === 'classic') {
-      this.classicWaitingRoom.handleJoinWaitingRoom(client);
+      this.classicWaitingRoom.handleJoinWaitingRoom(client, io);
       this.rooms.set(client.user.id!, this.classicWaitingRoom);
     } else {
-      this.speedWaitingRoom.handleJoinWaitingRoom(client);
+      this.speedWaitingRoom.handleJoinWaitingRoom(client, io);
       this.rooms.set(client.user.id!, this.speedWaitingRoom);
     }
   }

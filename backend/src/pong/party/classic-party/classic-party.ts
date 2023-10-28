@@ -1,3 +1,4 @@
+import { Server } from 'socket.io';
 import { Player } from '../player';
 import { Game } from '../game.abstract';
 import { GameState } from '../../pong.interface';
@@ -16,8 +17,8 @@ import {
 import { ClassicBall } from './classic-ball';
 
 export class ClassicParty extends Game {
-  constructor(p1: Player, p2: Player, name: string) {
-    super(p1, p2, VICTORY_POINT, name);
+  constructor(p1: Player, p2: Player, name: string, io: Server) {
+    super(p1, p2, VICTORY_POINT, name, io);
     this.canva = new ClassicCanva();
     this.ball = new ClassicBall(this);
     this.paddle1 = new ClassicLeftPaddle();

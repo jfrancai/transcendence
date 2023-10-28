@@ -1,4 +1,3 @@
-import { WebSocketServer } from '@nestjs/websockets';
 import { Server } from 'socket.io';
 import { v4 as uuid } from 'uuid';
 import { PongSocket, RoomName, Status, UserID } from '../pong.interface';
@@ -7,7 +6,7 @@ import { ClassicParty } from '../party/classic-party/classic-party';
 import { Player } from '../party/player';
 
 interface PartyConstructor<GameType> {
-  new (p1: Player, p2: Player, name: string): GameType;
+  new (p1: Player, p2: Player, name: string, io: Server): GameType;
 }
 
 export class WaitingRoom {
@@ -18,8 +17,6 @@ export class WaitingRoom {
   protected PartyConstructor: PartyConstructor<Game>;
 
   protected parties: Map<RoomName | UserID, Game> = new Map();
-
-  @WebSocketServer() io: Server;
 
   constructor(PartyConstructor: PartyConstructor<Game>) {
     this.PartyConstructor = PartyConstructor;
@@ -40,26 +37,31 @@ export class WaitingRoom {
     }
   }
 
-  handleJoinWaitingRoom(client: PongSocket) {
+  handleJoinWaitingRoom(client: PongSocket, io: Server) {
     const clientID = client.user.id!;
     const party = this.getParty(clientID);
     if (party) return;
 
     client.join(this.roomName);
     if (this.waitingPlayer) {
-      this.joinParty(this.waitingPlayer, client);
+      this.joinParty(this.waitingPlayer, client, io);
       this.waitingPlayer = undefined;
     }
     this.waitingPlayer = client;
     client.emit('joinWaitingRoom');
   }
 
-  protected joinParty(client1: PongSocket, client2: PongSocket) {
+  protected joinParty(client1: PongSocket, client2: PongSocket, io: Server) {
     const player1 = new Player(client1, 1);
     const player2 = new Player(client2, 2);
 
-    const party = new this.PartyConstructor(player1, player2, this.roomName);
-    this.io.to(party.partyName).emit('joinParty');
+    const party = new this.PartyConstructor(
+      player1,
+      player2,
+      this.roomName,
+      io
+    );
+    io.to(party.partyName).emit('joinParty');
     this.parties.set(this.roomName, party);
     this.parties.set(party.player1.id, party);
     this.parties.set(party.player2.id, party);

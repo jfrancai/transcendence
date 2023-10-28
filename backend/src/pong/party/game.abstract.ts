@@ -37,7 +37,14 @@ export abstract class Game {
 
   protected canva: PositionClass;
 
-  constructor(p1: Player, p2: Player, winCondition: number, name: string) {
+  constructor(
+    p1: Player,
+    p2: Player,
+    winCondition: number,
+    name: string,
+    io: Server
+  ) {
+    this.io = io;
     this.player1 = p1;
     this.player2 = p2;
     this.partyName = name;

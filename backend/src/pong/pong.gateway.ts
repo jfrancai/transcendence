@@ -46,13 +46,13 @@ export class PongGateway
   @SubscribeMessage('joinClassicWaitingRoom')
   handleJoinWaitingRoom(client: PongSocket) {
     this.logger.debug('classic');
-    this.pongService.handleJoinWaitingRoom(client, 'classic');
+    this.pongService.handleJoinWaitingRoom(client, 'classic', this.io);
   }
 
   @SubscribeMessage('joinSpeedWaitingRoom')
   handleSpeedJoinWaitingRoom(client: PongSocket) {
     this.logger.debug('speed');
-    this.pongService.handleJoinWaitingRoom(client, 'speed');
+    this.pongService.handleJoinWaitingRoom(client, 'speed', this.io);
   }
 
   @SubscribeMessage('playerRole')
