@@ -54,8 +54,8 @@ export class PongService {
     }
   }
 
-  handleDestroyClassicInvite(player1: PongSocket, player2: PongSocket) {
-    this.classicWaitingRoom.handleDestroyInvite(player1, player2);
+  handleDestroyClassicInvite(player1: PongSocket) {
+    this.classicWaitingRoom.handleDestroyInvite(player1);
   }
 
   handleCreateSpeedInvite(player1: PongSocket, player2: PongSocket) {
@@ -64,8 +64,8 @@ export class PongService {
     }
   }
 
-  handleDestroySpeedInvite(player1: PongSocket, player2: PongSocket) {
-    this.speedWaitingRoom.handleDestroyInvite(player1, player2);
+  handleDestroySpeedInvite(player1: PongSocket) {
+    this.speedWaitingRoom.handleDestroyInvite(player1);
   }
 
   handleAcceptClassicInvite(client: PongSocket, io: Server) {

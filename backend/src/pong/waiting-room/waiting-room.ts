@@ -218,12 +218,12 @@ export class WaitingRoom {
     return true;
   }
 
-  handleDestroyInvite(player1: PongSocket, player2: PongSocket): boolean {
+  handleDestroyInvite(player1: PongSocket): boolean {
     const id = player1.user.id!;
     const invite = this.getInvite(id);
     if (invite && this.isInviteCreator(id, invite)) {
       this.deleteInvite(invite);
-      player2.emit('inviteDestroy');
+      invite.player2.emit('inviteDestroy');
       return true;
     }
     return false;

@@ -18,6 +18,8 @@ export class PongGateway
 {
   private readonly logger = new Logger(PongGateway.name);
 
+  private socketMap = new Map<string, PongSocket>();
+
   @WebSocketServer() io: Server;
 
   constructor(private pongService: PongService) {}
@@ -28,12 +30,14 @@ export class PongGateway
 
   handleConnection(client: PongSocket): any {
     this.pongService.handleConnection(client);
+    this.socketMap.set(client.user.id!, client);
     this.logger.debug(`New connection : ${client.user.id}`);
   }
 
   handleDisconnect(client: PongSocket): any {
     this.pongService.handlePlayerReady(client, false);
     this.pongService.handleLeaveWaitingRoom(client);
+    this.socketMap.delete(client.user.id!);
     this.logger.debug(`Disconnected : ${client.user.id}`);
   }
 
@@ -61,6 +65,34 @@ export class PongGateway
   @SubscribeMessage('playAgain')
   handlePlayAgain(client: PongSocket) {
     client.emit('playAgain');
+  }
+
+  @SubscribeMessage('createClassicInvite')
+  async handleCreateClassicInvite(client: PongSocket, invitedId: string) {
+    const idClient = client.user.id!;
+    const player2 = this.socketMap.get(invitedId);
+    if (idClient !== invitedId && player2) {
+      this.pongService.handleCreateClassicInvite(client, player2);
+    }
+  }
+
+  @SubscribeMessage('destroyClassicInvite')
+  async handleDestroyClassicInvite(client: PongSocket) {
+    this.pongService.handleDestroyClassicInvite(client);
+  }
+
+  @SubscribeMessage('createSpeedInvite')
+  async handleCreateSpeedInvite(client: PongSocket, invitedId: string) {
+    const idClient = client.user.id!;
+    const player2 = this.socketMap.get(invitedId);
+    if (idClient !== invitedId && player2) {
+      this.pongService.handleCreateSpeedInvite(client, player2);
+    }
+  }
+
+  @SubscribeMessage('destroySpeedInvite')
+  async handleDestroySpeedInvite(client: PongSocket) {
+    this.pongService.handleDestroySpeedInvite(client);
   }
 
   @SubscribeMessage('initialState')
