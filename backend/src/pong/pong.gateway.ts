@@ -95,6 +95,26 @@ export class PongGateway
     this.pongService.handleDestroySpeedInvite(client);
   }
 
+  @SubscribeMessage('acceptClassicInvite')
+  async handleAcceptClassicInvite(client: PongSocket) {
+    this.pongService.handleAcceptClassicInvite(client, this.io);
+  }
+
+  @SubscribeMessage('acceptSpeedInvite')
+  async handleAcceptSpeedInvite(client: PongSocket) {
+    this.pongService.handleAcceptSpeedInvite(client, this.io);
+  }
+
+  @SubscribeMessage('denyClassicInvite')
+  async handleDenyClassicInvite(client: PongSocket) {
+    this.pongService.handleDenyClassicInvite(client);
+  }
+
+  @SubscribeMessage('denySpeedInvite')
+  async handleDenySpeedInvite(client: PongSocket) {
+    this.pongService.handleDenySpeedInvite(client);
+  }
+
   @SubscribeMessage('initialState')
   handleInitialState(client: PongSocket) {
     client.emit('gameState', ClassicParty.getInitGameState());

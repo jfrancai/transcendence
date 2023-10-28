@@ -1,3 +1,4 @@
+import { useNavigate } from 'react-router-dom';
 import { useState } from 'react';
 import ProfilePicture from '../ProfilePicture/ProfilePicture';
 import SecondaryButton from '../../SecondaryButton/SecondaryButton';
@@ -12,6 +13,11 @@ interface ChatMessageProps {
 
 function ChatMessage({ message, time, username, noBgColor }: ChatMessageProps) {
   const [clicked, setClicked] = useState(false);
+  const navigate = useNavigate();
+
+  const handleInvite = () => {
+    navigate('/pong');
+  };
   return (
     <div
       className={`${noBgColor ? '' : 'bg-pong-blue-400'}
@@ -26,8 +32,13 @@ function ChatMessage({ message, time, username, noBgColor }: ChatMessageProps) {
           <p className="text-sm font-bold text-pong-blue-100">{time}</p>
         </div>
         {clicked ? (
-          <div className="flex justify-center">
-            <SecondaryButton className="mt-3" span="See Profile" />
+          <div className="flex justify-center gap-5">
+            <SecondaryButton className="mt-3" span="Profile" />
+            <SecondaryButton
+              onClick={handleInvite}
+              className="mt-3"
+              span="Invite"
+            />
           </div>
         ) : (
           <p className="mt-3 text-base text-pong-white">{message}</p>
