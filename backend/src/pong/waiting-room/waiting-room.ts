@@ -10,7 +10,9 @@ interface PartyConstructor<GameType> {
   new (p1: Player, p2: Player, name: string): GameType;
 }
 
-export abstract class WaitingRoom {
+export class WaitingRoom {
+  private waitingPlayer: PongSocket | undefined;
+
   protected roomName: string = uuid();
 
   protected PartyConstructor: PartyConstructor<Game>;
@@ -22,11 +24,35 @@ export abstract class WaitingRoom {
   constructor(PartyConstructor: PartyConstructor<Game>) {
     this.PartyConstructor = PartyConstructor;
   }
-  abstract handleLeaveWaitingRoom(client: PongSocket): void;
-  abstract handleJoinWaitingRoom(
-    client: PongSocket,
-    PartyConstructor: PartyConstructor<Game>
-  ): void;
+
+  private isUserWaiting(id: UserID) {
+    if (this.waitingPlayer) {
+      return id === this.waitingPlayer.id;
+    }
+    return false;
+  }
+
+  handleLeaveWaitingRoom(client: PongSocket) {
+    const clientID = client.user.id!;
+    if (this.isUserWaiting(clientID)) {
+      this.waitingPlayer = undefined;
+      client.emit('leaveWaitingRoom');
+    }
+  }
+
+  handleJoinWaitingRoom(client: PongSocket) {
+    const clientID = client.user.id!;
+    const party = this.getParty(clientID);
+    if (party) return;
+
+    client.join(this.roomName);
+    if (this.waitingPlayer) {
+      this.joinParty(this.waitingPlayer, client);
+      this.waitingPlayer = undefined;
+    }
+    this.waitingPlayer = client;
+    client.emit('joinWaitingRoom');
+  }
 
   protected joinParty(client1: PongSocket, client2: PongSocket) {
     const player1 = new Player(client1, 1);
