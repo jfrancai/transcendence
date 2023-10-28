@@ -4,12 +4,12 @@ import { PongSocket } from '../pong.interface';
 export class Invite {
   partyName: string = uuid();
 
-  idInvited: string;
+  player1: PongSocket;
 
-  playerInviting: PongSocket;
+  player2: PongSocket;
 
-  constructor(socketP1: PongSocket, idInvited: string) {
-    this.playerInviting = socketP1;
-    this.idInvited = idInvited;
+  constructor(p1: PongSocket, p2: PongSocket) {
+    this.player1 = p1;
+    this.player2 = p2;
   }
 }

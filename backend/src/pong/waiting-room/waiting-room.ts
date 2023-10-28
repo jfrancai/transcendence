@@ -13,13 +13,13 @@ interface PartyConstructor<GameType> {
 export class WaitingRoom {
   private waitingPlayer: PongSocket | undefined;
 
-  protected roomName: string = uuid();
+  private roomName: string = uuid();
 
-  protected PartyConstructor: PartyConstructor<Game>;
+  private PartyConstructor: PartyConstructor<Game>;
 
-  protected parties: Map<RoomName | UserID, Game> = new Map();
+  private parties: Map<RoomName | UserID, Game> = new Map();
 
-  protected invites: Map<UserID, Invite> = new Map();
+  private invites: Map<UserID, Invite> = new Map();
 
   constructor(PartyConstructor: PartyConstructor<Game>) {
     this.PartyConstructor = PartyConstructor;
@@ -48,21 +48,29 @@ export class WaitingRoom {
     }
   }
 
-  handleJoinWaitingRoom(client: PongSocket, io: Server) {
-    const clientID = client.user.id!;
-    const party = this.getParty(clientID);
-    if (party || this.invites.get(client.user.id!)) return;
+  isInParty(id: UserID) {
+    if (this.getParty(id)) return true;
+    return false;
+  }
 
+  isInInviteRoom(id: UserID) {
+    if (this.getInvite(id)) return true;
+    return false;
+  }
+
+  handleJoinWaitingRoom(client: PongSocket, io: Server) {
     client.join(this.roomName);
     if (this.waitingPlayer) {
       this.joinParty(this.waitingPlayer, client, io);
       this.waitingPlayer = undefined;
+      return false;
     }
     this.waitingPlayer = client;
     client.emit('joinWaitingRoom');
+    return true;
   }
 
-  protected joinParty(client1: PongSocket, client2: PongSocket, io: Server) {
+  private joinParty(client1: PongSocket, client2: PongSocket, io: Server) {
     const player1 = new Player(client1, 1);
     const player2 = new Player(client2, 2);
 
@@ -79,11 +87,11 @@ export class WaitingRoom {
     this.roomName = uuid();
   }
 
-  protected getParty(id: RoomName | UserID) {
+  getParty(id: RoomName | UserID) {
     return this.parties.get(id);
   }
 
-  protected removeParty(id: RoomName | UserID) {
+  private removeParty(id: RoomName | UserID) {
     return this.parties.delete(id);
   }
 
@@ -173,12 +181,13 @@ export class WaitingRoom {
   }
 
   private isInvited(id: UserID, invite: Invite) {
-    return invite.idInvited === id;
+    if (!invite) return false;
+    return invite.player2.user.id === id;
   }
 
   private isInviteCreator(id: UserID, invite: Invite) {
     if (!invite) return false;
-    return invite.playerInviting.user.id! === id;
+    return invite.player1.user.id! === id;
   }
 
   private getInvite(id: UserID) {
@@ -186,46 +195,61 @@ export class WaitingRoom {
   }
 
   private deleteInvite(invite: Invite) {
-    this.invites.delete(invite.idInvited);
-    this.invites.delete(invite.playerInviting.user.id!);
+    this.invites.delete(invite.player1.user.id!);
+    this.invites.delete(invite.player2.user.id!);
   }
 
-  handleCreateInvite(client: PongSocket, idInvited: UserID) {
-    const id = client.user.id!;
-    if (this.getParty(id) === undefined && this.getInvite(id) === undefined) {
-      const invite = new Invite(client, idInvited);
-
-      client.join(invite.partyName);
-
-      this.invites.set(id, invite);
-      this.invites.set(idInvited, invite);
-    }
+  private createInvite(player1: PongSocket, player2: PongSocket) {
+    const invite = new Invite(player1, player2);
+    player1.join(invite.partyName);
+    this.invites.set(player1.user.id!, invite);
+    this.invites.set(player2.user.id!, invite);
   }
 
-  handleDestroyInvite(client: PongSocket) {
-    const id = client.user.id!;
-    const invite = this.invites.get(id);
+  handleCreateInvite(player1: PongSocket, player2: PongSocket): boolean {
+    const id1 = player1.user.id!;
+    if (this.getParty(id1) || this.getInvite(id1)) return false;
+    this.createInvite(player1, player2);
+    player1.emit('playerInvited');
+    player2.emit('invite', {
+      mode: this.PartyConstructor === ClassicParty ? 'classic' : 'speed',
+      username: player1.user.username
+    });
+    return true;
+  }
+
+  handleDestroyInvite(player1: PongSocket, player2: PongSocket): boolean {
+    const id = player1.user.id!;
+    const invite = this.getInvite(id);
     if (invite && this.isInviteCreator(id, invite)) {
-      this.invites.delete(invite.idInvited);
-      this.invites.delete(invite.playerInviting.user.id!);
-    }
-  }
-
-  handleAcceptInvite(client: PongSocket, io: Server) {
-    const id = client.user.id!;
-    const invite = this.invites.get(id);
-    if (invite && invite.idInvited === id) {
-      client.join(invite.partyName);
-      this.joinParty(invite.playerInviting, client, io);
-    }
-  }
-
-  handleDenyInvite(client: PongSocket) {
-    const id = client.user.id!;
-    const invite = this.invites.get(id);
-    if (invite && invite.idInvited === id) {
-      invite.playerInviting.emit('inviteDenied');
       this.deleteInvite(invite);
+      player2.emit('inviteDestroy');
+      return true;
     }
+    return false;
+  }
+
+  handleAcceptInvite(player2: PongSocket, io: Server): boolean {
+    const id = player2.user.id!;
+    const invite = this.getInvite(id);
+    if (invite && this.isInvited(id, invite)) {
+      invite.player1.emit('inviteAccept');
+      player2.join(invite.partyName);
+      this.joinParty(invite.player1, player2, io);
+      this.deleteInvite(invite);
+      return true;
+    }
+    return false;
+  }
+
+  handleDenyInvite(player2: PongSocket): boolean {
+    const id = player2.user.id!;
+    const invite = this.getInvite(id);
+    if (invite && this.isInvited(id, invite)) {
+      invite.player1.emit('inviteDenied');
+      this.deleteInvite(invite);
+      return true;
+    }
+    return false;
   }
 }
