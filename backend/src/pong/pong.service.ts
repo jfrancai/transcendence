@@ -1,9 +1,9 @@
+import { Server } from 'socket.io';
 import { Injectable } from '@nestjs/common';
 import { PongSocket, UserID } from './pong.interface';
 import { WaitingRoom } from './waiting-room/waiting-room';
 import { ClassicParty } from './party/classic-party/classic-party';
 import { SpeedParty } from './party/speed-ball-party/speed-party';
-import { Server } from 'socket.io';
 
 @Injectable()
 export class PongService {

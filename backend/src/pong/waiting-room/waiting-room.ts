@@ -51,7 +51,7 @@ export class WaitingRoom {
   handleJoinWaitingRoom(client: PongSocket, io: Server) {
     const clientID = client.user.id!;
     const party = this.getParty(clientID);
-    if (party || this.isInvited(client.user.id!)) return;
+    if (party || this.invites.get(client.user.id!)) return;
 
     client.join(this.roomName);
     if (this.waitingPlayer) {
@@ -185,6 +185,11 @@ export class WaitingRoom {
     return this.invites.get(id);
   }
 
+  private deleteInvite(invite: Invite) {
+    this.invites.delete(invite.idInvited);
+    this.invites.delete(invite.playerInviting.user.id!);
+  }
+
   handleCreateInvite(client: PongSocket, idInvited: UserID) {
     const id = client.user.id!;
     if (this.getParty(id) === undefined && this.getInvite(id) === undefined) {
@@ -209,21 +214,18 @@ export class WaitingRoom {
   handleAcceptInvite(client: PongSocket, io: Server) {
     const id = client.user.id!;
     const invite = this.invites.get(id);
-    if (!invite) return 'Not invited by any one';
-    if (invite.idInvited === id) {
+    if (invite && invite.idInvited === id) {
       client.join(invite.partyName);
       this.joinParty(invite.playerInviting, client, io);
-      return 'ok';
     }
-    return 'This is not your invite';
   }
 
-  handleDenyInvite(client: PongSocket, io: Server) {
+  handleDenyInvite(client: PongSocket) {
     const id = client.user.id!;
     const invite = this.invites.get(id);
-    if (!invite) return 'Not invited by any one';
-    if (invite.idInvited === id) {
-      this.io;
+    if (invite && invite.idInvited === id) {
+      invite.playerInviting.emit('inviteDenied');
+      this.deleteInvite(invite);
     }
   }
 }
