@@ -1,79 +1,61 @@
 import { Server } from 'socket.io';
-import { Injectable, Logger } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { MatchService } from 'src/database/service/match.service';
-import { PongSocket, Status } from './pong.interface';
-import { ClassicWaitingRoom } from './waiting-room/waiting-room';
-import { PartyClassic } from './party/party';
+import { PongSocket, UserID } from './pong.interface';
+import { WaitingRoom } from './waiting-room/waiting-room';
+import { ClassicParty } from './party/classic-party/classic-party';
+import { SpeedParty } from './party/speed-ball-party/speed-party';
 
 @Injectable()
 export class PongService {
-  private readonly logger = new Logger('PongService');
+  private rooms: Map<UserID, WaitingRoom> = new Map();
 
-  constructor(
-    private waitingRoomService: ClassicWaitingRoom,
-    private matchService: MatchService
-  ) {}
+  private speedWaitingRoom: WaitingRoom = new WaitingRoom('speed');
+
+  private classicWaitingRoom: WaitingRoom = new WaitingRoom('classic');
+
+  constructor(private matchService: MatchService) { }
 
   handleConnection(client: PongSocket): any {
-    const clientID = client.user.id!;
-    const party = this.waitingRoomService.getParty(clientID);
-    let status: Status;
-    if (party) {
-      client.join(party.partyName);
-      if (party.isStarted) {
-        status = 'partyStarted';
-      } else {
-        status = 'partyNotStarted';
-      }
-    } else if (this.waitingRoomService.isUserWaiting(clientID)) {
-      status = 'waitingRoom';
-    } else {
-      status = 'default';
-    }
-    client.emit('connection', status);
+    this.classicWaitingRoom.handleConnection(client);
+    const room = this.rooms.get(client.user.id!);
+    if (room) room.handleConnection(client);
   }
 
-  handleJoinWaitingRoom(client: PongSocket, io: Server) {
-    const clientID = client.user.id!;
-    const party = this.waitingRoomService.getParty(clientID);
-    if (party) return;
-
-    this.waitingRoomService.joinParty(client, io);
-    client.emit('joinWaitingRoom');
+  handleJoinWaitingRoom(
+    client: PongSocket,
+    io: Server,
+    type: 'classic' | 'speed'
+  ) {
+    if (type === 'classic') {
+      this.classicWaitingRoom.handleJoinWaitingRoom(client, io, ClassicParty);
+      this.rooms.set(client.user.id!, this.classicWaitingRoom);
+    } else {
+      this.speedWaitingRoom.handleJoinWaitingRoom(client, io, SpeedParty);
+      this.rooms.set(client.user.id!, this.speedWaitingRoom);
+    }
   }
 
   handleLeaveWaitingRoom(client: PongSocket) {
-    const clientID = client.user.id!;
-    this.waitingRoomService.leaveWaitingRoom(clientID);
-    client.emit('leaveWaitingRoom');
+    const room = this.rooms.get(client.user.id!);
+    if (room) room.handleLeaveWaitingRoom(client);
   }
 
   handleRole(client: PongSocket) {
-    const clientID = client.user.id!;
-    const party = this.waitingRoomService.getParty(clientID);
-    const response = { role: 0 };
-    if (party) {
-      if (party.isPlayer1(clientID)) {
-        response.role = 1;
-      } else {
-        response.role = 2;
-      }
+    const room = this.rooms.get(client.user.id!);
+    if (room) {
+      room.handleRole(client);
     }
-    client.emit('playerRole', response);
   }
 
   handleIsPlayerReady(client: PongSocket) {
-    const clientID = client.user.id!;
-    const party = this.waitingRoomService.getParty(clientID);
-    let ready = false;
-    if (party) {
-      ready = party.isPlayer1(clientID)
-        ? party.player1.isReady
-        : party.player2.isReady;
+    const room = this.rooms.get(client.user.id!);
+    if (room) {
+      room.handleIsPlayerReady(client);
     }
-    client.emit('isPlayerReady', ready);
   }
 
+<<<<<<< HEAD
   handlePlayerReady(client: PongSocket) {
     const clientID = client.user.id!;
     const party = this.waitingRoomService.getParty(clientID);
@@ -86,21 +68,26 @@ export class PongService {
         this.waitingRoomService.removeParty(party.player2.id);
         this.waitingRoomService.removeParty(party.player1.id);
       });
+=======
+  handlePlayerReady(client: PongSocket, isReady: boolean) {
+    const room = this.rooms.get(client.user.id!);
+    if (room) {
+      room.handlePlayerReady(client, isReady, this.matchService);
+>>>>>>> main
     }
-    client.emit('playerReady', ready);
   }
 
   handleArrowUp(client: PongSocket, isPressed: boolean) {
-    const party = this.waitingRoomService.getParty(client.user.id!);
-    if (party) {
-      party.movePaddle(client.user.id!, 'ArrowUp', isPressed);
+    const room = this.rooms.get(client.user.id!);
+    if (room) {
+      room.handleArrowUp(client, isPressed);
     }
   }
 
   handleArrowDown(client: PongSocket, isPressed: boolean) {
-    const party = this.waitingRoomService.getParty(client.user.id!);
-    if (party) {
-      party.movePaddle(client.user.id!, 'ArrowDown', isPressed);
+    const room = this.rooms.get(client.user.id!);
+    if (room) {
+      room.handleArrowDown(client, isPressed);
     }
   }
 

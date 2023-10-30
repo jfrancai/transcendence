@@ -1,5 +1,5 @@
-import { Canva } from './canva';
-import { PADDLE_SPEED } from './classic-game-param';
+import { ClassicCanva } from './classic-party/classic-canva';
+import { PADDLE_SPEED } from './classic-party/classic-game-param';
 import { PositionClass } from './position';
 
 interface PaddleState {
@@ -10,7 +10,7 @@ interface PaddleState {
   dy: number;
 }
 
-export class Paddle extends PositionClass {
+export abstract class Paddle extends PositionClass {
   private isDownActive: boolean = false;
 
   private isUpActive: boolean = false;
@@ -43,7 +43,7 @@ export class Paddle extends PositionClass {
     }
   }
 
-  updatePosition(canva: Canva) {
+  updatePosition(canva: ClassicCanva) {
     if (this.isUpActive && !this.isDownActive) {
       this.dy = -1;
       if (this.y < 0) {

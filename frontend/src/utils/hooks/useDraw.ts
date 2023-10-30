@@ -1,4 +1,4 @@
-import { useGameOver } from './useGameOver';
+import { usePongStateContext } from '../../contexts/pongState';
 import { useGameState } from './useGameState';
 
 export function useDraw(): {
@@ -7,7 +7,7 @@ export function useDraw(): {
   height: number;
 } {
   const { gameState } = useGameState();
-  const { isGameOver } = useGameOver();
+  const { isSpeedModeMatchEnd, isClassicMatchModeEnd } = usePongStateContext();
 
   // dessine ligne poitillee au centre
   const drawNet = (context: CanvasRenderingContext2D) => {
@@ -57,27 +57,23 @@ export function useDraw(): {
   const drawPaddle = (
     context: CanvasRenderingContext2D,
     x: number,
-    y: number
+    y: number,
+    width: number,
+    height: number
   ) => {
-    if (gameState) {
-      context.fillStyle = '#ffffff';
-      context.fillRect(
-        x,
-        y,
-        gameState.leftPaddle.width,
-        gameState.leftPaddle.height
-      );
-    }
+    context.fillStyle = '#ffffff';
+    context.fillRect(x, y, width, height);
   };
 
   // dessiner la balle
   const drawBall = (
     context: CanvasRenderingContext2D,
     x: number,
-    y: number
+    y: number,
+    radius: number
   ) => {
     context.beginPath();
-    context.arc(x, y, 5, 0, Math.PI * 2);
+    context.arc(x, y, radius, 0, Math.PI * 2);
     context.fillStyle = '#ffffff';
     context.fill();
     context.closePath();
@@ -119,7 +115,7 @@ export function useDraw(): {
 
   const drawClassicGame = (context: CanvasRenderingContext2D) => {
     resetCanvas(context);
-    if (gameState && isGameOver) {
+    if (gameState && (isClassicMatchModeEnd || isSpeedModeMatchEnd)) {
       if (gameState.scorePlayer1 >= gameState.maxScore) {
         drawGameOverMessage(context, 'Player 1 Wins');
       } else {
@@ -130,9 +126,26 @@ export function useDraw(): {
       drawNet(context);
       drawUpperLine(context);
       drawLowerLine(context);
-      drawPaddle(context, gameState.leftPaddle.x, gameState.leftPaddle.y);
-      drawPaddle(context, gameState.rightPaddle.x, gameState.rightPaddle.y);
-      drawBall(context, gameState.ball.x, gameState.ball.y);
+      drawPaddle(
+        context,
+        gameState.leftPaddle.x,
+        gameState.leftPaddle.y,
+        gameState.leftPaddle.width,
+        gameState.leftPaddle.height
+      );
+      drawPaddle(
+        context,
+        gameState.rightPaddle.x,
+        gameState.rightPaddle.y,
+        gameState.rightPaddle.width,
+        gameState.rightPaddle.height
+      );
+      drawBall(
+        context,
+        gameState.ball.x,
+        gameState.ball.y,
+        gameState.ball.radius
+      );
     }
   };
 

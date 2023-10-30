@@ -1,37 +1,16 @@
-import { useEffect, useState } from 'react';
+import { useEffect } from 'react';
+import { usePongStateContext } from '../../contexts/pongState';
 import { useSocketContext } from '../../contexts/socket';
-import { useConnection } from './useConnection';
 
-export function useGameOver(): { isGameOver: boolean } {
+export function useGameOver() {
   const { socket } = useSocketContext();
-  const [isGameOver, setIsGameOver] = useState(false);
-  const { pongStatus } = useConnection();
+  const { END_MATCH } = usePongStateContext();
 
   useEffect(() => {
-    if (pongStatus === 'partyEnded') {
-      setIsGameOver(true);
-    } else {
-      setIsGameOver(false);
-    }
-  }, [pongStatus]);
-
-  useEffect(() => {
-    const onGameOver = () => {
-      setIsGameOver(true);
-    };
-
-    const onPlayAgain = () => {
-      setIsGameOver(false);
-    };
-
-    socket.on('gameOver', onGameOver);
-    socket.on('playAgain', onPlayAgain);
+    socket.on('gameOver', END_MATCH);
 
     return () => {
-      socket.off('gameOver', onGameOver);
-      socket.off('playAgain', onPlayAgain);
+      socket.off('gameOver', END_MATCH);
     };
-  }, [socket]);
-
-  return { isGameOver };
+  }, [socket, END_MATCH]);
 }

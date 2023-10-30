@@ -16,8 +16,12 @@ interface Canva {
   height: number;
 }
 
+interface Ball extends Position {
+  radius: number;
+}
+
 interface GameState {
-  ball: Position;
+  ball: Ball;
   leftPaddle: Paddle;
   rightPaddle: Paddle;
   canva: Canva;

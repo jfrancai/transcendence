@@ -9,8 +9,8 @@ import {
 } from '@nestjs/websockets';
 import { Server } from 'socket.io';
 import { PongSocket } from './pong.interface';
-import { PartyClassic } from './party/party';
 import { PongService } from './pong.service';
+import { ClassicParty } from './party/classic-party/classic-party';
 
 @WebSocketGateway()
 export class PongGateway
@@ -32,18 +32,27 @@ export class PongGateway
   }
 
   handleDisconnect(client: PongSocket): any {
+    this.pongService.handlePlayerReady(client, false);
     this.pongService.handleLeaveWaitingRoom(client);
     this.logger.debug(`Disconnected : ${client.user.id}`);
   }
 
   @SubscribeMessage('leaveWaitingRoom')
   handleLeaveWaitingRoom(client: PongSocket) {
+    this.pongService.handlePlayerReady(client, false);
     this.pongService.handleLeaveWaitingRoom(client);
   }
 
-  @SubscribeMessage('joinWaitingRoom')
+  @SubscribeMessage('joinClassicWaitingRoom')
   handleJoinWaitingRoom(client: PongSocket) {
-    this.pongService.handleJoinWaitingRoom(client, this.io);
+    this.logger.debug('classic');
+    this.pongService.handleJoinWaitingRoom(client, this.io, 'classic');
+  }
+
+  @SubscribeMessage('joinSpeedWaitingRoom')
+  handleSpeedJoinWaitingRoom(client: PongSocket) {
+    this.logger.debug('speed');
+    this.pongService.handleJoinWaitingRoom(client, this.io, 'speed');
   }
 
   @SubscribeMessage('playerRole')
@@ -58,12 +67,17 @@ export class PongGateway
 
   @SubscribeMessage('initialState')
   handleInitialState(client: PongSocket) {
-    client.emit('gameState', PartyClassic.getInitGameState());
+    client.emit('gameState', ClassicParty.getInitGameState());
   }
 
   @SubscribeMessage('playerReady')
   handlePlayerReady(client: PongSocket) {
-    this.pongService.handlePlayerReady(client);
+    this.pongService.handlePlayerReady(client, true);
+  }
+
+  @SubscribeMessage('playerNotReady')
+  handlePlayerNotReady(client: PongSocket) {
+    this.pongService.handlePlayerReady(client, false);
   }
 
   @SubscribeMessage('isPlayerReady')

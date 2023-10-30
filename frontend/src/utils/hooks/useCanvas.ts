@@ -19,7 +19,7 @@ export function useCanvas(draw: (context: CanvasRenderingContext2D) => void) {
     return () => {
       window.cancelAnimationFrame(animationFrameId);
     };
-  });
+  }, [draw]);
 
   return ref;
 }
