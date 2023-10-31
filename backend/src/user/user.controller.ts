@@ -18,6 +18,7 @@ import * as bcrypt from 'bcrypt';
 import { CONST_SALT } from 'src/auth/constants';
 import { AuthService } from 'src/auth/auth.service';
 import { RemoveService } from './service/remove.service';
+import { PongService } from 'src/pong/pong.service';
 
 type UserDto = {
   id: string;
@@ -41,7 +42,8 @@ export class UserController {
   constructor(
     private readonly usersService: UsersService,
     private readonly removeService: RemoveService,
-    private readonly authService: AuthService
+    private readonly authService: AuthService,
+    private readonly pongService: PongService
   ) {}
 
   @Post('jwt')
@@ -57,6 +59,22 @@ export class UserController {
   @Get(':username')
   async getProfile(@Param('username') username: string) {
     return this.removeService.removeSensitiveData({ username });
+  }
+
+  @Get('status/:username')
+  async getUserStatus(@Param('username') username: string) {
+    const user = await this.usersService.getUser({ username });
+    if (user) {
+      let status = 'disconnected';
+      if (user.connectedChat) {
+        status = 'chatConnected'
+      }
+      if (this.pongService.isInParty(user.id)) {
+        status = 'inGame';
+      }
+      return { status }
+    }
+    return {};
   }
 
   @Get('match-history/:username')

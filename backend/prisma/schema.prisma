@@ -21,6 +21,7 @@ model Users {
   apiToken        String?
   maxAge          Int       @default(0)
   connectedChat   Boolean   @default(false)
+  inGame          Boolean   @default(false)
   matchWinned     Match[]   @relation(name: "win")
   matchLost       Match[]   @relation(name: "lost")
   channels        Channel[]

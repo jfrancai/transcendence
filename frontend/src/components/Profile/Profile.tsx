@@ -5,8 +5,16 @@ import axios, { AxiosResponse, AxiosRequestConfig } from 'axios';
 import { CONST_BACKEND_URL } from '@constant';
 import ModifyProfile from './ModifyProfile';
 import { isError } from '../../utils/functions/isError';
-import { Navbar } from '../Navbar/Navbar';
 import MatchHistory from './MatchHistory';
+import jwt_decode from 'jwt-decode';
+import { useParams } from 'react-router-dom';
+
+interface DecodedToken {
+  username: string;
+  email: string;
+  iat: string;
+  exp: string;
+}
 
 type DataUser = { img: string; username: string; uuid: string };
 
@@ -18,7 +26,29 @@ export default function Profile() {
   const [option, setOption] = useState<boolean>(false);
   const [imagePreview, setImagePreview] = useState<string | null>(null);
 
+  const jwt = localStorage.getItem('jwt');
+  const decodedToken: DecodedToken = jwt_decode(jwt!);
+
+  const { username } = useParams();
+
+
   useEffect(() => {
+    const url = `${CONST_BACKEND_URL}/user/status/${
+      !username ? decodedToken.username : username
+    }`;
+
+    const config: AxiosRequestConfig = {
+      withCredentials: true,
+      headers: { Authorization: `Bearer ${jwt!}` }
+    };
+
+    axios
+      .get(url, config)
+      .then((data: any) => {
+        console.log(data.data);
+      })
+      .catch(() => {});
+
     const handleNavigation = () => {
       document.body.className = 'preload';
       setTimeout(() => {

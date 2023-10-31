@@ -22,6 +22,10 @@ export class PongService {
     if (room) room.handleConnection(client);
   }
 
+  isInParty(id: UserID) {
+    return this.speedWaitingRoom.isInParty(id) || this.classicWaitingRoom.isInParty(id);
+  }
+
   handleJoinSpeedWaitingRoom(client: PongSocket, io: Server) {
     const id = client.user.id!;
     if (

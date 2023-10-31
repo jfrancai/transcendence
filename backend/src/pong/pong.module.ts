@@ -5,6 +5,7 @@ import { PongService } from './pong.service';
 
 @Module({
   imports: [DatabaseModule],
-  providers: [PongGateway, PongService]
+  providers: [PongGateway, PongService],
+  exports: [PongService]
 })
 export class PongModule {}

@@ -89,6 +89,16 @@ export default class ChatGateway
       apiToken: 'toto',
       connectedChat: false
     });
+    await this.usersService.createUser({
+      id: '55555555-915b-472d-beee-ed53fec63008',
+      email: 'tata@student.42.fr',
+      username: 'tata',
+      password: 'tata',
+      twoAuthOn: false,
+      twoAuthSecret: 'tata',
+      apiToken: 'tata',
+      connectedChat: false
+    });
 
     // /!\ To remove test only /!\
     this.logger.log('Initialized');
