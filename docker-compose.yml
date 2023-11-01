@@ -1,0 +1,33 @@
+version: "3.8"
+
+services:
+  db:
+    container_name: db
+    image: postgres:latest
+    restart: always
+    build:
+      context: ./backend
+    env_file:
+      - .db.env
+    networks:
+      - my-network
+    ports:
+      - 5432:5432
+
+  backend:
+    container_name: server
+    depends_on:
+      - db-42
+    build:
+      context: ./backend/
+      dockerfile: Dockerfile
+    env_file:
+      - .env
+    networks:
+      - my-network
+    port:
+      - "3000:3000"
+
+networks:
+  my-network:
+    driver: bridge
